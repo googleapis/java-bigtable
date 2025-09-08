@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.admin.v2.internal;
 import com.google.api.core.InternalApi;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
 
 /**
  * Internal helper to compose full resource names.
@@ -37,6 +38,9 @@ public class NameUtil {
   private static final Pattern AUTHORIZED_VIEW_PATTERN =
       Pattern.compile("projects/([^/]+)/instances/([^/]+)/tables/([^/]+)/authorizedViews/([^/]+)");
 
+  private static final Pattern SCHEMA_BUNDLE_PATTERN =
+      Pattern.compile("projects/([^/]+)/instances/([^/]+)/tables/([^/]+)/schemaBundles/([^/]+)");
+
   public static String formatProjectName(String projectId) {
     return "projects/" + projectId;
   }
@@ -47,6 +51,16 @@ public class NameUtil {
 
   public static String formatTableName(String projectId, String instanceId, String tableId) {
     return formatInstanceName(projectId, instanceId) + "/tables/" + tableId;
+  }
+
+  public static String formatMaterializedViewName(
+      @Nonnull String projectId, @Nonnull String instanceId, @Nonnull String materializedViewId) {
+    return formatInstanceName(projectId, instanceId) + "/materializedViews/" + materializedViewId;
+  }
+
+  public static String formatLogicalViewName(
+      @Nonnull String projectId, @Nonnull String instanceId, @Nonnull String logicalViewId) {
+    return formatInstanceName(projectId, instanceId) + "/logicalViews/" + logicalViewId;
   }
 
   public static String formatLocationName(String projectId, String zone) {
@@ -61,6 +75,11 @@ public class NameUtil {
   public static String formatAuthorizedViewName(
       String projectId, String instanceId, String tableId, String viewId) {
     return formatTableName(projectId, instanceId, tableId) + "/authorizedViews/" + viewId;
+  }
+
+  public static String formatSchemaBundleName(
+      String projectId, String instanceId, String tableId, String bundleId) {
+    return formatTableName(projectId, instanceId, tableId) + "/schemaBundles/" + bundleId;
   }
 
   public static String extractTableIdFromTableName(String fullTableName) {
@@ -84,6 +103,14 @@ public class NameUtil {
     Matcher matcher = AUTHORIZED_VIEW_PATTERN.matcher(fullAuthorizedViewName);
     if (!matcher.matches()) {
       throw new IllegalArgumentException("Invalid authorized view name: " + fullAuthorizedViewName);
+    }
+    return matcher.group(4);
+  }
+
+  public static String extractSchemaBundleIdFromSchemaBundleName(String fullSchemaBundleName) {
+    Matcher matcher = SCHEMA_BUNDLE_PATTERN.matcher(fullSchemaBundleName);
+    if (!matcher.matches()) {
+      throw new IllegalArgumentException("Invalid schema bundle name: " + fullSchemaBundleName);
     }
     return matcher.group(4);
   }

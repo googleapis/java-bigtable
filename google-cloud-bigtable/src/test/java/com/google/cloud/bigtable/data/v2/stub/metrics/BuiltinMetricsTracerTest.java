@@ -35,9 +35,11 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTestU
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTestUtils.getMetricData;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTestUtils.verifyAttributes;
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import com.google.api.client.util.Lists;
 import com.google.api.core.ApiFunction;
+import com.google.api.core.ApiFuture;
 import com.google.api.core.SettableApiFuture;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatchingException;
@@ -68,6 +70,7 @@ import com.google.cloud.bigtable.data.v2.models.TableId;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Comparators;
 import com.google.common.collect.Range;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
@@ -98,6 +101,8 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.charset.Charset;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -134,7 +139,7 @@ public class BuiltinMetricsTracerTest {
   private static final long APPLICATION_LATENCY = 200;
   private static final long SLEEP_VARIABILITY = 15;
   private static final String CLIENT_NAME = "java-bigtable/" + Version.VERSION;
-  private static final long CHANNEL_BLOCKING_LATENCY = 200;
+  private static final Duration CHANNEL_BLOCKING_LATENCY = Duration.ofMillis(200);
 
   @Rule public final MockitoRule mockitoRule = MockitoJUnit.rule();
 
@@ -148,6 +153,8 @@ public class BuiltinMetricsTracerTest {
   private Attributes baseAttributes;
 
   private InMemoryMetricReader metricReader;
+
+  private DelayProxyDetector delayProxyDetector;
 
   @Before
   public void setUp() throws Exception {
@@ -253,15 +260,16 @@ public class BuiltinMetricsTracerTest {
     final ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder> oldConfigurator =
         channelProvider.getChannelConfigurator();
 
+    delayProxyDetector = new DelayProxyDetector();
+
     channelProvider.setChannelConfigurator(
         (builder) -> {
           if (oldConfigurator != null) {
             builder = oldConfigurator.apply(builder);
           }
-          return builder.proxyDetector(new DelayProxyDetector());
+          return builder.proxyDetector(delayProxyDetector);
         });
     stubSettingsBuilder.setTransportChannelProvider(channelProvider.build());
-
     EnhancedBigtableStubSettings stubSettings = stubSettingsBuilder.build();
     stub = new EnhancedBigtableStub(stubSettings, ClientContext.create(stubSettings));
   }
@@ -279,8 +287,7 @@ public class BuiltinMetricsTracerTest {
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
     Attributes expectedAttributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "OK")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
@@ -305,8 +312,7 @@ public class BuiltinMetricsTracerTest {
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
     Attributes expectedAttributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "OK")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
@@ -351,8 +357,7 @@ public class BuiltinMetricsTracerTest {
             });
 
     Attributes expectedAttributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "OK")
             .put(TABLE_ID_KEY, FIRST_RESPONSE_TABLE_ID)
             .put(ZONE_ID_KEY, ZONE)
@@ -372,8 +377,7 @@ public class BuiltinMetricsTracerTest {
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE)));
 
     Attributes expectedAttributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "OK")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
@@ -390,8 +394,7 @@ public class BuiltinMetricsTracerTest {
     MetricData connectivityErrorCountMetricData =
         getMetricData(metricReader, CONNECTIVITY_ERROR_COUNT_NAME);
     Attributes expected1 =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "UNAVAILABLE")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, "global")
@@ -400,8 +403,7 @@ public class BuiltinMetricsTracerTest {
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .build();
     Attributes expected2 =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "OK")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
@@ -456,8 +458,7 @@ public class BuiltinMetricsTracerTest {
         getMetricData(metricReader, APPLICATION_BLOCKING_LATENCIES_NAME);
 
     Attributes expectedAttributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
             .put(CLUSTER_ID_KEY, CLUSTER)
@@ -492,8 +493,7 @@ public class BuiltinMetricsTracerTest {
         getMetricData(metricReader, APPLICATION_BLOCKING_LATENCIES_NAME);
 
     Attributes expectedAttributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
             .put(CLUSTER_ID_KEY, CLUSTER)
@@ -522,8 +522,7 @@ public class BuiltinMetricsTracerTest {
 
     MetricData metricData = getMetricData(metricReader, RETRY_COUNT_NAME);
     Attributes expectedAttributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
             .put(CLUSTER_ID_KEY, CLUSTER)
@@ -544,8 +543,7 @@ public class BuiltinMetricsTracerTest {
     MetricData metricData = getMetricData(metricReader, ATTEMPT_LATENCIES_NAME);
 
     Attributes expected1 =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "UNAVAILABLE")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, "global")
@@ -556,8 +554,7 @@ public class BuiltinMetricsTracerTest {
             .build();
 
     Attributes expected2 =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "OK")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
@@ -585,8 +582,7 @@ public class BuiltinMetricsTracerTest {
     MetricData metricData = getMetricData(metricReader, ATTEMPT_LATENCIES_NAME);
 
     Attributes expected =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "OK")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
@@ -614,8 +610,7 @@ public class BuiltinMetricsTracerTest {
     MetricData metricData = getMetricData(metricReader, ATTEMPT_LATENCIES_NAME);
 
     Attributes expected =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "NOT_FOUND")
             .put(TABLE_ID_KEY, BAD_TABLE_ID)
             .put(ZONE_ID_KEY, "global")
@@ -635,8 +630,7 @@ public class BuiltinMetricsTracerTest {
     MetricData metricData = getMetricData(metricReader, ATTEMPT_LATENCIES_NAME);
 
     Attributes expected1 =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "UNAVAILABLE")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, "global")
@@ -647,8 +641,7 @@ public class BuiltinMetricsTracerTest {
             .build();
 
     Attributes expected2 =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "OK")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
@@ -677,8 +670,7 @@ public class BuiltinMetricsTracerTest {
       MetricData applicationLatency = getMetricData(metricReader, CLIENT_BLOCKING_LATENCIES_NAME);
 
       Attributes expectedAttributes =
-          baseAttributes
-              .toBuilder()
+          baseAttributes.toBuilder()
               .put(TABLE_ID_KEY, TABLE)
               .put(ZONE_ID_KEY, ZONE)
               .put(CLUSTER_ID_KEY, CLUSTER)
@@ -696,14 +688,15 @@ public class BuiltinMetricsTracerTest {
   }
 
   @Test
-  public void testQueuedOnChannelServerStreamLatencies() {
-    stub.readRowsCallable().all().call(Query.create(TABLE));
+  public void testQueuedOnChannelServerStreamLatencies() throws Exception {
+    ApiFuture<List<Row>> f = stub.readRowsCallable().all().futureCall(Query.create(TABLE));
+    Duration proxyDelayPriorTest = delayProxyDetector.getCurrentDelayUsed();
+    f.get();
 
     MetricData clientLatency = getMetricData(metricReader, CLIENT_BLOCKING_LATENCIES_NAME);
 
     Attributes attributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(TABLE_ID_KEY, TABLE)
             .put(CLUSTER_ID_KEY, CLUSTER)
             .put(ZONE_ID_KEY, ZONE)
@@ -711,20 +704,25 @@ public class BuiltinMetricsTracerTest {
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .build();
 
-    long value = getAggregatedValue(clientLatency, attributes);
-    assertThat(value).isAtLeast(CHANNEL_BLOCKING_LATENCY);
+    assertThat(Duration.ofMillis(getAggregatedValue(clientLatency, attributes)))
+        .isAtLeast(
+            // Offset the expected latency to deal with asynchrony and jitter
+            CHANNEL_BLOCKING_LATENCY.minus(
+                Comparators.max(proxyDelayPriorTest, Duration.ofMillis(1))));
   }
 
   @Test
-  public void testQueuedOnChannelUnaryLatencies() {
-
-    stub.mutateRowCallable().call(RowMutation.create(TABLE, "a-key").setCell("f", "q", "v"));
+  public void testQueuedOnChannelUnaryLatencies() throws Exception {
+    ApiFuture<Void> f =
+        stub.mutateRowCallable()
+            .futureCall(RowMutation.create(TABLE, "a-key").setCell("f", "q", "v"));
+    Duration proxyDelayPriorTest = delayProxyDetector.getCurrentDelayUsed();
+    f.get();
 
     MetricData clientLatency = getMetricData(metricReader, CLIENT_BLOCKING_LATENCIES_NAME);
 
     Attributes attributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(TABLE_ID_KEY, TABLE)
             .put(CLUSTER_ID_KEY, CLUSTER)
             .put(ZONE_ID_KEY, ZONE)
@@ -732,8 +730,11 @@ public class BuiltinMetricsTracerTest {
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .build();
 
-    long actual = getAggregatedValue(clientLatency, attributes);
-    assertThat(actual).isAtLeast(CHANNEL_BLOCKING_LATENCY);
+    assertThat(Duration.ofMillis(getAggregatedValue(clientLatency, attributes)))
+        .isAtLeast(
+            // Offset the expected latency to deal with asynchrony and jitter
+            CHANNEL_BLOCKING_LATENCY.minus(
+                Comparators.max(proxyDelayPriorTest, Duration.ofMillis(1))));
   }
 
   @Test
@@ -747,8 +748,7 @@ public class BuiltinMetricsTracerTest {
     MetricData attemptLatency = getMetricData(metricReader, ATTEMPT_LATENCIES_NAME);
 
     Attributes expected =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "NOT_FOUND")
             .put(TABLE_ID_KEY, BAD_TABLE_ID)
             .put(CLUSTER_ID_KEY, "<unspecified>")
@@ -770,8 +770,7 @@ public class BuiltinMetricsTracerTest {
     MetricData deadlineMetric = getMetricData(metricReader, REMAINING_DEADLINE_NAME);
 
     Attributes retryAttributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "UNAVAILABLE")
             .put(TABLE_ID_KEY, TABLE)
             .put(METHOD_KEY, "Bigtable.ReadRows")
@@ -791,8 +790,7 @@ public class BuiltinMetricsTracerTest {
     assertThat(retryRemainingDeadline).isEqualTo(9000);
 
     Attributes okAttributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "OK")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
@@ -809,7 +807,7 @@ public class BuiltinMetricsTracerTest {
 
     double okRemainingDeadline = okHistogramPointData.getSum();
     // first attempt latency + retry delay
-    double expected = 9000 - SERVER_LATENCY - CHANNEL_BLOCKING_LATENCY - 10;
+    double expected = 9000 - SERVER_LATENCY - CHANNEL_BLOCKING_LATENCY.toMillis() - 10;
     assertThat(okRemainingDeadline).isIn(Range.closed(expected - 500, expected + 10));
   }
 
@@ -934,16 +932,34 @@ public class BuiltinMetricsTracerTest {
   }
 
   class DelayProxyDetector implements ProxyDetector {
+    private volatile Instant lastProxyDelay = null;
 
     @Nullable
     @Override
     public ProxiedSocketAddress proxyFor(SocketAddress socketAddress) throws IOException {
+      lastProxyDelay = Instant.now();
       try {
-        Thread.sleep(CHANNEL_BLOCKING_LATENCY);
+        Thread.sleep(CHANNEL_BLOCKING_LATENCY.toMillis());
       } catch (InterruptedException e) {
 
       }
       return null;
+    }
+
+    Duration getCurrentDelayUsed() {
+      Instant local = lastProxyDelay;
+      // If the delay was never injected - add 1 ms for channel establishment
+      if (local == null) {
+        return Duration.ofMillis(1);
+      }
+      Duration duration =
+          Duration.between(local, Instant.now()).plus(Duration.of(10, ChronoUnit.MICROS));
+
+      assertWithMessage("test burned through all channel blocking latency during setup")
+          .that(duration)
+          .isLessThan(CHANNEL_BLOCKING_LATENCY);
+
+      return duration;
     }
   }
 }

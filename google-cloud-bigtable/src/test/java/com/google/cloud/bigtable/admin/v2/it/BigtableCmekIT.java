@@ -100,17 +100,14 @@ public class BigtableCmekIT {
         Sets.difference(
                 ImmutableSet.of(
                     testEnvRule.env().getPrimaryZone(), testEnvRule.env().getSecondaryZone()),
-                ImmutableSet.of(zones))
+                ImmutableSet.copyOf(zones))
             .iterator()
             .next();
 
     instanceAdmin = testEnvRule.env().getInstanceAdminClient();
     tableAdmin =
         BigtableTableAdminClient.create(
-            testEnvRule
-                .env()
-                .getTableAdminSettings()
-                .toBuilder()
+            testEnvRule.env().getTableAdminSettings().toBuilder()
                 .setInstanceId(instanceId)
                 .build());
 

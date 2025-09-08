@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,24 @@ import com.google.api.core.InternalApi;
 import com.google.api.gax.core.BackgroundResource;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
+import com.google.api.gax.grpc.ChannelPrimer;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.ErrorCountPerConnectionMetricTracker;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
+import com.google.cloud.bigtable.gaxx.grpc.BigtableTransportChannelProvider;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.opentelemetry.GrpcOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -50,6 +55,8 @@ public class BigtableClientContext {
   private static final Logger logger = Logger.getLogger(BigtableClientContext.class.getName());
 
   @Nullable private final OpenTelemetry openTelemetry;
+  @Nullable private final OpenTelemetrySdk internalOpenTelemetry;
+  private final MetricsProvider metricsProvider;
   private final ClientContext clientContext;
 
   public static BigtableClientContext create(EnhancedBigtableStubSettings settings)
@@ -66,6 +73,8 @@ public class BigtableClientContext {
     }
     builder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
 
+    String universeDomain = settings.getUniverseDomain();
+
     // Set up OpenTelemetry
     OpenTelemetry openTelemetry = null;
     try {
@@ -73,7 +82,10 @@ public class BigtableClientContext {
       // the OTEL instance and log the exception instead.
       openTelemetry =
           getOpenTelemetryFromMetricsProvider(
-              settings.getMetricsProvider(), credentials, settings.getMetricsEndpoint());
+              settings.getMetricsProvider(),
+              credentials,
+              settings.getMetricsEndpoint(),
+              universeDomain);
     } catch (Throwable t) {
       logger.log(Level.WARNING, "Failed to get OTEL, will skip exporting client side metrics", t);
     }
@@ -84,30 +96,50 @@ public class BigtableClientContext {
             ? ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider()).toBuilder()
             : null;
 
-    ErrorCountPerConnectionMetricTracker errorCountPerConnectionMetricTracker = null;
+    @Nullable OpenTelemetrySdk internalOtel = null;
+    @Nullable ErrorCountPerConnectionMetricTracker errorCountPerConnectionMetricTracker = null;
+
+    // Internal metrics are scoped to the connections, so we need a mutable transportProvider,
+    // otherwise there is
+    // no reason to build the internal OtelProvider
+    if (transportProvider != null) {
+      internalOtel =
+          settings.getInternalMetricsProvider().createOtelProvider(settings, credentials);
+      if (internalOtel != null) {
+        // Set up per connection error count tracker if all dependencies are met:
+        // a configurable transport provider + otel
+        errorCountPerConnectionMetricTracker =
+            setupPerConnectionErrorTracer(builder, transportProvider, internalOtel);
+
+        // Configure grpc metrics
+        configureGrpcOtel(transportProvider, internalOtel);
+      }
+    }
 
     if (transportProvider != null) {
       // Set up cookie holder if routing cookie is enabled
       if (builder.getEnableRoutingCookie()) {
         setupCookieHolder(transportProvider);
       }
-      // Set up per connection error count tracker if OpenTelemetry is not null
-      if (openTelemetry != null) {
-        errorCountPerConnectionMetricTracker =
-            setupPerConnectionErrorTracer(builder, transportProvider, openTelemetry);
-      }
+
+      ChannelPrimer channelPrimer = NoOpChannelPrimer.create();
+
       // Inject channel priming if enabled
       if (builder.isRefreshingChannel()) {
-        transportProvider.setChannelPrimer(
+        channelPrimer =
             BigtableChannelPrimer.create(
                 builder.getProjectId(),
                 builder.getInstanceId(),
                 builder.getAppProfileId(),
                 credentials,
-                builder.getHeaderProvider().getHeaders()));
+                builder.getHeaderProvider().getHeaders());
       }
 
-      builder.setTransportChannelProvider(transportProvider.build());
+      BigtableTransportChannelProvider btTransportProvider =
+          BigtableTransportChannelProvider.create(
+              (InstantiatingGrpcChannelProvider) transportProvider.build(), channelPrimer);
+
+      builder.setTransportChannelProvider(btTransportProvider);
     }
 
     ClientContext clientContext = ClientContext.create(builder.build());
@@ -117,12 +149,46 @@ public class BigtableClientContext {
           clientContext.getExecutor());
     }
 
-    return new BigtableClientContext(clientContext, openTelemetry);
+    return new BigtableClientContext(
+        clientContext, openTelemetry, internalOtel, settings.getMetricsProvider());
   }
 
-  private BigtableClientContext(ClientContext clientContext, OpenTelemetry openTelemetry) {
+  private static void configureGrpcOtel(
+      InstantiatingGrpcChannelProvider.Builder transportProvider, OpenTelemetrySdk otel) {
+
+    GrpcOpenTelemetry grpcOtel =
+        GrpcOpenTelemetry.newBuilder()
+            .sdk(otel)
+            .addOptionalLabel("grpc.lb.locality")
+            // Disable default grpc metrics
+            .disableAllMetrics()
+            // Enable specific grpc metrics
+            .enableMetrics(BuiltinMetricsConstants.GRPC_METRICS.keySet())
+            .build();
+
+    @SuppressWarnings("rawtypes")
+    ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder> oldConfigurator =
+        transportProvider.getChannelConfigurator();
+
+    transportProvider.setChannelConfigurator(
+        b -> {
+          if (oldConfigurator != null) {
+            b = oldConfigurator.apply(b);
+          }
+          grpcOtel.configureChannelBuilder(b);
+          return b;
+        });
+  }
+
+  private BigtableClientContext(
+      ClientContext clientContext,
+      @Nullable OpenTelemetry openTelemetry,
+      @Nullable OpenTelemetrySdk internalOtel,
+      MetricsProvider metricsProvider) {
     this.clientContext = clientContext;
     this.openTelemetry = openTelemetry;
+    this.internalOpenTelemetry = internalOtel;
+    this.metricsProvider = metricsProvider;
   }
 
   public OpenTelemetry getOpenTelemetry() {
@@ -137,12 +203,19 @@ public class BigtableClientContext {
     for (BackgroundResource resource : clientContext.getBackgroundResources()) {
       resource.close();
     }
+    if (internalOpenTelemetry != null) {
+      internalOpenTelemetry.close();
+    }
+    if (metricsProvider instanceof DefaultMetricsProvider && openTelemetry != null) {
+      ((OpenTelemetrySdk) openTelemetry).close();
+    }
   }
 
   private static OpenTelemetry getOpenTelemetryFromMetricsProvider(
       MetricsProvider metricsProvider,
       @Nullable Credentials defaultCredentials,
-      @Nullable String metricsEndpoint)
+      @Nullable String metricsEndpoint,
+      String universeDomain)
       throws IOException {
     if (metricsProvider instanceof CustomOpenTelemetryMetricsProvider) {
       CustomOpenTelemetryMetricsProvider customMetricsProvider =
@@ -154,7 +227,7 @@ public class BigtableClientContext {
               ? BigtableDataSettings.getMetricsCredentials()
               : defaultCredentials;
       DefaultMetricsProvider defaultMetricsProvider = (DefaultMetricsProvider) metricsProvider;
-      return defaultMetricsProvider.getOpenTelemetry(metricsEndpoint, credentials);
+      return defaultMetricsProvider.getOpenTelemetry(metricsEndpoint, universeDomain, credentials);
     } else if (metricsProvider instanceof NoopMetricsProvider) {
       return null;
     }
@@ -163,18 +236,13 @@ public class BigtableClientContext {
 
   private static void patchCredentials(EnhancedBigtableStubSettings.Builder settings)
       throws IOException {
-    int i = settings.getEndpoint().lastIndexOf(":");
-    String host = settings.getEndpoint().substring(0, i);
-    String audience = settings.getJwtAudienceMapping().get(host);
+    String audience = settings.getJwtAudience();
 
-    if (audience == null) {
-      return;
-    }
     URI audienceUri = null;
     try {
       audienceUri = new URI(audience);
     } catch (URISyntaxException e) {
-      throw new IllegalStateException("invalid JWT audience override", e);
+      throw new IllegalStateException("invalid JWT audience", e);
     }
 
     CredentialsProvider credentialsProvider = settings.getCredentialsProvider();

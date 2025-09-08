@@ -38,6 +38,8 @@ import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.bigtable.v2.PingAndWarmRequest;
 import com.google.bigtable.v2.PingAndWarmResponse;
+import com.google.bigtable.v2.PrepareQueryRequest;
+import com.google.bigtable.v2.PrepareQueryResponse;
 import com.google.bigtable.v2.ReadChangeStreamRequest;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.bigtable.v2.ReadModifyWriteRowRequest;
@@ -158,6 +160,16 @@ public class GrpcBigtableStub extends BigtableStub {
                   ProtoUtils.marshaller(ReadChangeStreamResponse.getDefaultInstance()))
               .build();
 
+  private static final MethodDescriptor<PrepareQueryRequest, PrepareQueryResponse>
+      prepareQueryMethodDescriptor =
+          MethodDescriptor.<PrepareQueryRequest, PrepareQueryResponse>newBuilder()
+              .setType(MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName("google.bigtable.v2.Bigtable/PrepareQuery")
+              .setRequestMarshaller(ProtoUtils.marshaller(PrepareQueryRequest.getDefaultInstance()))
+              .setResponseMarshaller(
+                  ProtoUtils.marshaller(PrepareQueryResponse.getDefaultInstance()))
+              .build();
+
   private static final MethodDescriptor<ExecuteQueryRequest, ExecuteQueryResponse>
       executeQueryMethodDescriptor =
           MethodDescriptor.<ExecuteQueryRequest, ExecuteQueryResponse>newBuilder()
@@ -184,6 +196,7 @@ public class GrpcBigtableStub extends BigtableStub {
       generateInitialChangeStreamPartitionsCallable;
   private final ServerStreamingCallable<ReadChangeStreamRequest, ReadChangeStreamResponse>
       readChangeStreamCallable;
+  private final UnaryCallable<PrepareQueryRequest, PrepareQueryResponse> prepareQueryCallable;
   private final ServerStreamingCallable<ExecuteQueryRequest, ExecuteQueryResponse>
       executeQueryCallable;
 
@@ -196,36 +209,31 @@ public class GrpcBigtableStub extends BigtableStub {
   private static final PathTemplate READ_ROWS_1_PATH_TEMPLATE =
       PathTemplate.create("{app_profile_id=**}");
   private static final PathTemplate READ_ROWS_2_PATH_TEMPLATE =
-      PathTemplate.create(
-          "{authorized_view_name=projects/*/instances/*/tables/*/authorizedViews/*}");
+      PathTemplate.create("{table_name=projects/*/instances/*/tables/*}/**");
   private static final PathTemplate SAMPLE_ROW_KEYS_0_PATH_TEMPLATE =
       PathTemplate.create("{table_name=projects/*/instances/*/tables/*}");
   private static final PathTemplate SAMPLE_ROW_KEYS_1_PATH_TEMPLATE =
       PathTemplate.create("{app_profile_id=**}");
   private static final PathTemplate SAMPLE_ROW_KEYS_2_PATH_TEMPLATE =
-      PathTemplate.create(
-          "{authorized_view_name=projects/*/instances/*/tables/*/authorizedViews/*}");
+      PathTemplate.create("{table_name=projects/*/instances/*/tables/*}/**");
   private static final PathTemplate MUTATE_ROW_0_PATH_TEMPLATE =
       PathTemplate.create("{table_name=projects/*/instances/*/tables/*}");
   private static final PathTemplate MUTATE_ROW_1_PATH_TEMPLATE =
       PathTemplate.create("{app_profile_id=**}");
   private static final PathTemplate MUTATE_ROW_2_PATH_TEMPLATE =
-      PathTemplate.create(
-          "{authorized_view_name=projects/*/instances/*/tables/*/authorizedViews/*}");
+      PathTemplate.create("{table_name=projects/*/instances/*/tables/*}/**");
   private static final PathTemplate MUTATE_ROWS_0_PATH_TEMPLATE =
       PathTemplate.create("{table_name=projects/*/instances/*/tables/*}");
   private static final PathTemplate MUTATE_ROWS_1_PATH_TEMPLATE =
       PathTemplate.create("{app_profile_id=**}");
   private static final PathTemplate MUTATE_ROWS_2_PATH_TEMPLATE =
-      PathTemplate.create(
-          "{authorized_view_name=projects/*/instances/*/tables/*/authorizedViews/*}");
+      PathTemplate.create("{table_name=projects/*/instances/*/tables/*}/**");
   private static final PathTemplate CHECK_AND_MUTATE_ROW_0_PATH_TEMPLATE =
       PathTemplate.create("{table_name=projects/*/instances/*/tables/*}");
   private static final PathTemplate CHECK_AND_MUTATE_ROW_1_PATH_TEMPLATE =
       PathTemplate.create("{app_profile_id=**}");
   private static final PathTemplate CHECK_AND_MUTATE_ROW_2_PATH_TEMPLATE =
-      PathTemplate.create(
-          "{authorized_view_name=projects/*/instances/*/tables/*/authorizedViews/*}");
+      PathTemplate.create("{table_name=projects/*/instances/*/tables/*}/**");
   private static final PathTemplate PING_AND_WARM_0_PATH_TEMPLATE =
       PathTemplate.create("{name=projects/*/instances/*}");
   private static final PathTemplate PING_AND_WARM_1_PATH_TEMPLATE =
@@ -235,8 +243,11 @@ public class GrpcBigtableStub extends BigtableStub {
   private static final PathTemplate READ_MODIFY_WRITE_ROW_1_PATH_TEMPLATE =
       PathTemplate.create("{app_profile_id=**}");
   private static final PathTemplate READ_MODIFY_WRITE_ROW_2_PATH_TEMPLATE =
-      PathTemplate.create(
-          "{authorized_view_name=projects/*/instances/*/tables/*/authorizedViews/*}");
+      PathTemplate.create("{table_name=projects/*/instances/*/tables/*}/**");
+  private static final PathTemplate PREPARE_QUERY_0_PATH_TEMPLATE =
+      PathTemplate.create("{name=projects/*/instances/*}");
+  private static final PathTemplate PREPARE_QUERY_1_PATH_TEMPLATE =
+      PathTemplate.create("{app_profile_id=**}");
   private static final PathTemplate EXECUTE_QUERY_0_PATH_TEMPLATE =
       PathTemplate.create("{name=projects/*/instances/*}");
   private static final PathTemplate EXECUTE_QUERY_1_PATH_TEMPLATE =
@@ -287,9 +298,7 @@ public class GrpcBigtableStub extends BigtableStub {
                   builder.add(
                       request.getAppProfileId(), "app_profile_id", READ_ROWS_1_PATH_TEMPLATE);
                   builder.add(
-                      request.getAuthorizedViewName(),
-                      "authorized_view_name",
-                      READ_ROWS_2_PATH_TEMPLATE);
+                      request.getAuthorizedViewName(), "table_name", READ_ROWS_2_PATH_TEMPLATE);
                   return builder.build();
                 })
             .build();
@@ -305,7 +314,7 @@ public class GrpcBigtableStub extends BigtableStub {
                       request.getAppProfileId(), "app_profile_id", SAMPLE_ROW_KEYS_1_PATH_TEMPLATE);
                   builder.add(
                       request.getAuthorizedViewName(),
-                      "authorized_view_name",
+                      "table_name",
                       SAMPLE_ROW_KEYS_2_PATH_TEMPLATE);
                   return builder.build();
                 })
@@ -320,9 +329,7 @@ public class GrpcBigtableStub extends BigtableStub {
                   builder.add(
                       request.getAppProfileId(), "app_profile_id", MUTATE_ROW_1_PATH_TEMPLATE);
                   builder.add(
-                      request.getAuthorizedViewName(),
-                      "authorized_view_name",
-                      MUTATE_ROW_2_PATH_TEMPLATE);
+                      request.getAuthorizedViewName(), "table_name", MUTATE_ROW_2_PATH_TEMPLATE);
                   return builder.build();
                 })
             .build();
@@ -336,9 +343,7 @@ public class GrpcBigtableStub extends BigtableStub {
                   builder.add(
                       request.getAppProfileId(), "app_profile_id", MUTATE_ROWS_1_PATH_TEMPLATE);
                   builder.add(
-                      request.getAuthorizedViewName(),
-                      "authorized_view_name",
-                      MUTATE_ROWS_2_PATH_TEMPLATE);
+                      request.getAuthorizedViewName(), "table_name", MUTATE_ROWS_2_PATH_TEMPLATE);
                   return builder.build();
                 })
             .build();
@@ -359,7 +364,7 @@ public class GrpcBigtableStub extends BigtableStub {
                           CHECK_AND_MUTATE_ROW_1_PATH_TEMPLATE);
                       builder.add(
                           request.getAuthorizedViewName(),
-                          "authorized_view_name",
+                          "table_name",
                           CHECK_AND_MUTATE_ROW_2_PATH_TEMPLATE);
                       return builder.build();
                     })
@@ -393,7 +398,7 @@ public class GrpcBigtableStub extends BigtableStub {
                           READ_MODIFY_WRITE_ROW_1_PATH_TEMPLATE);
                       builder.add(
                           request.getAuthorizedViewName(),
-                          "authorized_view_name",
+                          "table_name",
                           READ_MODIFY_WRITE_ROW_2_PATH_TEMPLATE);
                       return builder.build();
                     })
@@ -425,6 +430,18 @@ public class GrpcBigtableStub extends BigtableStub {
                       return builder.build();
                     })
                 .build();
+    GrpcCallSettings<PrepareQueryRequest, PrepareQueryResponse> prepareQueryTransportSettings =
+        GrpcCallSettings.<PrepareQueryRequest, PrepareQueryResponse>newBuilder()
+            .setMethodDescriptor(prepareQueryMethodDescriptor)
+            .setParamsExtractor(
+                request -> {
+                  RequestParamsBuilder builder = RequestParamsBuilder.create();
+                  builder.add(request.getInstanceName(), "name", PREPARE_QUERY_0_PATH_TEMPLATE);
+                  builder.add(
+                      request.getAppProfileId(), "app_profile_id", PREPARE_QUERY_1_PATH_TEMPLATE);
+                  return builder.build();
+                })
+            .build();
     GrpcCallSettings<ExecuteQueryRequest, ExecuteQueryResponse> executeQueryTransportSettings =
         GrpcCallSettings.<ExecuteQueryRequest, ExecuteQueryResponse>newBuilder()
             .setMethodDescriptor(executeQueryMethodDescriptor)
@@ -471,6 +488,9 @@ public class GrpcBigtableStub extends BigtableStub {
     this.readChangeStreamCallable =
         callableFactory.createServerStreamingCallable(
             readChangeStreamTransportSettings, settings.readChangeStreamSettings(), clientContext);
+    this.prepareQueryCallable =
+        callableFactory.createUnaryCallable(
+            prepareQueryTransportSettings, settings.prepareQuerySettings(), clientContext);
     this.executeQueryCallable =
         callableFactory.createServerStreamingCallable(
             executeQueryTransportSettings, settings.executeQuerySettings(), clientContext);
@@ -533,6 +553,11 @@ public class GrpcBigtableStub extends BigtableStub {
   public ServerStreamingCallable<ReadChangeStreamRequest, ReadChangeStreamResponse>
       readChangeStreamCallable() {
     return readChangeStreamCallable;
+  }
+
+  @Override
+  public UnaryCallable<PrepareQueryRequest, PrepareQueryResponse> prepareQueryCallable() {
+    return prepareQueryCallable;
   }
 
   @Override

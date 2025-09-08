@@ -44,4 +44,10 @@ public abstract class TableId implements TargetId {
   public boolean scopedForAuthorizedView() {
     return false;
   }
+
+  @Override
+  @InternalApi
+  public boolean scopedForMaterializedView() {
+    return false;
+  }
 }

@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.models.sql;
 
-import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.cloud.Date;
 import com.google.cloud.bigtable.common.Type;
@@ -34,7 +33,6 @@ import java.util.List;
  *
  * @param <T> the corresponding java type
  */
-@BetaApi
 public interface SqlType<T> extends Serializable {
 
   /* Enumeration of the types */
@@ -52,7 +50,9 @@ public interface SqlType<T> extends Serializable {
     MAP
   }
 
-  /** @return {@link Code} enum for this type */
+  /**
+   * @return {@link Code} enum for this type
+   */
   Code getCode();
 
   /**
@@ -62,10 +62,14 @@ public interface SqlType<T> extends Serializable {
    * @param <V> Java type of the Map value data
    */
   interface Map<K, V> extends SqlType<java.util.Map<K, V>> {
-    /** @return {@link SqlType} of the map's key */
+    /**
+     * @return {@link SqlType} of the map's key
+     */
     SqlType<K> getKeyType();
 
-    /** @return {@link SqlType} of the map's value */
+    /**
+     * @return {@link SqlType} of the map's value
+     */
     SqlType<V> getValueType();
   }
 
@@ -75,7 +79,9 @@ public interface SqlType<T> extends Serializable {
    * @param <Elem> Java type of the Array element data
    */
   interface Array<Elem> extends SqlType<List<Elem>> {
-    /** @return {@link SqlType} of the array's elements */
+    /**
+     * @return {@link SqlType} of the array's elements
+     */
     SqlType<Elem> getElementType();
   }
 
@@ -86,14 +92,20 @@ public interface SqlType<T> extends Serializable {
     // This extends ColumnMetadata so that we can reuse some helpers for both types
     /** Represents a field in a struct */
     interface Field extends ColumnMetadata {
-      /** @return the name of the field. Returns an empty string for fields without names. */
+      /**
+       * @return the name of the field. Returns an empty string for fields without names.
+       */
       String name();
 
-      /** @return the {@link SqlType} of the field */
+      /**
+       * @return the {@link SqlType} of the field
+       */
       SqlType<?> type();
     }
 
-    /** @return the ordered list of {@link Field}s for the struct */
+    /**
+     * @return the ordered list of {@link Field}s for the struct
+     */
     List<? extends Field> getFields();
 
     /**

@@ -1,5 +1,233 @@
 # Changelog
 
+## [2.65.1](https://github.com/googleapis/java-bigtable/compare/v2.65.0...v2.65.1) (2025-08-27)
+
+
+### Dependencies
+
+* Update shared dependencies ([#2664](https://github.com/googleapis/java-bigtable/issues/2664)) ([841318b](https://github.com/googleapis/java-bigtable/commit/841318b2248dcda89d8482bc2e84c838bd8be8d0))
+
+## [2.65.0](https://github.com/googleapis/java-bigtable/compare/v2.64.0...v2.65.0) (2025-08-12)
+
+
+### Features
+
+* **bigtable:** Lower the value for max rpc channels as channel resize is slow (1m, 2 channel) ([#2656](https://github.com/googleapis/java-bigtable/issues/2656)) ([d8055c1](https://github.com/googleapis/java-bigtable/commit/d8055c1fb75a616cda1503b92d7cddb9da47d42b))
+
+## [2.64.0](https://github.com/googleapis/java-bigtable/compare/v2.63.0...v2.64.0) (2025-08-08)
+
+
+### Features
+
+* Add tags field to Instance proto (stable branch) ([089d527](https://github.com/googleapis/java-bigtable/commit/089d52700c225015fabfaa763163c5874b96d830))
+
+
+### Bug Fixes
+
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.61.0 ([089d527](https://github.com/googleapis/java-bigtable/commit/089d52700c225015fabfaa763163c5874b96d830))
+
+
+### Dependencies
+
+* Update shared dependencies ([#2654](https://github.com/googleapis/java-bigtable/issues/2654)) ([4b706f4](https://github.com/googleapis/java-bigtable/commit/4b706f4f76a8152556aa99656b440adb30f37a4c))
+
+## [2.63.0](https://github.com/googleapis/java-bigtable/compare/v2.62.0...v2.63.0) (2025-07-30)
+
+
+### Features
+
+* Add Idempotency to Cloud Bigtable MutateRowsRequest API ([bc58b4f](https://github.com/googleapis/java-bigtable/commit/bc58b4f31ef457bd322f270b044735e4b62d298f))
+* Add port as a parameter for the bigtable emulator ([#2645](https://github.com/googleapis/java-bigtable/issues/2645)) ([5acd3dc](https://github.com/googleapis/java-bigtable/commit/5acd3dc01c36072bd28248d560c5d923c34b1817))
+* Add type support for Proto and Enum ([bc58b4f](https://github.com/googleapis/java-bigtable/commit/bc58b4f31ef457bd322f270b044735e4b62d298f))
+* Publish Proto and Enum types to CBT data API ([ace12d5](https://github.com/googleapis/java-bigtable/commit/ace12d53fe9f4d3779b2b1a2aed69ceeedd11600))
+* Selective GAPIC autogeneration for Python Bigtable Admin ([e219c38](https://github.com/googleapis/java-bigtable/commit/e219c387487673869fb8bb55a5060bdc9d37bbcb))
+
+
+### Bug Fixes
+
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.60.2 ([e219c38](https://github.com/googleapis/java-bigtable/commit/e219c387487673869fb8bb55a5060bdc9d37bbcb))
+* Update routing_parameters.path_template ([e219c38](https://github.com/googleapis/java-bigtable/commit/e219c387487673869fb8bb55a5060bdc9d37bbcb))
+
+
+### Dependencies
+
+* Update sdk-platorm-java-config to 3.50.2 ([#2646](https://github.com/googleapis/java-bigtable/issues/2646)) ([03e6961](https://github.com/googleapis/java-bigtable/commit/03e6961e758a9a0c39cb168c73c853328c14bfd1))
+
+
+### Documentation
+
+* Sync generated comments from the API Protos ([bc58b4f](https://github.com/googleapis/java-bigtable/commit/bc58b4f31ef457bd322f270b044735e4b62d298f))
+
+## [2.62.0](https://github.com/googleapis/java-bigtable/compare/v2.61.0...v2.62.0) (2025-07-15)
+
+
+### Features
+
+* Add Idempotency to Cloud Bigtable MutateRowRequest API ([b5acca6](https://github.com/googleapis/java-bigtable/commit/b5acca6ac4f1eec420adb27bc77aa1bda0ec2dca))
+* Add SchemaBundles API ([b5acca6](https://github.com/googleapis/java-bigtable/commit/b5acca6ac4f1eec420adb27bc77aa1bda0ec2dca))
+* **bigtable:** Add schema bundle support ([#2619](https://github.com/googleapis/java-bigtable/issues/2619)) ([7d7b9a9](https://github.com/googleapis/java-bigtable/commit/7d7b9a966d3ef7b7a0ef3f82038ab73f4d791427))
+* Next release from main branch is 2.62.0 ([#2621](https://github.com/googleapis/java-bigtable/issues/2621)) ([202b211](https://github.com/googleapis/java-bigtable/commit/202b21102e71da71ff56f19a12d8a00a59cd8107))
+
+
+### Dependencies
+
+* Minor cleanup ([#2623](https://github.com/googleapis/java-bigtable/issues/2623)) ([7b230e8](https://github.com/googleapis/java-bigtable/commit/7b230e86902b5733c06e45fad90da76653ee1096))
+* Update shared dependencies ([#2616](https://github.com/googleapis/java-bigtable/issues/2616)) ([eb7cfd5](https://github.com/googleapis/java-bigtable/commit/eb7cfd526aa999c614b7b8285d32759e2739ff9a))
+
+## [2.61.0](https://github.com/googleapis/java-bigtable/compare/v2.60.0...v2.61.0) (2025-06-27)
+
+
+### Features
+
+* Add getter for universe domain in JwtCredentialsWithAudience ([#2598](https://github.com/googleapis/java-bigtable/issues/2598)) ([9ad66b1](https://github.com/googleapis/java-bigtable/commit/9ad66b129923500cdeb794fc2e4570ad8b1d92fd))
+
+
+### Bug Fixes
+
+* Add name elements for the POM.xml files ([a873719](https://github.com/googleapis/java-bigtable/commit/a873719e7e32a0cd21dc259911a193520f20797e))
+* Populate table id for materialized view ([#2610](https://github.com/googleapis/java-bigtable/issues/2610)) ([50c3fe2](https://github.com/googleapis/java-bigtable/commit/50c3fe2ffe66acaba8cb408dc3b1a4d13a4a2556))
+
+
+### Dependencies
+
+* Update shared dependencies ([#2605](https://github.com/googleapis/java-bigtable/issues/2605)) ([4cc7246](https://github.com/googleapis/java-bigtable/commit/4cc7246ff8e2e0e26d2edc0aee8866a32ec1c8ab))
+
+## [2.60.0](https://github.com/googleapis/java-bigtable/compare/v2.59.0...v2.60.0) (2025-06-06)
+
+
+### Features
+
+* Improve error message on malformed struct ([#2592](https://github.com/googleapis/java-bigtable/issues/2592)) ([7f5fdf0](https://github.com/googleapis/java-bigtable/commit/7f5fdf094c5fe140807ce6abcea0b891462ba809))
+* Run ExecuteQuery conformance tests ([#2557](https://github.com/googleapis/java-bigtable/issues/2557)) ([0bbc083](https://github.com/googleapis/java-bigtable/commit/0bbc083b9e798e5b557f3ffe7090b45e66c9ada5))
+
+
+### Bug Fixes
+
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.59.0 ([65782aa](https://github.com/googleapis/java-bigtable/commit/65782aaf89ad78aafd7f5928e81e513c3016b471))
+* Ensure that multiple instances of a client in the same process dont clobber each other ([#2590](https://github.com/googleapis/java-bigtable/issues/2590)) ([8d3dca4](https://github.com/googleapis/java-bigtable/commit/8d3dca43224179829829bcf91972610c666b130b))
+
+
+### Dependencies
+
+* Update shared dependencies ([#2587](https://github.com/googleapis/java-bigtable/issues/2587)) ([8ec0339](https://github.com/googleapis/java-bigtable/commit/8ec033994f20b2b3aea0dfcdaffbdd1c6d19fdad))
+
+## [2.59.0](https://github.com/googleapis/java-bigtable/compare/v2.58.2...v2.59.0) (2025-05-16)
+
+
+### Features
+
+* **bigtable:** Add DeletionProtection support for Logical Views ([#2539](https://github.com/googleapis/java-bigtable/issues/2539)) ([d9ba32b](https://github.com/googleapis/java-bigtable/commit/d9ba32b8e5792ceed054f67c58f5622e153e87d6))
+
+
+### Dependencies
+
+* Update googleapis/sdk-platform-java action to v2.58.0 ([#2581](https://github.com/googleapis/java-bigtable/issues/2581)) ([c9b0289](https://github.com/googleapis/java-bigtable/commit/c9b028902dc8aae9552181d65c9743be09d45ecf))
+* Update shared dependencies ([#2584](https://github.com/googleapis/java-bigtable/issues/2584)) ([ba82675](https://github.com/googleapis/java-bigtable/commit/ba82675c25dbe12443ac5ef48464dcb3f8c8894c))
+
+## [2.58.2](https://github.com/googleapis/java-bigtable/compare/v2.58.1...v2.58.2) (2025-05-08)
+
+
+### Bug Fixes
+
+* Use service name as the default audience ([#2579](https://github.com/googleapis/java-bigtable/issues/2579)) ([af6d7bd](https://github.com/googleapis/java-bigtable/commit/af6d7bd28d9d7a4ebb90825a9b4b8a73d63172f6))
+
+
+### Dependencies
+
+* Update shared dependencies ([#2565](https://github.com/googleapis/java-bigtable/issues/2565)) ([043f11b](https://github.com/googleapis/java-bigtable/commit/043f11b16948c338096d9407de1e99f02656169e))
+
+## [2.58.1](https://github.com/googleapis/java-bigtable/compare/v2.58.0...v2.58.1) (2025-04-28)
+
+
+### Bug Fixes
+
+* Close otel instance ([#2571](https://github.com/googleapis/java-bigtable/issues/2571)) ([422fe26](https://github.com/googleapis/java-bigtable/commit/422fe26f3aae30fe74de80fad3848707452d6646))
+
+## [2.58.0](https://github.com/googleapis/java-bigtable/compare/v2.57.3...v2.58.0) (2025-04-28)
+
+
+### Features
+
+* Add deletion_protection support for LVs ([43c97a3](https://github.com/googleapis/java-bigtable/commit/43c97a3f430ee4ee90d46b3685ae50f13949831c))
+* **bigtable:** Add integration tests for Materialized/Logical Views ([#2518](https://github.com/googleapis/java-bigtable/issues/2518)) ([4d3a7e6](https://github.com/googleapis/java-bigtable/commit/4d3a7e675b60ba6a3225a45b7463edff279f9bc4))
+
+
+### Bug Fixes
+
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.56.2 ([43c97a3](https://github.com/googleapis/java-bigtable/commit/43c97a3f430ee4ee90d46b3685ae50f13949831c))
+* Fix retry info algorithm setting ([#2562](https://github.com/googleapis/java-bigtable/issues/2562)) ([c424ccb](https://github.com/googleapis/java-bigtable/commit/c424ccba72a191609dc726ed67d03f0d330015fc))
+* Use universe domain when creating the monitoring client ([#2570](https://github.com/googleapis/java-bigtable/issues/2570)) ([3b51e12](https://github.com/googleapis/java-bigtable/commit/3b51e1206a4f83078625705ed8d8a899839af1a9))
+
+## [2.57.3](https://github.com/googleapis/java-bigtable/compare/v2.57.2...v2.57.3) (2025-04-01)
+
+
+### Bug Fixes
+
+* Remove debug messages ([#2552](https://github.com/googleapis/java-bigtable/issues/2552)) ([6359834](https://github.com/googleapis/java-bigtable/commit/63598346ca39767d59d254fce2c718d1258e27d5))
+
+## [2.57.2](https://github.com/googleapis/java-bigtable/compare/v2.57.1...v2.57.2) (2025-03-31)
+
+
+### Bug Fixes
+
+* Library should released as 2.57.2 ([#2549](https://github.com/googleapis/java-bigtable/issues/2549)) ([58d0bbd](https://github.com/googleapis/java-bigtable/commit/58d0bbdcb983e3b5ee403edf45c4e98a6eb8dc16))
+
+## [2.57.1](https://github.com/googleapis/java-bigtable/compare/v2.57.0...v2.57.1) (2025-03-24)
+
+
+### Bug Fixes
+
+* Handling of totalTimeout on sql plan refresh ([#2541](https://github.com/googleapis/java-bigtable/issues/2541)) ([bf49cf9](https://github.com/googleapis/java-bigtable/commit/bf49cf93f9a3b9cbdb155bb6cbb7a9f763b6f738))
+
+## [2.57.0](https://github.com/googleapis/java-bigtable/compare/v2.56.0...v2.57.0) (2025-03-24)
+
+
+### Features
+
+* Add PreparedStatement and update ExecuteQuery API to use it ([#2534](https://github.com/googleapis/java-bigtable/issues/2534)) ([49d4d09](https://github.com/googleapis/java-bigtable/commit/49d4d09fd16a1eb4eb566227a049bca2aaaa61e3))
+
+## [2.56.0](https://github.com/googleapis/java-bigtable/compare/v2.55.0...v2.56.0) (2025-03-18)
+
+
+### Features
+
+* **bigtable:** Add support for Logical Views in Admin API ([#2519](https://github.com/googleapis/java-bigtable/issues/2519)) ([6dac3fd](https://github.com/googleapis/java-bigtable/commit/6dac3fd6443e94674af88a1dc97bedd9b3b0c834))
+* **bigtable:** Add support for Materialized Views in Admin API ([#2511](https://github.com/googleapis/java-bigtable/issues/2511)) ([55cd719](https://github.com/googleapis/java-bigtable/commit/55cd719df277a2ae1988c7cd53286558ad86835b))
+
+
+### Bug Fixes
+
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.55.1 ([7992af0](https://github.com/googleapis/java-bigtable/commit/7992af08b4eb2f408ecb739a73fbdc36ca7af2b5))
+
+
+### Dependencies
+
+* Sdk-platform-java-config 3.45.1 ([#2517](https://github.com/googleapis/java-bigtable/issues/2517)) ([b2af258](https://github.com/googleapis/java-bigtable/commit/b2af258ed72d29644c8bd1079b1d0f223206d75b))
+
+## [2.55.0](https://github.com/googleapis/java-bigtable/compare/v2.54.0...v2.55.0) (2025-03-11)
+
+
+### Features
+
+* Add MaterializedViewName to ReadRows and SampleRowKeys ([1763c6e](https://github.com/googleapis/java-bigtable/commit/1763c6e9304010ed4034e1ddd03fdb94bca615dc))
+* Add MaterializedViews and LogicalViews APIs ([1763c6e](https://github.com/googleapis/java-bigtable/commit/1763c6e9304010ed4034e1ddd03fdb94bca615dc))
+* Add MaterializedViews and LogicalViews APIs ([7340527](https://github.com/googleapis/java-bigtable/commit/73405272c3fc77ca81c1df7cce1b8d889d4a96c4))
+* Add PrepareQuery api and update ExecuteQuery to support it ([1763c6e](https://github.com/googleapis/java-bigtable/commit/1763c6e9304010ed4034e1ddd03fdb94bca615dc))
+* **bigtable:** Add support for data APIs for materialized views ([#2508](https://github.com/googleapis/java-bigtable/issues/2508)) ([6310a63](https://github.com/googleapis/java-bigtable/commit/6310a631be3345f97d73b50f3b458fe40b071286))
+* **large-row-skip:** Added large-row-skip-callable with configurable rowadapter ([#2509](https://github.com/googleapis/java-bigtable/issues/2509)) ([ba193ef](https://github.com/googleapis/java-bigtable/commit/ba193ef771f913e6e6a1aca630fe52d0921ee077))
+* Next release from main branch is 2.55.0 ([#2506](https://github.com/googleapis/java-bigtable/issues/2506)) ([4e45837](https://github.com/googleapis/java-bigtable/commit/4e458378cc25a4dc5ac3fd1362626d89f0138186))
+* Publish row_key_schema fields in table proto and relevant admin APIs to setup a table with a row_key_schema ([7340527](https://github.com/googleapis/java-bigtable/commit/73405272c3fc77ca81c1df7cce1b8d889d4a96c4))
+
+
+### Bug Fixes
+
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.54.0 ([91e4369](https://github.com/googleapis/java-bigtable/commit/91e4369d280c09fd2d1b4b5dd88809b6da01b0f8))
+
+
+### Documentation
+
+* Fixed formatting of resource path strings ([7340527](https://github.com/googleapis/java-bigtable/commit/73405272c3fc77ca81c1df7cce1b8d889d4a96c4))
+
 ## [2.54.0](https://github.com/googleapis/java-bigtable/compare/v2.53.0...v2.54.0) (2025-02-28)
 
 

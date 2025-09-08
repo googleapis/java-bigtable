@@ -113,6 +113,16 @@ public final class BigtableInstanceAdminSettings {
         .add("getIamPolicySettings", stubSettings.getIamPolicySettings())
         .add("setIamPolicySettings", stubSettings.setIamPolicySettings())
         .add("testIamPermissionsSettings", stubSettings.testIamPermissionsSettings())
+        .add("createMaterializedViewSettings", stubSettings.createMaterializedViewSettings())
+        .add("getMaterializedViewSettings", stubSettings.getMaterializedViewSettings())
+        .add("listMaterializedViewsSettings", stubSettings.listMaterializedViewsSettings())
+        .add("updateMaterializedViewSettings", stubSettings.updateMaterializedViewSettings())
+        .add("deleteMaterializedViewSettings", stubSettings.deleteMaterializedViewSettings())
+        .add("createLogicalViewSettings", stubSettings.createLogicalViewSettings())
+        .add("getLogicalViewSettings", stubSettings.getLogicalViewSettings())
+        .add("listLogicalViewsSettings", stubSettings.listLogicalViewsSettings())
+        .add("updateLogicalViewSettings", stubSettings.updateLogicalViewSettings())
+        .add("deleteLogicalViewSettings", stubSettings.deleteLogicalViewSettings())
         .add("stubSettings", stubSettings)
         .toString();
   }

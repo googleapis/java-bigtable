@@ -99,11 +99,28 @@ public class BuiltinMetricsView {
   public static void registerBuiltinMetrics(
       @Nullable Credentials credentials, SdkMeterProviderBuilder builder, @Nullable String endpoint)
       throws IOException {
-    MetricExporter metricExporter = BigtableCloudMonitoringExporter.create(credentials, endpoint);
+    registerBuiltinMetricsWithUniverseDomain(
+        credentials, builder, endpoint, Credentials.GOOGLE_DEFAULT_UNIVERSE);
+  }
+
+  static void registerBuiltinMetricsWithUniverseDomain(
+      @Nullable Credentials credentials,
+      SdkMeterProviderBuilder builder,
+      @Nullable String endpoint,
+      String universeDomain)
+      throws IOException {
+    MetricExporter publicExporter =
+        BigtableCloudMonitoringExporter.create(
+            "bigtable metrics",
+            credentials,
+            endpoint,
+            universeDomain,
+            new BigtableCloudMonitoringExporter.PublicTimeSeriesConverter());
+
     for (Map.Entry<InstrumentSelector, View> entry :
         BuiltinMetricsConstants.getAllViews().entrySet()) {
       builder.registerView(entry.getKey(), entry.getValue());
     }
-    builder.registerMetricReader(PeriodicMetricReader.create(metricExporter));
+    builder.registerMetricReader(PeriodicMetricReader.create(publicExporter));
   }
 }

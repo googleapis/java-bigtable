@@ -50,7 +50,9 @@ public final class Query implements Serializable {
   private final TargetId targetId;
   private transient ReadRowsRequest.Builder builder = ReadRowsRequest.newBuilder();
 
-  /** @deprecated Please use {@link Query#create(TargetId)} instead. */
+  /**
+   * @deprecated Please use {@link Query#create(TargetId)} instead.
+   */
   @Deprecated
   public static Query create(String tableId) {
     return new Query(TableId.of(tableId));
@@ -62,6 +64,7 @@ public final class Query implements Serializable {
    * com.google.cloud.bigtable.data.v2.BigtableDataSettings}.
    *
    * @see AuthorizedViewId
+   * @see MaterializedViewId
    * @see TableId
    */
   public static Query create(TargetId targetId) {
@@ -317,7 +320,9 @@ public final class Query implements Serializable {
   public ReadRowsRequest toProto(RequestContext requestContext) {
     String resourceName =
         targetId.toResourceName(requestContext.getProjectId(), requestContext.getInstanceId());
-    if (targetId.scopedForAuthorizedView()) {
+    if (targetId.scopedForMaterializedView()) {
+      builder.setMaterializedViewName(resourceName);
+    } else if (targetId.scopedForAuthorizedView()) {
       builder.setAuthorizedViewName(resourceName);
     } else {
       builder.setTableName(resourceName);
@@ -335,8 +340,10 @@ public final class Query implements Serializable {
     Preconditions.checkArgument(request != null, "ReadRowsRequest must not be null");
     String tableName = request.getTableName();
     String authorizedViewName = request.getAuthorizedViewName();
+    String materializedViewName = request.getMaterializedViewName();
 
-    Query query = new Query(NameUtil.extractTargetId(tableName, authorizedViewName));
+    Query query =
+        new Query(NameUtil.extractTargetId(tableName, authorizedViewName, materializedViewName));
     query.builder = request.toBuilder();
 
     return query;
