@@ -27,7 +27,6 @@ import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.api.gax.rpc.WatchdogProvider;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.FeatureFlags;
-import com.google.bigtable.v2.InstanceName;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
 import com.google.bigtable.v2.PingAndWarmRequest;
@@ -52,8 +51,6 @@ import io.grpc.stub.StreamObserver;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.SocketAddress;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -263,7 +260,7 @@ public class BigtableDataClientFactoryTest {
   @Test
   public void testCreateWithRefreshingChannel() throws Exception {
     int poolSize = 3;
-     BigtableDataSettings.Builder builder =
+    BigtableDataSettings.Builder builder =
         BigtableDataSettings.newBuilderForEmulator(server.getPort())
             .setProjectId(DEFAULT_PROJECT_ID)
             .setInstanceId(DEFAULT_INSTANCE_ID)

@@ -100,7 +100,9 @@ class ChannelPoolHealthChecker {
 
   void start() {
     if (!(channelPrimer instanceof BigtableChannelPrimer)) {
-      logger.log(Level.WARNING, "Provided channelPrimer not an instance of BigtableChannelPrimer, not checking channel health.");
+      logger.log(
+          Level.WARNING,
+          "Provided channelPrimer not an instance of BigtableChannelPrimer, not checking channel health.");
     } else {
       Duration initialDelayProbe =
           Duration.ofMillis(ThreadLocalRandom.current().nextLong(PROBE_INTERVAL.toMillis()));
@@ -134,7 +136,10 @@ class ChannelPoolHealthChecker {
   /** Runs probes on all the channels in the pool. */
   @VisibleForTesting
   void runProbes() {
-    Preconditions.checkState(channelPrimer instanceof BigtableChannelPrimer, "Health checking can only be enabled with BigtableChannelPrimer, found %s", channelPrimer);
+    Preconditions.checkState(
+        channelPrimer instanceof BigtableChannelPrimer,
+        "Health checking can only be enabled with BigtableChannelPrimer, found %s",
+        channelPrimer);
     for (Entry entry : this.entrySupplier.get()) {
       final Instant startTime = clock.instant();
       final ApiFuture<PingAndWarmResponse> probeFuture;
