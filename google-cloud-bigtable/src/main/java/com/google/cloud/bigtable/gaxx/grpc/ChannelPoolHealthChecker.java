@@ -103,24 +103,25 @@ class ChannelPoolHealthChecker {
       logger.log(
           Level.WARNING,
           "Provided channelPrimer not an instance of BigtableChannelPrimer, not checking channel health.");
-    } else {
-      Duration initialDelayProbe =
-          Duration.ofMillis(ThreadLocalRandom.current().nextLong(PROBE_INTERVAL.toMillis()));
-      this.probeTaskScheduledFuture =
-          executor.scheduleAtFixedRate(
-              this::runProbes,
-              initialDelayProbe.toMillis(),
-              PROBE_INTERVAL.toMillis(),
-              TimeUnit.MILLISECONDS);
-      Duration initialDelayDetect =
-          Duration.ofMillis(ThreadLocalRandom.current().nextLong(PROBE_INTERVAL.toMillis()));
-      this.detectAndRemoveTaskScheduledFuture =
-          executor.scheduleAtFixedRate(
-              this::detectAndRemoveOutlierEntries,
-              initialDelayDetect.toMillis(),
-              PROBE_INTERVAL.toMillis(),
-              TimeUnit.MILLISECONDS);
+      return;
     }
+
+    Duration initialDelayProbe =
+        Duration.ofMillis(ThreadLocalRandom.current().nextLong(PROBE_INTERVAL.toMillis()));
+    this.probeTaskScheduledFuture =
+        executor.scheduleAtFixedRate(
+            this::runProbes,
+            initialDelayProbe.toMillis(),
+            PROBE_INTERVAL.toMillis(),
+            TimeUnit.MILLISECONDS);
+    Duration initialDelayDetect =
+        Duration.ofMillis(ThreadLocalRandom.current().nextLong(PROBE_INTERVAL.toMillis()));
+    this.detectAndRemoveTaskScheduledFuture =
+        executor.scheduleAtFixedRate(
+            this::detectAndRemoveOutlierEntries,
+            initialDelayDetect.toMillis(),
+            PROBE_INTERVAL.toMillis(),
+            TimeUnit.MILLISECONDS);
   }
 
   /** Stop running health checking */
@@ -140,15 +141,13 @@ class ChannelPoolHealthChecker {
         channelPrimer instanceof BigtableChannelPrimer,
         "Health checking can only be enabled with BigtableChannelPrimer, found %s",
         channelPrimer);
+    BigtableChannelPrimer primer = (BigtableChannelPrimer) channelPrimer;
+
     for (Entry entry : this.entrySupplier.get()) {
-      final Instant startTime = clock.instant();
-      final ApiFuture<PingAndWarmResponse> probeFuture;
-
-      BigtableChannelPrimer primer = (BigtableChannelPrimer) channelPrimer;
-      probeFuture = primer.sendPrimeRequestsAsync(entry.getManagedChannel());
-
+      ApiFuture<PingAndWarmResponse> probeFuture =
+          primer.sendPrimeRequestsAsync(entry.getManagedChannel());
       probeFuture.addListener(
-          () -> onComplete(entry, startTime, probeFuture), MoreExecutors.directExecutor());
+          () -> onComplete(entry, clock.instant(), probeFuture), MoreExecutors.directExecutor());
     }
   }
 
@@ -161,7 +160,7 @@ class ChannelPoolHealthChecker {
       success = true;
     } catch (Exception e) {
       success = false;
-      logger.log(Level.WARNING, "Probe failed");
+      logger.log(Level.WARNING, "Probe failed", e);
     }
     addProbeResult(entry, ProbeResult.create(startTime, success));
   }
