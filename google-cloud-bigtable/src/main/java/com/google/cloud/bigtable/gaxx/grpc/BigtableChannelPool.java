@@ -64,11 +64,11 @@ public class BigtableChannelPool extends ManagedChannel {
   private final BigtableChannelPoolSettings settings;
   private final ChannelFactory channelFactory;
 
-  private ChannelPrimer channelPrimer;
+  private final ChannelPrimer channelPrimer;
   private final ScheduledExecutorService executor;
   private final Object entryWriteLock = new Object();
   @VisibleForTesting final AtomicReference<ImmutableList<Entry>> entries = new AtomicReference<>();
-  private ChannelPoolHealthChecker channelPoolHealthChecker;
+  private final ChannelPoolHealthChecker channelPoolHealthChecker;
   private final AtomicInteger indexTicker = new AtomicInteger();
   private final String authority;
 

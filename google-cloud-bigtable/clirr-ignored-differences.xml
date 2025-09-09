@@ -419,4 +419,11 @@
         <method>*create*</method>
         <to>*</to>
     </difference>
+    <!-- change method return type is ok because BigtableChannelPrimer is InternalApi -->
+    <difference>
+        <differenceType>7006</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/stub/BigtableChannelPrimer</className>
+        <method>*sendPrimeRequestsAsync*</method>
+        <to>com.google.api.core.ApiFuture</to>
+    </difference>
 </differences>

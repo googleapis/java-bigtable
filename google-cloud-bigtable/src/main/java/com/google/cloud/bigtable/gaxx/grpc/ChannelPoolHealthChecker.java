@@ -21,6 +21,7 @@ import com.google.bigtable.v2.PingAndWarmResponse;
 import com.google.cloud.bigtable.data.v2.stub.BigtableChannelPrimer;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPool.Entry;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.time.Clock;
@@ -98,7 +99,9 @@ class ChannelPoolHealthChecker {
   }
 
   void start() {
-    if (channelPrimer instanceof BigtableChannelPrimer) {
+    if (!(channelPrimer instanceof BigtableChannelPrimer)) {
+      logger.log(Level.WARNING, "Provided channelPrimer not an instance of BigtableChannelPrimer, not checking channel health.");
+    } else {
       Duration initialDelayProbe =
           Duration.ofMillis(ThreadLocalRandom.current().nextLong(PROBE_INTERVAL.toMillis()));
       this.probeTaskScheduledFuture =
@@ -115,34 +118,30 @@ class ChannelPoolHealthChecker {
               initialDelayDetect.toMillis(),
               PROBE_INTERVAL.toMillis(),
               TimeUnit.MILLISECONDS);
-    } else {
-      logger.log(Level.WARNING, "NoOpChannelPrimer was provided, not checking channel health.");
     }
   }
 
   /** Stop running health checking */
   public void stop() {
     if (probeTaskScheduledFuture != null) {
-      probeTaskScheduledFuture.cancel(true);
+      probeTaskScheduledFuture.cancel(false);
     }
     if (detectAndRemoveTaskScheduledFuture != null) {
-      detectAndRemoveTaskScheduledFuture.cancel(true);
+      detectAndRemoveTaskScheduledFuture.cancel(false);
     }
   }
 
   /** Runs probes on all the channels in the pool. */
   @VisibleForTesting
   void runProbes() {
+    Preconditions.checkState(channelPrimer instanceof BigtableChannelPrimer, "Health checking can only be enabled with BigtableChannelPrimer, found %s", channelPrimer);
     for (Entry entry : this.entrySupplier.get()) {
       final Instant startTime = clock.instant();
       final ApiFuture<PingAndWarmResponse> probeFuture;
 
-      if (channelPrimer instanceof BigtableChannelPrimer) {
-        BigtableChannelPrimer primer = (BigtableChannelPrimer) channelPrimer;
-        probeFuture = primer.sendPrimeRequestsAsync(entry.getManagedChannel());
-      } else {
-        continue;
-      }
+      BigtableChannelPrimer primer = (BigtableChannelPrimer) channelPrimer;
+      probeFuture = primer.sendPrimeRequestsAsync(entry.getManagedChannel());
+
       probeFuture.addListener(
           () -> onComplete(entry, startTime, probeFuture), MoreExecutors.directExecutor());
     }
