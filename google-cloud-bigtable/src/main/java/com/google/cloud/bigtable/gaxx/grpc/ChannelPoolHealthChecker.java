@@ -174,6 +174,7 @@ class ChannelPoolHealthChecker {
     } else {
       entry.failedProbesInWindow.incrementAndGet();
     }
+    pruneHistory(entry);
   }
 
   @VisibleForTesting
@@ -214,7 +215,6 @@ class ChannelPoolHealthChecker {
   Entry findOutlierEntry() {
     List<Entry> unhealthyEntries =
         this.entrySupplier.get().stream()
-            .peek(this::pruneHistory)
             .filter(entry -> !isEntryHealthy(entry))
             .collect(Collectors.toList());
 
