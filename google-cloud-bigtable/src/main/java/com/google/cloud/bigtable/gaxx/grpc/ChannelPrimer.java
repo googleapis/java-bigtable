@@ -24,5 +24,5 @@ import io.grpc.ManagedChannel;
 public interface ChannelPrimer {
   void primeChannel(ManagedChannel channel);
 
-  ApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(ManagedChannel var1);
+  ApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(ManagedChannel channel);
 }
