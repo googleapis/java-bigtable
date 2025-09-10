@@ -22,7 +22,7 @@ import io.grpc.ManagedChannel;
 
 @InternalApi("For internal use by google-cloud-java clients only")
 public interface ChannelPrimer {
-  void primeChannel(ManagedChannel var1);
+  void primeChannel(ManagedChannel channel);
 
   ApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(ManagedChannel var1);
 }
