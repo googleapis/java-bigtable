@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable;
 
-import com.google.api.core.InternalApi;
+syntax = "proto3";
 
-@InternalApi("For internal use only")
-public final class Version {
-  // {x-version-update-start:google-cloud-bigtable:current}
-  public static String VERSION = "2.65.2-SNAPSHOT";
-  // {x-version-update-end}
+package com.google.cloud.bigtable.data.v2.test;
+option java_outer_classname = "SingerProto";
+option java_package = "com.google.cloud.bigtable.data.v2.test";
+
+enum Genre {
+  POP = 0;
+  JAZZ = 1;
+  FOLK = 2;
+  ROCK = 3;
 }
+
+message Singer {
+  string name = 1;
+  Genre genre = 2;
+}
+
