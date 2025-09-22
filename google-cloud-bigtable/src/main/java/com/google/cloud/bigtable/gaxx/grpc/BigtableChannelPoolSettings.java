@@ -22,8 +22,8 @@ import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import java.util.logging.Logger;
 import java.time.Duration;
+import java.util.logging.Logger;
 
 /**
  * Settings to control {@link BigtableChannelPool} behavior.
@@ -142,6 +142,7 @@ public abstract class BigtableChannelPoolSettings {
 
   /**
    * Use environment variable CBT_LOAD_BALANCING_STRATEGY to pick a load-balancing strategy.
+   *
    * @return load-balancing strategy to use.
    */
   private static LoadBalancingStrategy loadBalancingStrategyFromEnv() {
@@ -152,9 +153,8 @@ public abstract class BigtableChannelPoolSettings {
     try {
       return LoadBalancingStrategy.valueOf(strategyString.trim().toUpperCase());
     } catch (IllegalArgumentException e) {
-      throw new IllegalStateException(String.format(
-          "Invalid load-balancing strategy %s",
-          strategyString));
+      throw new IllegalStateException(
+          String.format("Invalid load-balancing strategy %s", strategyString));
     }
   }
 

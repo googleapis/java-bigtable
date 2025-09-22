@@ -33,7 +33,6 @@ import io.grpc.Status;
 import java.io.IOException;
 import java.time.Clock;
 import java.util.ArrayList;
-import java.util.function.Supplier;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CancellationException;
@@ -44,6 +43,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
@@ -118,7 +118,7 @@ public class BigtableChannelPool extends ManagedChannel {
     entries.set(initialListBuilder.build());
     authority = entries.get().get(0).channel.authority();
 
-      switch (settings.getLoadBalancingStrategy()) {
+    switch (settings.getLoadBalancingStrategy()) {
       case ROUND_ROBIN:
         picker = this::pickEntryIndexRoundRobin;
         break;
@@ -129,9 +129,9 @@ public class BigtableChannelPool extends ManagedChannel {
         picker = this::pickEntryIndexPowerOfTwoLeastInFlight;
         break;
       default:
-      throw new IllegalStateException(String.format(
-        "Unknown load balancing strategy %s",
-        settings.getLoadBalancingStrategy()));
+        throw new IllegalStateException(
+            String.format(
+                "Unknown load balancing strategy %s", settings.getLoadBalancingStrategy()));
     }
 
     this.executor = executor;
