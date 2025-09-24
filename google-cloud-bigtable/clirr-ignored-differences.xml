@@ -332,6 +332,56 @@
         <method>*</method>
     </difference>
     <difference>
+        <!-- BetaApi was added -->
+        <differenceType>7012</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/models/sql/StructReader</className>
+        <method>*getProtoMessage(*)</method>
+    </difference>
+    <difference>
+        <!-- BetaApi was added -->
+        <differenceType>7012</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/models/sql/StructReader</className>
+        <method>*getProtoEnum(*)</method>
+    </difference>
+    <difference>
+        <!-- BetaApi was added -->
+        <differenceType>7012</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/models/sql/SqlType</className>
+        <method>*protoOf(*)</method>
+    </difference>
+    <difference>
+        <differenceType>7004</differenceType>
+        <className>com/google/cloud/bigtable/common/Type$SchemalessProto</className>
+        <method>*</method>
+    </difference>
+    <difference>
+        <differenceType>7004</differenceType>
+        <className>com/google/cloud/bigtable/common/Type$SchemalessEnum</className>
+        <method>*</method>
+    </difference>
+    <difference>
+        <differenceType>7013</differenceType>
+        <className>com/google/cloud/bigtable/common/Type$SchemalessProto</className>
+        <method>*</method>
+    </difference>
+    <difference>
+        <differenceType>7013</differenceType>
+        <className>com/google/cloud/bigtable/common/Type$SchemalessEnum</className>
+        <method>*</method>
+    </difference>
+    <difference>
+        <!-- BetaApi was added -->
+        <differenceType>7012</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/models/sql/SqlType</className>
+        <method>*enumOf(*)</method>
+    </difference>
+    <difference>
+        <!-- InternalApi was added -->
+        <differenceType>7012</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/models/sql/SqlType</className>
+        <method>*getUnqualifiedName*</method>
+    </difference>
+    <difference>
         <!-- InternalApi was updated -->
         <differenceType>7004</differenceType>
         <className>com/google/cloud/bigtable/data/v2/internal/SqlRowMergerUtil</className>
@@ -395,5 +445,47 @@
         <className>com/google/cloud/bigtable/gaxx/grpc/BigtableTransportChannelProvider</className>
         <method>*create*</method>
         <to>*</to>
+    </difference>
+    <difference>
+        <differenceType>4001</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/stub/BigtableChannelPrimer</className>
+        <to>com/google/api/gax/grpc/ChannelPrimer</to>
+    </difference>
+    <difference>
+        <differenceType>4001</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/stub/NoOpChannelPrimer</className>
+        <to>com/google/api/gax/grpc/ChannelPrimer</to>
+    </difference>
+    <difference>
+        <differenceType>7005</differenceType>
+        <className>com/google/cloud/bigtable/gaxx/grpc/BigtableChannelPool</className>
+        <method>*create*</method>
+        <to>*</to>
+    </difference>
+    <difference>
+        <!-- InternalApi was updated -->
+        <differenceType>7005</differenceType>
+        <className>com/google/cloud/bigtable/gaxx/grpc/BigtableTransportChannelProvider</className>
+        <method>*create*</method>
+        <to>*</to>
+    </difference>
+    <!-- change method return type is ok because BigtableChannelPrimer is InternalApi -->
+    <difference>
+        <differenceType>7006</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/stub/BigtableChannelPrimer</className>
+        <method>*sendPrimeRequestsAsync*</method>
+        <to>com.google.api.core.ApiFuture</to>
+    </difference>
+    <difference>
+        <!-- InternalApi was updated -->
+        <differenceType>7013</differenceType>
+        <className>com/google/cloud/bigtable/gaxx/grpc/BigtableChannelPoolSettings</className>
+        <method>com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPoolSettings$LoadBalancingStrategy getLoadBalancingStrategy()</method>
+    </difference>
+    <difference>
+        <!-- InternalApi was updated -->
+        <differenceType>7013</differenceType>
+        <className>com/google/cloud/bigtable/gaxx/grpc/BigtableChannelPoolSettings$Builder</className>
+        <method>com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPoolSettings$Builder setLoadBalancingStrategy(com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPoolSettings$LoadBalancingStrategy)</method>
     </difference>
 </differences>

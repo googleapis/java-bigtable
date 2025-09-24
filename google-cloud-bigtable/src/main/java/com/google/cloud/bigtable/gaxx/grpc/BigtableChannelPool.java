@@ -17,7 +17,7 @@ package com.google.cloud.bigtable.gaxx.grpc;
 
 import com.google.api.core.InternalApi;
 import com.google.api.gax.grpc.ChannelFactory;
-import com.google.api.gax.grpc.ChannelPrimer;
+import com.google.cloud.bigtable.gaxx.grpc.ChannelPoolHealthChecker.ProbeResult;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -31,15 +31,19 @@ import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
 import java.io.IOException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
@@ -64,11 +68,13 @@ public class BigtableChannelPool extends ManagedChannel {
 
   private final ChannelPrimer channelPrimer;
   private final ScheduledExecutorService executor;
-
   private final Object entryWriteLock = new Object();
   @VisibleForTesting final AtomicReference<ImmutableList<Entry>> entries = new AtomicReference<>();
+  private final ChannelPoolHealthChecker channelPoolHealthChecker;
   private final AtomicInteger indexTicker = new AtomicInteger();
   private final String authority;
+  private final Random rng = new Random();
+  private final Supplier<Integer> picker;
 
   public static BigtableChannelPool create(
       BigtableChannelPoolSettings settings,
@@ -96,6 +102,10 @@ public class BigtableChannelPool extends ManagedChannel {
     this.settings = settings;
     this.channelFactory = channelFactory;
     this.channelPrimer = channelPrimer;
+    Clock systemClock = Clock.systemUTC();
+    this.channelPoolHealthChecker =
+        new ChannelPoolHealthChecker(entries::get, channelPrimer, executor, systemClock);
+    this.channelPoolHealthChecker.start();
 
     ImmutableList.Builder<Entry> initialListBuilder = ImmutableList.builder();
 
@@ -107,6 +117,23 @@ public class BigtableChannelPool extends ManagedChannel {
 
     entries.set(initialListBuilder.build());
     authority = entries.get().get(0).channel.authority();
+
+    switch (settings.getLoadBalancingStrategy()) {
+      case ROUND_ROBIN:
+        picker = this::pickEntryIndexRoundRobin;
+        break;
+      case LEAST_IN_FLIGHT:
+        picker = this::pickEntryIndexLeastInFlight;
+        break;
+      case POWER_OF_TWO_LEAST_IN_FLIGHT:
+        picker = this::pickEntryIndexPowerOfTwoLeastInFlight;
+        break;
+      default:
+        throw new IllegalStateException(
+            String.format(
+                "Unknown load balancing strategy %s", settings.getLoadBalancingStrategy()));
+    }
+
     this.executor = executor;
 
     if (!settings.isStaticSize()) {
@@ -132,19 +159,74 @@ public class BigtableChannelPool extends ManagedChannel {
   }
 
   /**
-   * Create a {@link ClientCall} on a Channel from the pool chosen in a round-robin fashion to the
-   * remote operation specified by the given {@link MethodDescriptor}. The returned {@link
-   * ClientCall} does not trigger any remote behavior until {@link
-   * ClientCall#start(ClientCall.Listener, io.grpc.Metadata)} is invoked.
+   * Create a {@link ClientCall} on a Channel from the pool to the remote operation specified by the
+   * given {@link MethodDescriptor}. The returned {@link ClientCall} does not trigger any remote
+   * behavior until {@link ClientCall#start(ClientCall.Listener, io.grpc.Metadata)} is invoked.
    */
   @Override
   public <ReqT, RespT> ClientCall<ReqT, RespT> newCall(
       MethodDescriptor<ReqT, RespT> methodDescriptor, CallOptions callOptions) {
-    return getChannel(indexTicker.getAndIncrement()).newCall(methodDescriptor, callOptions);
+    return new AffinityChannel(pickEntryIndex()).newCall(methodDescriptor, callOptions);
   }
 
-  Channel getChannel(int affinity) {
-    return new AffinityChannel(affinity);
+  /**
+   * Pick the index of an entry to use for the next call. The returned value *should* be within
+   * range, but callers should not assume that this is always the case as race conditions are
+   * possible.
+   */
+  private int pickEntryIndex() {
+    return picker.get();
+  }
+
+  /** Pick an entry using the Round Robin algorithm. */
+  private int pickEntryIndexRoundRobin() {
+    return Math.abs(indexTicker.getAndIncrement() % entries.get().size());
+  }
+
+  /** Pick an entry at random. */
+  private int pickEntryIndexRandom() {
+    return rng.nextInt(entries.get().size());
+  }
+
+  /** Pick an entry using the least-in-flight algorithm. */
+  private int pickEntryIndexLeastInFlight() {
+    List<Entry> localEntries = entries.get();
+    int minRpcs = Integer.MAX_VALUE;
+    List<Integer> candidates = new ArrayList<>();
+
+    for (int i = 0; i < localEntries.size(); i++) {
+      Entry entry = localEntries.get(i);
+      int rpcs = entry.outstandingRpcs.get();
+      if (rpcs < minRpcs) {
+        minRpcs = rpcs;
+        candidates.clear();
+        candidates.add(i);
+      } else if (rpcs == minRpcs) {
+        candidates.add(i);
+      }
+    }
+    // If there are multiple matching entries, pick one at random.
+    return candidates.get(rng.nextInt(candidates.size()));
+  }
+
+  /** Pick an entry using the power-of-two algorithm. */
+  private int pickEntryIndexPowerOfTwoLeastInFlight() {
+    List<Entry> localEntries = entries.get();
+    int choice1 = pickEntryIndexRandom();
+    int choice2 = pickEntryIndexRandom();
+    if (choice1 == choice2) {
+      // Try to pick two different entries. If this picks the same entry again, it's likely that
+      // there's only one healthy channel in the pool and we should proceed anyway.
+      choice2 = pickEntryIndexRandom();
+    }
+
+    Entry entry1 = localEntries.get(choice1);
+    Entry entry2 = localEntries.get(choice2);
+    return entry1.outstandingRpcs.get() < entry2.outstandingRpcs.get() ? choice1 : choice2;
+  }
+
+  Channel getChannel(int index) {
+    return new AffinityChannel(index);
   }
 
   /** {@inheritDoc} */
@@ -389,7 +471,9 @@ public class BigtableChannelPool extends ManagedChannel {
    * Get and retain a Channel Entry. The returned Entry will have its rpc count incremented,
    * preventing it from getting recycled.
    */
-  Entry getRetainedEntry(int affinity) {
+  private Entry getRetainedEntry(int affinity) {
+    // If an entry is not retainable, that usually means that it's about to be replaced and if we
+    // retry we should get a new useable entry.
     // The maximum number of concurrent calls to this method for any given time span is at most 2,
     // so the loop can actually be 2 times. But going for 5 times for a safety margin for potential
     // code evolving
@@ -445,13 +529,30 @@ public class BigtableChannelPool extends ManagedChannel {
 
     private final AtomicInteger maxOutstanding = new AtomicInteger();
 
-    // Flag that the channel should be closed once all of the outstanding RPC complete.
+    /** Queue storing the last 5 minutes of probe results */
+    @VisibleForTesting
+    final ConcurrentLinkedQueue<ProbeResult> probeHistory = new ConcurrentLinkedQueue<>();
+
+    /**
+     * Keep both # of failed and # of successful probes so that we don't have to check size() on the
+     * ConcurrentLinkedQueue all the time
+     */
+    final AtomicInteger failedProbesInWindow = new AtomicInteger();
+
+    final AtomicInteger successfulProbesInWindow = new AtomicInteger();
+
+    // Flag that the channel should be closed once all the outstanding RPCs complete.
     private final AtomicBoolean shutdownRequested = new AtomicBoolean();
     // Flag that the channel has been closed.
     private final AtomicBoolean shutdownInitiated = new AtomicBoolean();
 
-    private Entry(ManagedChannel channel) {
+    @VisibleForTesting
+    Entry(ManagedChannel channel) {
       this.channel = channel;
+    }
+
+    ManagedChannel getManagedChannel() {
+      return this.channel;
     }
 
     int getAndResetMaxOutstanding() {
@@ -468,7 +569,7 @@ public class BigtableChannelPool extends ManagedChannel {
       // register desire to start RPC
       int currentOutstanding = outstandingRpcs.incrementAndGet();
 
-      // Rough book keeping
+      // Rough bookkeeping
       int prevMax = maxOutstanding.get();
       if (currentOutstanding > prevMax) {
         maxOutstanding.incrementAndGet();
@@ -520,10 +621,10 @@ public class BigtableChannelPool extends ManagedChannel {
 
   /** Thin wrapper to ensure that new calls are properly reference counted. */
   private class AffinityChannel extends Channel {
-    private final int affinity;
+    private final int index;
 
-    public AffinityChannel(int affinity) {
-      this.affinity = affinity;
+    public AffinityChannel(int index) {
+      this.index = index;
     }
 
     @Override
@@ -534,9 +635,7 @@ public class BigtableChannelPool extends ManagedChannel {
     @Override
     public <RequestT, ResponseT> ClientCall<RequestT, ResponseT> newCall(
         MethodDescriptor<RequestT, ResponseT> methodDescriptor, CallOptions callOptions) {
-
-      Entry entry = getRetainedEntry(affinity);
-
+      Entry entry = getRetainedEntry(index);
       return new ReleasingClientCall<>(entry.channel.newCall(methodDescriptor, callOptions), entry);
     }
   }
