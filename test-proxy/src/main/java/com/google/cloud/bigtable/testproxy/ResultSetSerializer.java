@@ -55,6 +55,7 @@ public class ResultSetSerializer {
 
   // This is a helper enum to satisfy the type constraints of {@link StructReader#getProtoEnum}.
   private static class DummyEnum implements ProtocolMessageEnum {
+
     private final int value;
     private final EnumDescriptor descriptor;
 
@@ -110,76 +111,44 @@ public class ResultSetSerializer {
    * useful for handling PROTO or ENUM types that require schema lookup.
    *
    * @param descriptorSet A set containing one or more .proto file definitions and all their
-   *     non-standard dependencies.
+   *     non-standard dependencies. All .proto file must be provided in dependency order.
    * @throws IllegalArgumentException if the descriptorSet contains unresolvable dependencies.
    */
   public ResultSetSerializer(FileDescriptorSet descriptorSet) throws IllegalArgumentException {
     this.messageDescriptorMap = new HashMap<>();
     this.enumDescriptorMap = new HashMap<>();
-
-    // Java's dynamic descriptor loading requires manual dependency resolution.
-    // We must build a DAG and build files only after their dependencies are built.
-    java.util.Map<String, FileDescriptorProto> pendingProtos = new HashMap<>();
     java.util.Map<String, FileDescriptor> builtDescriptors = new HashMap<>();
+
     for (FileDescriptorProto fileDescriptorProto : descriptorSet.getFileList()) {
-      pendingProtos.put(fileDescriptorProto.getName(), fileDescriptorProto);
-    }
-
-    // Keep looping as long as we are making progress.
-    int filesBuiltThisPass;
-    do {
-      filesBuiltThisPass = 0;
-      // Use a copy of the values, to avoid modifying the pendingProtos map while iterating it.
-      List<FileDescriptorProto> protosToBuild = new ArrayList<>(pendingProtos.values());
-
-      for (FileDescriptorProto proto : protosToBuild) {
-        boolean allDependenciesMet = true;
-        List<FileDescriptor> dependencies = new ArrayList<>();
-
-        for (String dependencyName : proto.getDependencyList()) {
-          FileDescriptor dependency = builtDescriptors.get(dependencyName);
-          if (dependency != null) {
-            // Dependency is already built, add it.
-            dependencies.add(dependency);
-          } else if (pendingProtos.containsKey(dependencyName)) {
-            // Dependency is not yet built, we must wait.
-            allDependenciesMet = false;
-            break;
-          } else {
-            // Dependency is not in our set. We assume it's a well-known type (e.g.,
-            // google/protobuf/timestamp.proto) that buildFrom() can find and link automatically.
-          }
+      // Collect dependencies. This code require files inside the descriptor set to be sorted
+      // according to the dependency order.
+      List<FileDescriptor> dependencies = new ArrayList<>();
+      for (String dependencyName : fileDescriptorProto.getDependencyList()) {
+        FileDescriptor dependency = builtDescriptors.get(dependencyName);
+        if (dependency != null) {
+          // Dependency is already built, add it.
+          dependencies.add(dependency);
         }
-
-        if (allDependenciesMet) {
-          try {
-            // All dependencies are met, we can build this file.
-            FileDescriptor fileDescriptor =
-                FileDescriptor.buildFrom(proto, dependencies.toArray(new FileDescriptor[0]));
-
-            builtDescriptors.put(fileDescriptor.getName(), fileDescriptor);
-            pendingProtos.remove(proto.getName());
-            filesBuiltThisPass++;
-
-            // Now, populate both message and enum maps with all messages/enums in this file.
-            for (EnumDescriptor enumDescriptor : fileDescriptor.getEnumTypes()) {
-              enumDescriptorMap.put(enumDescriptor.getFullName(), enumDescriptor);
-            }
-            for (Descriptor messageDescriptor : fileDescriptor.getMessageTypes()) {
-              populateDescriptorMapsRecursively(messageDescriptor);
-            }
-          } catch (DescriptorValidationException e) {
-            throw new IllegalArgumentException(
-                "Failed to build descriptor for " + proto.getName(), e);
-          }
-        }
+        // Dependency is not in our set. We assume it's a well-known type (e.g.,
+        // google/protobuf/timestamp.proto) that buildFrom() can find and link automatically.
       }
-    } while (filesBuiltThisPass > 0);
 
-    // Throw if we finished looping but still have pending protos.
-    if (!pendingProtos.isEmpty()) {
-      throw new IllegalArgumentException(
-          "Unresolvable or circular dependencies found for: " + pendingProtos.keySet());
+      try {
+        FileDescriptor fileDescriptor =
+            FileDescriptor.buildFrom(
+                fileDescriptorProto, dependencies.toArray(new FileDescriptor[0]));
+        builtDescriptors.put(fileDescriptor.getName(), fileDescriptor);
+        // Now, populate both message and enum maps with all messages/enums in this file.
+        for (EnumDescriptor enumDescriptor : fileDescriptor.getEnumTypes()) {
+          enumDescriptorMap.put(enumDescriptor.getFullName(), enumDescriptor);
+        }
+        for (Descriptor messageDescriptor : fileDescriptor.getMessageTypes()) {
+          populateDescriptorMapsRecursively(messageDescriptor);
+        }
+      } catch (DescriptorValidationException e) {
+        throw new IllegalArgumentException(
+            "Failed to build descriptor for " + fileDescriptorProto.getName(), e);
+      }
     }
   }
 
