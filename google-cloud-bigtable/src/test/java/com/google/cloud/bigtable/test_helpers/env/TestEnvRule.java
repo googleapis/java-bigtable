@@ -165,16 +165,20 @@ public class TestEnvRule implements TestRule {
    * @param stalePrefix
    */
   private void cleanupStaleTables(String stalePrefix) {
+    LOGGER.info("Start cleaning up stale tables with stalePrefix=" + stalePrefix);
     for (String tableId : env().getTableAdminClient().listTables()) {
       if (!tableId.startsWith(PrefixGenerator.PREFIX)) {
+        LOGGER.info("Skip cleaning up table: " + tableId);
         continue;
       }
       if (stalePrefix.compareTo(tableId) > 0) {
+        LOGGER.info("Preparing stale table for delete: " + tableId);
         prepTableForDelete(tableId);
         try {
+          LOGGER.info("Deleting stable table: " + tableId);
           env().getTableAdminClient().deleteTable(tableId);
-        } catch (NotFoundException ignored) {
-
+        } catch (NotFoundException e) {
+          LOGGER.log(Level.WARNING, "Deleting stale table failed: " + tableId, e);
         }
       }
     }
