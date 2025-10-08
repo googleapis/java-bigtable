@@ -32,9 +32,26 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This example demonstrates the usage of BigtableTableAdminClient to create, configure and delete a
+ * Cloud Bigtable schema bundle.
+ *
+ * <p>The example follows these steps:
+ *
+ * <ol>
+ *   <li>Creates a Bigtable table.
+ *   <li>Creates a schema bundle.
+ *   <li>Updates a schema bundle.
+ *   <li>Gets the schema bundle.
+ *   <li>Lists all schema bundles for the table.
+ *   <li>Deletes the schema bundle.
+ *   <li>Deletes the table.
+ * </ol>
+ */
 public class SchemaBundleExample {
 
   private static final String COLUMN_FAMILY = "cf";
+  private static final String PROTO_FILE_PATH = "descriptors.pb";
   private final String tableId;
   private final String schemaBundleId;
   private final BigtableTableAdminClient adminClient;
@@ -115,7 +132,7 @@ public class SchemaBundleExample {
       System.out.printf("%nCreating schema bundle %s in table %s%n", schemaBundleId, tableId);
       // [START bigtable_create_schema_bundle]
       try {
-        InputStream in = getClass().getClassLoader().getResourceAsStream("descriptors.pb");
+        InputStream in = getClass().getClassLoader().getResourceAsStream(PROTO_FILE_PATH);
         CreateSchemaBundleRequest request =
             CreateSchemaBundleRequest.of(tableId, schemaBundleId)
                 .setProtoSchema(ByteString.readFrom(in));
@@ -136,7 +153,7 @@ public class SchemaBundleExample {
     System.out.printf("%nUpdating schema bundle %s in table %s%n", schemaBundleId, tableId);
     // [START bigtable_update_schema_bundle]
     try {
-      InputStream in = getClass().getClassLoader().getResourceAsStream("descriptors.pb");
+      InputStream in = getClass().getClassLoader().getResourceAsStream(PROTO_FILE_PATH);
       UpdateSchemaBundleRequest request =
           UpdateSchemaBundleRequest.of(tableId, schemaBundleId)
               .setProtoSchema(ByteString.readFrom(in));
