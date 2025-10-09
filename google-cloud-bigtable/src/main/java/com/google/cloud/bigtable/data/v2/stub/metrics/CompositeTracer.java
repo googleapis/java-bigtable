@@ -266,4 +266,19 @@ class CompositeTracer extends BigtableTracer {
       tracer.setTotalTimeoutDuration(totalTimeoutDuration);
     }
   }
+
+  @Override
+  public void setBatchWriteFlowControlTargetQps(double targetQps) {
+    for (BigtableTracer tracer : bigtableTracers) {
+      tracer.setBatchWriteFlowControlTargetQps(targetQps);
+    }
+  }
+
+  @Override
+  public void addBatchWriteFlowControlFactor(
+      double factor, @Nullable Throwable t, boolean applied) {
+    for (BigtableTracer tracer : bigtableTracers) {
+      tracer.addBatchWriteFlowControlFactor(factor, t, applied);
+    }
+  }
 }

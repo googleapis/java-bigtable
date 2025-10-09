@@ -49,6 +49,7 @@ public class BuiltinMetricsConstants {
   static final AttributeKey<String> METHOD_KEY = AttributeKey.stringKey("method");
   static final AttributeKey<String> STATUS_KEY = AttributeKey.stringKey("status");
   static final AttributeKey<String> CLIENT_UID_KEY = AttributeKey.stringKey("client_uid");
+  static final AttributeKey<Boolean> APPLIED_KEY = AttributeKey.booleanKey("applied");
 
   static final AttributeKey<String> TRANSPORT_TYPE = AttributeKey.stringKey("transport_type");
   static final AttributeKey<String> TRANSPORT_REGION = AttributeKey.stringKey("transport_region");
@@ -70,6 +71,9 @@ public class BuiltinMetricsConstants {
   static final String REMAINING_DEADLINE_NAME = "remaining_deadline";
   static final String CLIENT_BLOCKING_LATENCIES_NAME = "throttling_latencies";
   static final String PER_CONNECTION_ERROR_COUNT_NAME = "per_connection_error_count";
+  static final String BATCH_WRITE_FLOW_CONTROL_TARGET_QPS_NAME =
+      "batch_write_flow_control_target_qps";
+  static final String BATCH_WRITE_FLOW_CONTROL_FACTOR_NAME = "batch_write_flow_control_factor";
 
   // Start allow list of metrics that will be exported as internal
   public static final Map<String, Set<String>> GRPC_METRICS =
@@ -139,6 +143,9 @@ public class BuiltinMetricsConstants {
               250_000.0,
               500_000.0,
               1_000_000.0));
+
+  private static final Aggregation AGGREGATION_BATCH_WRITE_FLOW_CONTROL_FACTOR_HISTOGRAM =
+      Aggregation.explicitBucketHistogram(ImmutableList.of(0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3));
 
   static final Set<AttributeKey> COMMON_ATTRIBUTES =
       ImmutableSet.of(
@@ -286,7 +293,23 @@ public class BuiltinMetricsConstants {
             .addAll(COMMON_ATTRIBUTES)
             .add(STREAMING_KEY, STATUS_KEY)
             .build());
-
+    defineView(
+        views,
+        BATCH_WRITE_FLOW_CONTROL_TARGET_QPS_NAME,
+        Aggregation.sum(),
+        InstrumentType.GAUGE,
+        "1",
+        ImmutableSet.<AttributeKey>builder().addAll(COMMON_ATTRIBUTES).build());
+    defineView(
+        views,
+        BATCH_WRITE_FLOW_CONTROL_FACTOR_NAME,
+        AGGREGATION_BATCH_WRITE_FLOW_CONTROL_FACTOR_HISTOGRAM,
+        InstrumentType.HISTOGRAM,
+        "1",
+        ImmutableSet.<AttributeKey>builder()
+            .addAll(COMMON_ATTRIBUTES)
+            .add(STATUS_KEY, APPLIED_KEY)
+            .build());
     return views.build();
   }
 }
