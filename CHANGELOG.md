@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.67.2](https://github.com/googleapis/java-bigtable/compare/v2.67.1...v2.67.2) (2025-10-10)
+
+
+### Bug Fixes
+
+* Don't use String.format in Preconditions messages ([#2691](https://github.com/googleapis/java-bigtable/issues/2691)) ([62a1812](https://github.com/googleapis/java-bigtable/commit/62a18128d8ec65484509dde6cd0c2b0322890cc9))
+
 ## [2.67.1](https://github.com/googleapis/java-bigtable/compare/v2.67.0...v2.67.1) (2025-10-08)
 
 
