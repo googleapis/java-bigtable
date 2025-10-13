@@ -1215,6 +1215,10 @@ public class BigtableInstanceAdminClientTests {
     // Setup
     Mockito.when(mockStub.createAppProfileCallable()).thenReturn(mockCreateAppProfileCallable);
 
+    Set<String> clusterIds = new HashSet<String>();
+    clusterIds.add("cluster-id-1");
+    clusterIds.add("cluster-id-2");
+
     com.google.bigtable.admin.v2.CreateAppProfileRequest expectedRequest =
         com.google.bigtable.admin.v2.CreateAppProfileRequest.newBuilder()
             .setParent(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
@@ -1225,8 +1229,7 @@ public class BigtableInstanceAdminClientTests {
                     .setMultiClusterRoutingUseAny(
                         com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny
                             .newBuilder()
-                            .addClusterIds("cluster-id-1")
-                            .addClusterIds("cluster-id-2")
+                            .addAllClusterIds(clusterIds)
                             .setRowAffinity(
                                 com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny
                                     .RowAffinity.newBuilder()
@@ -1239,8 +1242,7 @@ public class BigtableInstanceAdminClientTests {
             .setDescription("my description")
             .setMultiClusterRoutingUseAny(
                 com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny.newBuilder()
-                    .addClusterIds("cluster-id-1")
-                    .addClusterIds("cluster-id-2")
+                    .addAllClusterIds(clusterIds)
                     .setRowAffinity(
                         com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny
                             .RowAffinity.newBuilder()
@@ -1251,9 +1253,6 @@ public class BigtableInstanceAdminClientTests {
         .thenReturn(ApiFutures.immediateFuture(expectedResponse));
 
     // Execute
-    Set<String> clusterIds = new HashSet<String>();
-    clusterIds.add("cluster-id-1");
-    clusterIds.add("cluster-id-2");
     AppProfile actualResult =
         adminClient.createAppProfile(
             CreateAppProfileRequest.of(INSTANCE_ID, APP_PROFILE_ID)
