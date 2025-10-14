@@ -51,7 +51,7 @@ import java.util.List;
 public class SchemaBundleExample {
 
   private static final String COLUMN_FAMILY = "cf";
-  private static final String PROTO_FILE_PATH = "descriptors.pb";
+  private static final String PROTO_FILE_PATH = "com/example/bigtable/descriptors.pb";
   private final String tableId;
   private final String schemaBundleId;
   private final BigtableTableAdminClient adminClient;
