@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.68.0](https://github.com/googleapis/java-bigtable/compare/v2.67.1...v2.68.0) (2025-10-14)
+
+
+### Features
+
+* Add Type API updates needed to support structured keys in materialized views ([469290e](https://github.com/googleapis/java-bigtable/commit/469290eb188ce7155abc81d4fec9dd8319851cd9))
+
+
+### Bug Fixes
+
+* Add ReadRows/SampleRowKeys bindings for materialized views ([469290e](https://github.com/googleapis/java-bigtable/commit/469290eb188ce7155abc81d4fec9dd8319851cd9))
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.62.3 ([469290e](https://github.com/googleapis/java-bigtable/commit/469290eb188ce7155abc81d4fec9dd8319851cd9))
+* Don't use String.format in Preconditions messages ([#2691](https://github.com/googleapis/java-bigtable/issues/2691)) ([62a1812](https://github.com/googleapis/java-bigtable/commit/62a18128d8ec65484509dde6cd0c2b0322890cc9))
+* Fixed the bigtableadmin API name for snippet region tags and possibly other GAPIC attributes ([469290e](https://github.com/googleapis/java-bigtable/commit/469290eb188ce7155abc81d4fec9dd8319851cd9))
+
 ## [2.67.1](https://github.com/googleapis/java-bigtable/compare/v2.67.0...v2.67.1) (2025-10-08)
 
 
