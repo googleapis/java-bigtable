@@ -75,9 +75,9 @@ import com.google.protobuf.Empty;
 import com.google.protobuf.FieldMask;
 import io.grpc.Status;
 import io.grpc.Status.Code;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Before;
@@ -1215,7 +1215,9 @@ public class BigtableInstanceAdminClientTests {
     // Setup
     Mockito.when(mockStub.createAppProfileCallable()).thenReturn(mockCreateAppProfileCallable);
 
-    Set<String> clusterIds = new HashSet<String>();
+    // We want to make sure the expected request has the same ordering as the request we build
+    // from CreateAppProfileRequest. Use a TreeSet to for stable ordering.
+    Set<String> clusterIds = new TreeSet<>();
     clusterIds.add("cluster-id-1");
     clusterIds.add("cluster-id-2");
 
