@@ -64,6 +64,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -438,6 +439,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       grpcTransportProviderBuilder
           .setAttemptDirectPathXds()
           .setAttemptDirectPath(true)
+          // Try to fetch a hard-bound access token for direct access if the runtime
+          // environment supports it.
+          .setAllowHardBoundTokenTypes(
+              Collections.singletonList(InstantiatingGrpcChannelProvider.HardBoundTokenTypes.ALTS))
           // Allow using non-default service account in DirectPath.
           .setAllowNonDefaultServiceAccount(true);
     }
