@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 class RateLimitingServerStreamingCallable
     extends ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> {
@@ -69,6 +70,8 @@ class RateLimitingServerStreamingCallable
 
   private final ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> innerCallable;
 
+  private BigtableTracer bigtableTracer;
+
   RateLimitingServerStreamingCallable(
       @Nonnull ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> innerCallable) {
     this.limiter = new ConditionalRateLimiter(DEFAULT_QPS);
@@ -84,8 +87,8 @@ class RateLimitingServerStreamingCallable
     limiter.acquire();
     stopwatch.stop();
     if (context.getTracer() instanceof BigtableTracer) {
-      ((BigtableTracer) context.getTracer())
-          .batchRequestThrottled(stopwatch.elapsed(TimeUnit.NANOSECONDS));
+      bigtableTracer = (BigtableTracer) context.getTracer();
+      bigtableTracer.batchRequestThrottled(stopwatch.elapsed(TimeUnit.NANOSECONDS));
     }
     RateLimitingResponseObserver innerObserver = new RateLimitingResponseObserver(responseObserver);
     innerCallable.call(request, innerObserver, context);
@@ -158,12 +161,19 @@ class RateLimitingServerStreamingCallable
      * @param rate The new rate of the rate limiter.
      * @param period The period during which rate should not be updated again and the rate limiter
      *     should not be disabled.
+     * @param bigtableTracer The tracer for exporting client-side metrics.
      */
-    public void trySetRate(double rate, Duration period) {
+    public void trySetRate(
+        double rate,
+        Duration period,
+        BigtableTracer bigtableTracer,
+        double cappedFactor,
+        @Nullable Throwable status) {
       Instant nextTime = nextRateUpdateTime.get();
       Instant now = Instant.now();
 
       if (now.isBefore(nextTime)) {
+        bigtableTracer.addBatchWriteFlowControlFactor(cappedFactor, status, false);
         return;
       }
 
@@ -171,6 +181,7 @@ class RateLimitingServerStreamingCallable
 
       if (!nextRateUpdateTime.compareAndSet(nextTime, newNextTime)) {
         // Someone else updated it already.
+        bigtableTracer.addBatchWriteFlowControlFactor(cappedFactor, status, false);
         return;
       }
       final double oldRate = limiter.getRate();
@@ -183,6 +194,8 @@ class RateLimitingServerStreamingCallable
               + " with period "
               + period.getSeconds()
               + " seconds.");
+      bigtableTracer.setBatchWriteFlowControlTargetQps(rate);
+      bigtableTracer.addBatchWriteFlowControlFactor(cappedFactor, status, true);
     }
 
     @VisibleForTesting
@@ -236,7 +249,8 @@ class RateLimitingServerStreamingCallable
         RateLimitInfo info = response.getRateLimitInfo();
         updateQps(
             info.getFactor(),
-            Duration.ofSeconds(com.google.protobuf.util.Durations.toSeconds(info.getPeriod())));
+            Duration.ofSeconds(com.google.protobuf.util.Durations.toSeconds(info.getPeriod())),
+            null);
       } else {
         limiter.tryDisable();
       }
@@ -250,7 +264,7 @@ class RateLimitingServerStreamingCallable
       if (t instanceof DeadlineExceededException
           || t instanceof UnavailableException
           || t instanceof ResourceExhaustedException) {
-        updateQps(MIN_FACTOR, DEFAULT_PERIOD);
+        updateQps(MIN_FACTOR, DEFAULT_PERIOD, t);
       }
       outerObserver.onError(t);
     }
@@ -260,11 +274,11 @@ class RateLimitingServerStreamingCallable
       outerObserver.onComplete();
     }
 
-    private void updateQps(double factor, Duration period) {
+    private void updateQps(double factor, Duration period, @Nullable Throwable t) {
       double cappedFactor = Math.min(Math.max(factor, MIN_FACTOR), MAX_FACTOR);
       double currentRate = limiter.getRate();
       double cappedRate = Math.min(Math.max(currentRate * cappedFactor, MIN_QPS), MAX_QPS);
-      limiter.trySetRate(cappedRate, period);
+      limiter.trySetRate(cappedRate, period, bigtableTracer, cappedFactor, t);
     }
   }
 
