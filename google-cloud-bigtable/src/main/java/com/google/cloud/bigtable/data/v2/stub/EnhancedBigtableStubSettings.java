@@ -114,6 +114,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private static final boolean DIRECT_PATH_ENABLED =
       Boolean.parseBoolean(System.getenv("CBT_ENABLE_DIRECTPATH"));
 
+  // If true, disable the bound-token-by-default feature for DirectPath.
+  private static final boolean DIRECT_PATH_BOUND_TOKEN_DISABLED =
+      Boolean.parseBoolean(System.getenv("CBT_DISABLE_DIRECTPATH_BOUND_TOKEN"));
+
   private static final boolean SKIP_TRAILERS =
       Optional.ofNullable(System.getenv("CBT_SKIP_HEADERS"))
           .map(Boolean::parseBoolean)
@@ -439,12 +443,15 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       grpcTransportProviderBuilder
           .setAttemptDirectPathXds()
           .setAttemptDirectPath(true)
-          // Try to fetch a hard-bound access token for direct access if the runtime
-          // environment supports it.
-          .setAllowHardBoundTokenTypes(
-              Collections.singletonList(InstantiatingGrpcChannelProvider.HardBoundTokenTypes.ALTS))
           // Allow using non-default service account in DirectPath.
           .setAllowNonDefaultServiceAccount(true);
+      if (!DIRECT_PATH_BOUND_TOKEN_DISABLED) {
+        // Try to fetch a hard-bound access token for direct access if the runtime
+        // environment supports it.
+        grpcTransportProviderBuilder
+          .setAllowHardBoundTokenTypes(
+              Collections.singletonList(InstantiatingGrpcChannelProvider.HardBoundTokenTypes.ALTS));
+      } 
     }
     return grpcTransportProviderBuilder
         .setChannelPoolSettings(
