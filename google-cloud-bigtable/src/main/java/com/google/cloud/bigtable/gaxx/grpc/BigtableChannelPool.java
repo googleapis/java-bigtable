@@ -557,8 +557,8 @@ public class BigtableChannelPool extends ManagedChannel {
     ManagedChannel getManagedChannel() {
       return this.channel;
     }
-
-    private int totalOutstandingRpcs() {
+    @VisibleForTesting
+    int totalOutstandingRpcs() {
       return outstandingUnaryRpcs.get() + outstandingStreamingRpcs.get();
     }
 
@@ -576,7 +576,8 @@ public class BigtableChannelPool extends ManagedChannel {
      * channel has been successfully retained and it is the responsibility of the caller to release
      * it.
      */
-    private boolean retain(boolean isStreaming) {
+    @VisibleForTesting
+    boolean retain(boolean isStreaming) {
       AtomicInteger counter = isStreaming ? outstandingStreamingRpcs : outstandingUnaryRpcs;
       AtomicInteger maxCounter = isStreaming ? maxOutstandingStreamingRpcs : maxOutstandingUnaryRpcs;
       int currentOutstanding = counter.incrementAndGet();
@@ -593,7 +594,7 @@ public class BigtableChannelPool extends ManagedChannel {
      * Notify the channel that the number of outstanding RPCs has decreased. If shutdown has been
      * previously requested, this method will shutdown the channel if its the last outstanding RPC.
      */
-    private void release(boolean isStreaming) {
+    void release(boolean isStreaming) {
       AtomicInteger counter = isStreaming ? outstandingStreamingRpcs : outstandingUnaryRpcs;
       int newCount = counter.decrementAndGet();
       if (newCount < 0) {
