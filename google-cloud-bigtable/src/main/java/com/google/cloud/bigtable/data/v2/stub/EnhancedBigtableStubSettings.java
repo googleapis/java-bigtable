@@ -448,9 +448,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       if (!DIRECT_PATH_BOUND_TOKEN_DISABLED) {
         // Try to fetch a hard-bound access token for direct access if the runtime
         // environment supports it.
-        grpcTransportProviderBuilder
-            .setAllowHardBoundTokenTypes(
-                Collections.singletonList(InstantiatingGrpcChannelProvider.HardBoundTokenTypes.ALTS));
+        grpcTransportProviderBuilder.setAllowHardBoundTokenTypes(
+            Collections.singletonList(InstantiatingGrpcChannelProvider.HardBoundTokenTypes.ALTS));
       }
     }
     return grpcTransportProviderBuilder
