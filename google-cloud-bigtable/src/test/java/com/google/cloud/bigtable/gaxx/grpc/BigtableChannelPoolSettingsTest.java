@@ -24,9 +24,12 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import io.grpc.ManagedChannel;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mockito;
 
 @RunWith(JUnit4.class)
 public class BigtableChannelPoolSettingsTest {
@@ -47,6 +50,45 @@ public class BigtableChannelPoolSettingsTest {
         BigtableChannelPoolSettings.copyFrom(originalSettings);
     assertSettingsCopiedCorrectly(originalSettings, copiedSettings);
   }
+
+  @Test
+  public void testEntryRetainReleaseByType() {
+    ManagedChannel mockChannel = Mockito.mock(ManagedChannel.class);
+    BigtableChannelPool.Entry entry = new BigtableChannelPool.Entry(mockChannel);
+
+    // Test Unary
+    assertThat(entry.retain(false)).isTrue(); // Unary
+    assertThat(entry.outstandingUnaryRpcs.get()).isEqualTo(1);
+    assertThat(entry.outstandingStreamingRpcs.get()).isEqualTo(0);
+    assertThat(entry.totalOutstandingRpcs()).isEqualTo(1);
+    // Test Unary release
+    entry.release(false);
+    assertThat(entry.outstandingUnaryRpcs.get()).isEqualTo(0);
+    assertThat(entry.outstandingStreamingRpcs.get()).isEqualTo(0);
+    assertThat(entry.totalOutstandingRpcs()).isEqualTo(0);
+
+    // Test Streaming
+    assertThat(entry.retain(true)).isTrue(); // Streaming
+    assertThat(entry.outstandingUnaryRpcs.get()).isEqualTo(0);
+    assertThat(entry.outstandingStreamingRpcs.get()).isEqualTo(1);
+    assertThat(entry.totalOutstandingRpcs()).isEqualTo(1);
+    // Test Streaming again
+    assertThat(entry.retain(true)).isTrue(); // Streaming again
+    assertThat(entry.outstandingStreamingRpcs.get()).isEqualTo(2);
+    assertThat(entry.outstandingUnaryRpcs.get()).isEqualTo(0);
+    assertThat(entry.totalOutstandingRpcs()).isEqualTo(2);
+
+    entry.release(true);
+    assertThat(entry.outstandingStreamingRpcs.get()).isEqualTo(1);
+    assertThat(entry.outstandingUnaryRpcs.get()).isEqualTo(0);
+    assertThat(entry.totalOutstandingRpcs()).isEqualTo(1);
+
+    entry.release(true);
+    assertThat(entry.outstandingStreamingRpcs.get()).isEqualTo(0);
+    assertThat(entry.outstandingUnaryRpcs.get()).isEqualTo(0);
+    assertThat(entry.totalOutstandingRpcs()).isEqualTo(0);
+  }
+
 
   @Test
   public void testToBigtableChannelPoolSettingsDefaultValuesCopiesCorrectly() throws Exception {
