@@ -449,9 +449,9 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         // Try to fetch a hard-bound access token for direct access if the runtime
         // environment supports it.
         grpcTransportProviderBuilder
-          .setAllowHardBoundTokenTypes(
-              Collections.singletonList(InstantiatingGrpcChannelProvider.HardBoundTokenTypes.ALTS));
-      } 
+            .setAllowHardBoundTokenTypes(
+                Collections.singletonList(InstantiatingGrpcChannelProvider.HardBoundTokenTypes.ALTS));
+      }
     }
     return grpcTransportProviderBuilder
         .setChannelPoolSettings(
