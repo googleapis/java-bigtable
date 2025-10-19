@@ -19,13 +19,12 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.gax.grpc.ChannelPoolSettings;
 import com.google.common.collect.ImmutableSet;
+import io.grpc.ManagedChannel;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import io.grpc.ManagedChannel;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -88,7 +87,6 @@ public class BigtableChannelPoolSettingsTest {
     assertThat(entry.outstandingUnaryRpcs.get()).isEqualTo(0);
     assertThat(entry.totalOutstandingRpcs()).isEqualTo(0);
   }
-
 
   @Test
   public void testToBigtableChannelPoolSettingsDefaultValuesCopiesCorrectly() throws Exception {

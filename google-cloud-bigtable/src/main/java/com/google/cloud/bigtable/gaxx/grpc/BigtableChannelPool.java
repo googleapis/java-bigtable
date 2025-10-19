@@ -526,11 +526,11 @@ public class BigtableChannelPool extends ManagedChannel {
      * start.
      */
     @VisibleForTesting final AtomicInteger outstandingUnaryRpcs = new AtomicInteger(0);
+
     @VisibleForTesting final AtomicInteger outstandingStreamingRpcs = new AtomicInteger(0);
 
     private final AtomicInteger maxOutstandingUnaryRpcs = new AtomicInteger();
     private final AtomicInteger maxOutstandingStreamingRpcs = new AtomicInteger();
-
 
     /** Queue storing the last 5 minutes of probe results */
     @VisibleForTesting
@@ -557,6 +557,7 @@ public class BigtableChannelPool extends ManagedChannel {
     ManagedChannel getManagedChannel() {
       return this.channel;
     }
+
     @VisibleForTesting
     int totalOutstandingRpcs() {
       return outstandingUnaryRpcs.get() + outstandingStreamingRpcs.get();
@@ -579,7 +580,8 @@ public class BigtableChannelPool extends ManagedChannel {
     @VisibleForTesting
     boolean retain(boolean isStreaming) {
       AtomicInteger counter = isStreaming ? outstandingStreamingRpcs : outstandingUnaryRpcs;
-      AtomicInteger maxCounter = isStreaming ? maxOutstandingStreamingRpcs : maxOutstandingUnaryRpcs;
+      AtomicInteger maxCounter =
+          isStreaming ? maxOutstandingStreamingRpcs : maxOutstandingUnaryRpcs;
       int currentOutstanding = counter.incrementAndGet();
       maxCounter.accumulateAndGet(currentOutstanding, Math::max);
       // abort if the channel is closing
@@ -601,13 +603,12 @@ public class BigtableChannelPool extends ManagedChannel {
         LOG.log(Level.WARNING, "Bug! Reference count is negative (" + newCount + ")!");
       }
 
-      // Must check toalOutstandingRpcs after shutdownRequested (in reverse order of retain()) to ensure
+      // Must check toalOutstandingRpcs after shutdownRequested (in reverse order of retain()) to
+      // ensure
       // mutual exclusion.
       if (shutdownRequested.get() && totalOutstandingRpcs() == 0) {
         shutdown();
       }
-
-
     }
 
     /**
@@ -647,7 +648,8 @@ public class BigtableChannelPool extends ManagedChannel {
         MethodDescriptor<RequestT, ResponseT> methodDescriptor, CallOptions callOptions) {
       boolean isStreaming = methodDescriptor.getType() != MethodDescriptor.MethodType.UNARY;
       Entry entry = getRetainedEntry(index, isStreaming);
-      return new ReleasingClientCall<>(entry.channel.newCall(methodDescriptor, callOptions), entry, isStreaming);
+      return new ReleasingClientCall<>(
+          entry.channel.newCall(methodDescriptor, callOptions), entry, isStreaming);
     }
   }
 
