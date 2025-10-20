@@ -26,12 +26,7 @@ import com.google.auth.Credentials;
 import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
-import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants;
-import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
-import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
-import com.google.cloud.bigtable.data.v2.stub.metrics.ErrorCountPerConnectionMetricTracker;
-import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
-import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
+import com.google.cloud.bigtable.data.v2.stub.metrics.*;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableTransportChannelProvider;
 import com.google.cloud.bigtable.gaxx.grpc.ChannelPrimer;
 import io.grpc.ManagedChannelBuilder;
@@ -98,7 +93,7 @@ public class BigtableClientContext {
 
     @Nullable OpenTelemetrySdk internalOtel = null;
     @Nullable ErrorCountPerConnectionMetricTracker errorCountPerConnectionMetricTracker = null;
-
+    @Nullable OutstandingRpcsMetricTracker outstandingRpcsMetricTracker = null;
     // Internal metrics are scoped to the connections, so we need a mutable transportProvider,
     // otherwise there is
     // no reason to build the internal OtelProvider
@@ -110,6 +105,8 @@ public class BigtableClientContext {
         // a configurable transport provider + otel
         errorCountPerConnectionMetricTracker =
             setupPerConnectionErrorTracer(builder, transportProvider, internalOtel);
+
+        outstandingRpcsMetricTracker = new OutstandingRpcsMetricTracker(internalOtel, "LB_POLICY");
 
         // Configure grpc metrics
         configureGrpcOtel(transportProvider, internalOtel);
@@ -137,7 +134,9 @@ public class BigtableClientContext {
 
       BigtableTransportChannelProvider btTransportProvider =
           BigtableTransportChannelProvider.create(
-              (InstantiatingGrpcChannelProvider) transportProvider.build(), channelPrimer);
+              (InstantiatingGrpcChannelProvider) transportProvider.build(),
+              channelPrimer,
+              outstandingRpcsMetricTracker);
 
       builder.setTransportChannelProvider(btTransportProvider);
     }
@@ -147,6 +146,10 @@ public class BigtableClientContext {
     if (errorCountPerConnectionMetricTracker != null) {
       errorCountPerConnectionMetricTracker.startConnectionErrorCountTracker(
           clientContext.getExecutor());
+    }
+
+    if (outstandingRpcsMetricTracker != null) {
+      outstandingRpcsMetricTracker.start(clientContext.getExecutor());
     }
 
     return new BigtableClientContext(

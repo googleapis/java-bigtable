@@ -57,7 +57,7 @@ import javax.annotation.Nullable;
  * <p>Internal API
  */
 @InternalApi
-public class BigtableChannelPool extends ManagedChannel {
+public class BigtableChannelPool extends ManagedChannel implements BigtableChannelInsightsProvider {
   @VisibleForTesting
   static final Logger LOG = Logger.getLogger(BigtableChannelPool.class.getName());
 
@@ -507,8 +507,14 @@ public class BigtableChannelPool extends ManagedChannel {
     return localEntries.get(index);
   }
 
+  /** Gets the current list of BigtableChannelInsight objects. */
+  @Override
+  public List<? extends BigtableChannelInsight> getChannelInfos() {
+    return entries.get();
+  }
+
   /** Bundles a gRPC {@link ManagedChannel} with some usage accounting. */
-  static class Entry {
+  static class Entry implements BigtableChannelInsight {
     private final ManagedChannel channel;
 
     /**
@@ -627,6 +633,17 @@ public class BigtableChannelPool extends ManagedChannel {
       if (shutdownInitiated.compareAndSet(false, true)) {
         channel.shutdown();
       }
+    }
+
+    /** Gets the current number of outstanding Unary RPCs on this channel. */
+    @Override
+    public int getOutstandingUnaryRpcs() {
+      return outstandingUnaryRpcs.get();
+    }
+
+    @Override
+    public int getOutstandingStreamingRpcs() {
+      return 0;
     }
   }
 
