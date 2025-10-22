@@ -57,7 +57,7 @@ import javax.annotation.Nullable;
  * <p>Internal API
  */
 @InternalApi
-public class BigtableChannelPool extends ManagedChannel implements BigtableChannelInsightsProvider {
+public class BigtableChannelPool extends ManagedChannel implements BigtableChannelPoolObserver {
   @VisibleForTesting
   static final Logger LOG = Logger.getLogger(BigtableChannelPool.class.getName());
 
@@ -509,12 +509,12 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
 
   /** Gets the current list of BigtableChannelInsight objects. */
   @Override
-  public List<? extends BigtableChannelInsight> getChannelInfos() {
+  public List<? extends BigtableChannelObserver> getChannelInfos() {
     return entries.get();
   }
 
   /** Bundles a gRPC {@link ManagedChannel} with some usage accounting. */
-  static class Entry implements BigtableChannelInsight {
+  static class Entry implements BigtableChannelObserver {
     private final ManagedChannel channel;
 
     /**

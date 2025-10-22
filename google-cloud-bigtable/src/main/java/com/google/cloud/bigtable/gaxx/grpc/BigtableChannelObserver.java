@@ -17,9 +17,9 @@ package com.google.cloud.bigtable.gaxx.grpc;
 
 import com.google.api.core.InternalApi;
 
-/** Provides insights about a single channel in the channel pool. */
+/** Provides observability about a single channel in the channel pool. */
 @InternalApi
-public interface BigtableChannelInsight {
+public interface BigtableChannelObserver {
   /** Gets the current number of outstanding Unary RPCs on this channel. */
   int getOutstandingUnaryRpcs();
 

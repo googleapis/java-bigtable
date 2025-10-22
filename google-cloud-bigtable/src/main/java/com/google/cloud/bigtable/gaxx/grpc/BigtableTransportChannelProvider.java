@@ -147,6 +147,8 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
 
     if (outstandingRpcsMetricTracker != null) {
       outstandingRpcsMetricTracker.registerChannelInsightsProvider(btChannelPool::getChannelInfos);
+      outstandingRpcsMetricTracker.registerLoadBalancingStrategy(
+          btPoolSettings.getLoadBalancingStrategy().name());
     }
 
     return GrpcTransportChannel.create(btChannelPool);

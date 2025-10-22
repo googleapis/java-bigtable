@@ -106,7 +106,7 @@ public class BigtableClientContext {
         errorCountPerConnectionMetricTracker =
             setupPerConnectionErrorTracer(builder, transportProvider, internalOtel);
 
-        outstandingRpcsMetricTracker = new OutstandingRpcsMetricTracker(internalOtel, "LB_POLICY");
+        outstandingRpcsMetricTracker = new OutstandingRpcsMetricTracker(internalOtel);
 
         // Configure grpc metrics
         configureGrpcOtel(transportProvider, internalOtel);

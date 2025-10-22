@@ -20,7 +20,7 @@ import java.util.List;
 
 @InternalApi
 @FunctionalInterface
-public interface BigtableChannelInsightsProvider {
+public interface BigtableChannelPoolObserver {
   /** Gets the current list of BigtableChannelInsight objects. */
-  List<? extends BigtableChannelInsight> getChannelInfos();
+  List<? extends BigtableChannelObserver> getChannelInfos();
 }

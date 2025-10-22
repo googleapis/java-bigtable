@@ -18,8 +18,8 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METER_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.OUTSTANDING_RPCS_PER_CHANNEL_NAME;
 
-import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelInsight;
-import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelInsightsProvider;
+import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelObserver;
+import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPoolObserver;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.LongHistogram;
@@ -29,15 +29,24 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import javax.annotation.Nullable;
 
 public class OutstandingRpcsMetricTracker implements Runnable {
   private static final int SAMPLING_PERIOD_SECONDS = 60;
   private final LongHistogram outstandingRpcsHistogram;
-  private final Attributes baseAttributes;
-  private final AtomicReference<BigtableChannelInsightsProvider>
+  private final AtomicReference<BigtableChannelPoolObserver>
       bigtableChannelInsightsProviderRef = new AtomicReference<>();
+  private final AtomicReference<String> lbPolicyRef = new AtomicReference<>();
 
-  public OutstandingRpcsMetricTracker(OpenTelemetry openTelemetry, String lbPolicy) {
+  // Base attributes common to all recordings
+  private static final Attributes TRANSPORT_GRPC_ATTR =
+      Attributes.builder().put("transport_type", "grpc").build();
+
+  // Attributes for unary and streaming RPCs, built on demand in run()
+  @Nullable private Attributes unaryAttributes;
+  @Nullable private Attributes streamingAttributes;
+
+  public OutstandingRpcsMetricTracker(OpenTelemetry openTelemetry) {
     Meter meter = openTelemetry.getMeter(METER_NAME);
     this.outstandingRpcsHistogram =
         meter
@@ -47,9 +56,6 @@ public class OutstandingRpcsMetricTracker implements Runnable {
                 "A distribution of the number of outstanding RPCs per connection in the client pool, sampled periodically.")
             .setUnit("1")
             .build();
-
-    this.baseAttributes =
-        Attributes.builder().put("transport_type", "grpc").put("lb_policy", lbPolicy).build();
   }
 
   /**
@@ -57,8 +63,13 @@ public class OutstandingRpcsMetricTracker implements Runnable {
    * that creates the BigtableChannelPool.
    */
   public void registerChannelInsightsProvider(
-      BigtableChannelInsightsProvider channelInsightsProvider) {
+      BigtableChannelPoolObserver channelInsightsProvider) {
     this.bigtableChannelInsightsProviderRef.set(channelInsightsProvider);
+  }
+
+  /** Register the current lb policy * */
+  public void registerLoadBalancingStrategy(String lbPolicy) {
+    this.lbPolicyRef.set(lbPolicy);
   }
 
   /** Starts the periodic collection. */
@@ -69,25 +80,33 @@ public class OutstandingRpcsMetricTracker implements Runnable {
 
   @Override
   public void run() {
-    BigtableChannelInsightsProvider channelInsightsProvider =
+    BigtableChannelPoolObserver channelInsightsProvider =
         bigtableChannelInsightsProviderRef.get();
     if (channelInsightsProvider == null) {
       return; // Not registered yet
     }
-    List<? extends BigtableChannelInsight> channelInsights =
+    String lbPolicy = lbPolicyRef.get();
+    if (lbPolicy == null) {
+      lbPolicy = "ROUND_ROBIN";
+    }
+
+    // Build attributes if they haven't been built yet or were invalidated
+    if (unaryAttributes == null || streamingAttributes == null) {
+      Attributes baseAttrs = TRANSPORT_GRPC_ATTR.toBuilder().put("lb_policy", lbPolicy).build();
+      this.unaryAttributes = baseAttrs.toBuilder().put("streaming", false).build();
+      this.streamingAttributes = baseAttrs.toBuilder().put("streaming", true).build();
+    }
+    List<? extends BigtableChannelObserver> channelInsights =
         channelInsightsProvider.getChannelInfos();
     if (channelInsights == null || channelInsights.isEmpty()) {
       return;
     }
-    for (BigtableChannelInsight info : channelInsights) {
-      long currentOutstandingUnaryRpcs = info.getOutstandingStreamingRpcs();
+    for (BigtableChannelObserver info : channelInsights) {
+      long currentOutstandingUnaryRpcs = info.getOutstandingUnaryRpcs();
       long currentOutstandingStreamingRpcs = info.getOutstandingStreamingRpcs();
       // Record outstanding unary RPCs with streaming=false
-      Attributes unaryAttributes = baseAttributes.toBuilder().put("streaming", false).build();
       outstandingRpcsHistogram.record(currentOutstandingUnaryRpcs, unaryAttributes);
-
       // Record outstanding streaming RPCs with streaming=true
-      Attributes streamingAttributes = baseAttributes.toBuilder().put("streaming", true).build();
       outstandingRpcsHistogram.record(currentOutstandingStreamingRpcs, streamingAttributes);
     }
   }
