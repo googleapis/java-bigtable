@@ -34,8 +34,8 @@ import javax.annotation.Nullable;
 public class OutstandingRpcsMetricTracker implements Runnable {
   private static final int SAMPLING_PERIOD_SECONDS = 60;
   private final LongHistogram outstandingRpcsHistogram;
-  private final AtomicReference<BigtableChannelPoolObserver>
-      bigtableChannelInsightsProviderRef = new AtomicReference<>();
+  private final AtomicReference<BigtableChannelPoolObserver> bigtableChannelInsightsProviderRef =
+      new AtomicReference<>();
   private final AtomicReference<String> lbPolicyRef = new AtomicReference<>();
 
   // Base attributes common to all recordings
@@ -62,8 +62,7 @@ public class OutstandingRpcsMetricTracker implements Runnable {
    * Registers the provider for the channel pool entries. This should be called by the component
    * that creates the BigtableChannelPool.
    */
-  public void registerChannelInsightsProvider(
-      BigtableChannelPoolObserver channelInsightsProvider) {
+  public void registerChannelInsightsProvider(BigtableChannelPoolObserver channelInsightsProvider) {
     this.bigtableChannelInsightsProviderRef.set(channelInsightsProvider);
   }
 
@@ -80,8 +79,7 @@ public class OutstandingRpcsMetricTracker implements Runnable {
 
   @Override
   public void run() {
-    BigtableChannelPoolObserver channelInsightsProvider =
-        bigtableChannelInsightsProviderRef.get();
+    BigtableChannelPoolObserver channelInsightsProvider = bigtableChannelInsightsProviderRef.get();
     if (channelInsightsProvider == null) {
       return; // Not registered yet
     }
