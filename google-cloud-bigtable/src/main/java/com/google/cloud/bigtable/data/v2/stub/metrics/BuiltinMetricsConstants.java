@@ -70,7 +70,7 @@ public class BuiltinMetricsConstants {
   static final String REMAINING_DEADLINE_NAME = "remaining_deadline";
   static final String CLIENT_BLOCKING_LATENCIES_NAME = "throttling_latencies";
   static final String PER_CONNECTION_ERROR_COUNT_NAME = "per_connection_error_count";
-  static final String OUTSTANDING_RPCS_PER_CHANNEL_NAME = "connection_pool/outstanding_rpc";
+  static final String OUTSTANDING_RPCS_PER_CHANNEL_NAME = "connection_pool/outstanding_rpcs";
 
   // Start allow list of metrics that will be exported as internal
   public static final Map<String, Set<String>> GRPC_METRICS =
