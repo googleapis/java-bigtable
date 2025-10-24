@@ -86,6 +86,48 @@ public class BigtableChannelPoolSettingsTest {
     assertThat(entry.outstandingStreamingRpcs.get()).isEqualTo(0);
     assertThat(entry.outstandingUnaryRpcs.get()).isEqualTo(0);
     assertThat(entry.totalOutstandingRpcs()).isEqualTo(0);
+
+    // Test Error Counting
+    entry.incrementErrorCount();
+    assertThat(entry.getAndResetErrorCount()).isEqualTo(1);
+    assertThat(entry.getAndResetErrorCount()).isEqualTo(0); // Should be reset
+
+    entry.incrementErrorCount();
+    entry.incrementErrorCount();
+    assertThat(entry.getAndResetErrorCount()).isEqualTo(2);
+    assertThat(entry.getAndResetErrorCount()).isEqualTo(0);
+
+    // Test Success Counting
+    entry.incrementSuccessCount();
+    assertThat(entry.getAndResetSuccessCount()).isEqualTo(1);
+    assertThat(entry.getAndResetSuccessCount()).isEqualTo(0); // Should be reset
+
+    entry.incrementSuccessCount();
+    entry.incrementSuccessCount();
+    entry.incrementSuccessCount();
+    assertThat(entry.getAndResetSuccessCount()).isEqualTo(3);
+    assertThat(entry.getAndResetSuccessCount()).isEqualTo(0);
+
+    // Test Mixed Error and Success Counting
+    entry.incrementErrorCount();
+    entry.incrementSuccessCount();
+    entry.incrementSuccessCount();
+    entry.incrementErrorCount();
+    entry.incrementSuccessCount();
+
+    assertThat(entry.getAndResetErrorCount()).isEqualTo(2);
+    assertThat(entry.getAndResetSuccessCount()).isEqualTo(3);
+
+    // Verify reset after mixed
+    assertThat(entry.getAndResetErrorCount()).isEqualTo(0);
+    assertThat(entry.getAndResetSuccessCount()).isEqualTo(0);
+
+    // Ensure retain/release doesn't affect error/success counts
+    entry.incrementErrorCount();
+    entry.retain(false);
+    entry.release(false);
+    assertThat(entry.getAndResetErrorCount()).isEqualTo(1);
+    assertThat(entry.getAndResetSuccessCount()).isEqualTo(0);
   }
 
   @Test

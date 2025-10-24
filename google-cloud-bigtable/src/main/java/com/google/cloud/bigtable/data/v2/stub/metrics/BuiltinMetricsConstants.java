@@ -141,6 +141,13 @@ public class BuiltinMetricsConstants {
               500_000.0,
               1_000_000.0));
 
+  // Buckets for outstanding RPCs per channel, max ~100
+  private static final Aggregation AGGREGATION_OUTSTANDING_RPCS_HISTOGRAM =
+      Aggregation.explicitBucketHistogram(
+          ImmutableList.of(
+              0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0,
+              25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0)); // Added
+
   static final Set<AttributeKey> COMMON_ATTRIBUTES =
       ImmutableSet.of(
           BIGTABLE_PROJECT_ID_KEY,
@@ -182,12 +189,22 @@ public class BuiltinMetricsConstants {
     viewMap.put(selector, view);
   }
 
+  // uses cloud.BigtableClient schema
   public static Map<InstrumentSelector, View> getInternalViews() {
     ImmutableMap.Builder<InstrumentSelector, View> views = ImmutableMap.builder();
     defineView(
         views,
         PER_CONNECTION_ERROR_COUNT_NAME,
         AGGREGATION_PER_CONNECTION_ERROR_COUNT_HISTOGRAM,
+        InstrumentType.HISTOGRAM,
+        "1",
+        ImmutableSet.<AttributeKey>builder()
+            .add(BIGTABLE_PROJECT_ID_KEY, INSTANCE_ID_KEY, APP_PROFILE_KEY, CLIENT_NAME_KEY)
+            .build());
+    defineView(
+        views,
+        OUTSTANDING_RPCS_PER_CHANNEL_NAME,
+        AGGREGATION_OUTSTANDING_RPCS_HISTOGRAM,
         InstrumentType.HISTOGRAM,
         "1",
         ImmutableSet.<AttributeKey>builder()

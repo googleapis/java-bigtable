@@ -23,5 +23,14 @@ public interface BigtableChannelObserver {
   /** Gets the current number of outstanding Unary RPCs on this channel. */
   int getOutstandingUnaryRpcs();
 
+  /** Gets the current number of outstanding Streaming RPCs on this channel. */
   int getOutstandingStreamingRpcs();
+
+  /** Get the current number of errors request count since the last observed period */
+  long getAndResetErrorCount(); // New method
+
+  /** Get the current number of successful requests since the last observed period */
+  long getAndResetSuccessCount(); // New method
+
+  boolean isAltsChannel();
 }

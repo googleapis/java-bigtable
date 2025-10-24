@@ -531,6 +531,10 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
      * outstanding RPCs has to happen when the ClientCall is closed or the ClientCall failed to
      * start.
      */
+    @VisibleForTesting final AtomicReference<Boolean> isAltsHolder = new AtomicReference<>(null);
+
+    @VisibleForTesting final AtomicInteger errorCount = new AtomicInteger(0);
+    @VisibleForTesting final AtomicInteger successCount = new AtomicInteger(0);
     @VisibleForTesting final AtomicInteger outstandingUnaryRpcs = new AtomicInteger(0);
 
     @VisibleForTesting final AtomicInteger outstandingStreamingRpcs = new AtomicInteger(0);
@@ -560,6 +564,20 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
       this.channel = channel;
     }
 
+    void checkAndSetIsAlts(ClientCall<?, ?> call) {
+      if (isAltsHolder.get() == null) {
+        boolean result = false;
+        //        try {
+        //          result = AltsContextUtil.check(call.getAttributes());
+        //        } catch (Exception e) {
+        //          LOG.log(Level.FINE, "Failed to check ALTS status on call start", e);
+        //          // result remains false
+        //        }
+        // Atomically set only if still null
+        isAltsHolder.compareAndSet(null, result);
+      }
+    }
+
     ManagedChannel getManagedChannel() {
       return this.channel;
     }
@@ -585,16 +603,16 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
      */
     @VisibleForTesting
     boolean retain(boolean isStreaming) {
-      AtomicInteger counter = isStreaming ? outstandingStreamingRpcs : outstandingUnaryRpcs;
-      AtomicInteger maxCounter =
-          isStreaming ? maxOutstandingStreamingRpcs : maxOutstandingUnaryRpcs;
-      int currentOutstanding = counter.incrementAndGet();
-      maxCounter.accumulateAndGet(currentOutstanding, Math::max);
       // abort if the channel is closing
       if (shutdownRequested.get()) {
         release(isStreaming);
         return false;
       }
+      AtomicInteger counter = isStreaming ? outstandingStreamingRpcs : outstandingUnaryRpcs;
+      AtomicInteger maxCounter =
+          isStreaming ? maxOutstandingStreamingRpcs : maxOutstandingUnaryRpcs;
+      int currentOutstanding = counter.incrementAndGet();
+      maxCounter.accumulateAndGet(currentOutstanding, Math::max);
       return true;
     }
 
@@ -641,9 +659,35 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
       return outstandingUnaryRpcs.get();
     }
 
+    void incrementErrorCount() {
+      errorCount.incrementAndGet();
+    }
+
+    void incrementSuccessCount() {
+      successCount.incrementAndGet();
+    }
+
     @Override
     public int getOutstandingStreamingRpcs() {
-      return 0;
+      return outstandingStreamingRpcs.get();
+    }
+
+    /** Get the current number of errors request count since the last observed period */
+    @Override
+    public long getAndResetErrorCount() {
+      return errorCount.getAndSet(0);
+    }
+
+    /** Get the current number of successful requests since the last observed period */
+    @Override
+    public long getAndResetSuccessCount() {
+      return successCount.getAndSet(0);
+    }
+
+    @Override
+    public boolean isAltsChannel() {
+      Boolean val = isAltsHolder.get();
+      return val != null && val;
     }
   }
 
@@ -690,6 +734,8 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
         throw new IllegalStateException("Call is already cancelled", cancellationException);
       }
       try {
+        entry.checkAndSetIsAlts(delegate());
+
         super.start(
             new SimpleForwardingClientCallListener<RespT>(responseListener) {
               @Override
@@ -702,6 +748,12 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
                   return;
                 }
                 try {
+                  // status for increment success and error count
+                  if (status.isOk()) {
+                    entry.incrementSuccessCount();
+                  } else {
+                    entry.incrementErrorCount();
+                  }
                   super.onClose(status, trailers);
                 } finally {
                   if (wasReleased.compareAndSet(false, true)) {
