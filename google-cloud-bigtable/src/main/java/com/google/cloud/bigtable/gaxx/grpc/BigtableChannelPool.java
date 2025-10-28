@@ -676,7 +676,6 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
       return val != null && val;
     }
 
-
     void incrementErrorCount() {
       errorCount.incrementAndGet();
     }
