@@ -565,17 +565,9 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
     }
 
     void checkAndSetIsAlts(ClientCall<?, ?> call) {
-      if (isAltsHolder.get() == null) {
-        boolean result = false;
-        //        try {
-        //          result = AltsContextUtil.check(call.getAttributes());
-        //        } catch (Exception e) {
-        //          LOG.log(Level.FINE, "Failed to check ALTS status on call start", e);
-        //          // result remains false
-        //        }
-        // Atomically set only if still null
-        isAltsHolder.compareAndSet(null, result);
-      }
+      // TODO(populate ALTS holder)
+      boolean result = false;
+      isAltsHolder.compareAndSet(null, result);
     }
 
     ManagedChannel getManagedChannel() {
@@ -603,16 +595,16 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
      */
     @VisibleForTesting
     boolean retain(boolean isStreaming) {
-      // abort if the channel is closing
-      if (shutdownRequested.get()) {
-        release(isStreaming);
-        return false;
-      }
       AtomicInteger counter = isStreaming ? outstandingStreamingRpcs : outstandingUnaryRpcs;
       AtomicInteger maxCounter =
           isStreaming ? maxOutstandingStreamingRpcs : maxOutstandingUnaryRpcs;
       int currentOutstanding = counter.incrementAndGet();
       maxCounter.accumulateAndGet(currentOutstanding, Math::max);
+      // abort if the channel is closing
+      if (shutdownRequested.get()) {
+        release(isStreaming);
+        return false;
+      }
       return true;
     }
 
@@ -621,8 +613,10 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
      * previously requested, this method will shutdown the channel if its the last outstanding RPC.
      */
     void release(boolean isStreaming) {
-      AtomicInteger counter = isStreaming ? outstandingStreamingRpcs : outstandingUnaryRpcs;
-      int newCount = counter.decrementAndGet();
+      int newCount =
+          isStreaming
+              ? outstandingStreamingRpcs.decrementAndGet()
+              : outstandingUnaryRpcs.decrementAndGet();
       if (newCount < 0) {
         LOG.log(Level.WARNING, "Bug! Reference count is negative (" + newCount + ")!");
       }
@@ -659,14 +653,6 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
       return outstandingUnaryRpcs.get();
     }
 
-    void incrementErrorCount() {
-      errorCount.incrementAndGet();
-    }
-
-    void incrementSuccessCount() {
-      successCount.incrementAndGet();
-    }
-
     @Override
     public int getOutstandingStreamingRpcs() {
       return outstandingStreamingRpcs.get();
@@ -689,6 +675,15 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
       Boolean val = isAltsHolder.get();
       return val != null && val;
     }
+
+
+    void incrementErrorCount() {
+      errorCount.incrementAndGet();
+    }
+
+    void incrementSuccessCount() {
+      successCount.incrementAndGet();
+    }
   }
 
   /** Thin wrapper to ensure that new calls are properly reference counted. */
@@ -707,7 +702,8 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
     @Override
     public <RequestT, ResponseT> ClientCall<RequestT, ResponseT> newCall(
         MethodDescriptor<RequestT, ResponseT> methodDescriptor, CallOptions callOptions) {
-      boolean isStreaming = methodDescriptor.getType() != MethodDescriptor.MethodType.UNARY;
+      boolean isStreaming =
+          methodDescriptor.getType() == MethodDescriptor.MethodType.SERVER_STREAMING;
       Entry entry = getRetainedEntry(index, isStreaming);
       return new ReleasingClientCall<>(
           entry.channel.newCall(methodDescriptor, callOptions), entry, isStreaming);

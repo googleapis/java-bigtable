@@ -23,7 +23,7 @@ import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.TransportChannel;
 import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.auth.Credentials;
-import com.google.cloud.bigtable.data.v2.stub.metrics.ChannelPoolMetricsTracker;
+import com.google.cloud.bigtable.data.v2.stub.metrics.ChannelPoolMetricsTracer;
 import com.google.common.base.Preconditions;
 import io.grpc.ManagedChannel;
 import java.io.IOException;
@@ -41,15 +41,15 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
 
   private final InstantiatingGrpcChannelProvider delegate;
   private final ChannelPrimer channelPrimer;
-  @Nullable private final ChannelPoolMetricsTracker channelPoolMetricsTracker;
+  @Nullable private final ChannelPoolMetricsTracer channelPoolMetricsTracer;
 
   private BigtableTransportChannelProvider(
       InstantiatingGrpcChannelProvider instantiatingGrpcChannelProvider,
       ChannelPrimer channelPrimer,
-      ChannelPoolMetricsTracker channelPoolMetricsTracker) {
+      ChannelPoolMetricsTracer channelPoolMetricsTracer) {
     delegate = Preconditions.checkNotNull(instantiatingGrpcChannelProvider);
     this.channelPrimer = channelPrimer;
-    this.channelPoolMetricsTracker = channelPoolMetricsTracker;
+    this.channelPoolMetricsTracer = channelPoolMetricsTracer;
   }
 
   @Override
@@ -72,7 +72,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
     InstantiatingGrpcChannelProvider newChannelProvider =
         (InstantiatingGrpcChannelProvider) delegate.withExecutor(executor);
     return new BigtableTransportChannelProvider(
-        newChannelProvider, channelPrimer, channelPoolMetricsTracker);
+        newChannelProvider, channelPrimer, channelPoolMetricsTracer);
   }
 
   @Override
@@ -85,7 +85,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
     InstantiatingGrpcChannelProvider newChannelProvider =
         (InstantiatingGrpcChannelProvider) delegate.withHeaders(headers);
     return new BigtableTransportChannelProvider(
-        newChannelProvider, channelPrimer, channelPoolMetricsTracker);
+        newChannelProvider, channelPrimer, channelPoolMetricsTracer);
   }
 
   @Override
@@ -98,7 +98,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
     InstantiatingGrpcChannelProvider newChannelProvider =
         (InstantiatingGrpcChannelProvider) delegate.withEndpoint(endpoint);
     return new BigtableTransportChannelProvider(
-        newChannelProvider, channelPrimer, channelPoolMetricsTracker);
+        newChannelProvider, channelPrimer, channelPoolMetricsTracer);
   }
 
   @Deprecated
@@ -113,7 +113,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
     InstantiatingGrpcChannelProvider newChannelProvider =
         (InstantiatingGrpcChannelProvider) delegate.withPoolSize(size);
     return new BigtableTransportChannelProvider(
-        newChannelProvider, channelPrimer, channelPoolMetricsTracker);
+        newChannelProvider, channelPrimer, channelPoolMetricsTracer);
   }
 
   /** Expected to only be called once when BigtableClientContext is created */
@@ -145,9 +145,9 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
     BigtableChannelPool btChannelPool =
         BigtableChannelPool.create(btPoolSettings, channelFactory, channelPrimer);
 
-    if (channelPoolMetricsTracker != null) {
-      channelPoolMetricsTracker.registerChannelInsightsProvider(btChannelPool::getChannelInfos);
-      channelPoolMetricsTracker.registerLoadBalancingStrategy(
+    if (channelPoolMetricsTracer != null) {
+      channelPoolMetricsTracer.registerChannelInsightsProvider(btChannelPool::getChannelInfos);
+      channelPoolMetricsTracer.registerLoadBalancingStrategy(
           btPoolSettings.getLoadBalancingStrategy().name());
     }
 
@@ -169,14 +169,14 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
     InstantiatingGrpcChannelProvider newChannelProvider =
         (InstantiatingGrpcChannelProvider) delegate.withCredentials(credentials);
     return new BigtableTransportChannelProvider(
-        newChannelProvider, channelPrimer, channelPoolMetricsTracker);
+        newChannelProvider, channelPrimer, channelPoolMetricsTracer);
   }
 
   /** Creates a BigtableTransportChannelProvider. */
   public static BigtableTransportChannelProvider create(
       InstantiatingGrpcChannelProvider instantiatingGrpcChannelProvider,
       ChannelPrimer channelPrimer,
-      ChannelPoolMetricsTracker outstandingRpcsMetricTracke) {
+      ChannelPoolMetricsTracer outstandingRpcsMetricTracke) {
     return new BigtableTransportChannelProvider(
         instantiatingGrpcChannelProvider, channelPrimer, outstandingRpcsMetricTracke);
   }

@@ -27,10 +27,10 @@ public interface BigtableChannelObserver {
   int getOutstandingStreamingRpcs();
 
   /** Get the current number of errors request count since the last observed period */
-  long getAndResetErrorCount(); // New method
+  long getAndResetErrorCount();
 
   /** Get the current number of successful requests since the last observed period */
-  long getAndResetSuccessCount(); // New method
+  long getAndResetSuccessCount();
 
   boolean isAltsChannel();
 }

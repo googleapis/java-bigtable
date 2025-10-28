@@ -231,5 +231,6 @@ public class BigtableChannelPoolTest {
     assertThat(entry.getOutstandingStreamingRpcs()).isEqualTo(0);
     assertThat(entry.getAndResetSuccessCount()).isEqualTo(0);
     assertThat(entry.getAndResetErrorCount()).isEqualTo(1); // The last failure
+    assertThat(entry.totalOutstandingRpcs()).isEqualTo(0);
   }
 }

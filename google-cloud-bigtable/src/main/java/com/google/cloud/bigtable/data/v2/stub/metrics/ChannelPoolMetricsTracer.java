@@ -15,7 +15,9 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.*;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METER_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.OUTSTANDING_RPCS_PER_CHANNEL_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME;
 
 import com.google.api.core.InternalApi;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelObserver;
@@ -33,8 +35,8 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 @InternalApi("For internal use only")
-public class ChannelPoolMetricsTracker implements Runnable {
-  private static final Logger logger = Logger.getLogger(ChannelPoolMetricsTracker.class.getName());
+public class ChannelPoolMetricsTracer implements Runnable {
+  private static final Logger logger = Logger.getLogger(ChannelPoolMetricsTracer.class.getName());
 
   private static final int SAMPLING_PERIOD_SECONDS = 60;
   private final LongHistogram outstandingRpcsHistogram;
@@ -49,7 +51,7 @@ public class ChannelPoolMetricsTracker implements Runnable {
   @Nullable private Attributes unaryAttributes;
   @Nullable private Attributes streamingAttributes;
 
-  public ChannelPoolMetricsTracker(OpenTelemetry openTelemetry, Attributes commonAttrs) {
+  public ChannelPoolMetricsTracer(OpenTelemetry openTelemetry, Attributes commonAttrs) {
     Meter meter = openTelemetry.getMeter(METER_NAME);
     this.commonAttrs = commonAttrs;
     this.outstandingRpcsHistogram =

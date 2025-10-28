@@ -27,7 +27,7 @@ import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants;
-import com.google.cloud.bigtable.data.v2.stub.metrics.ChannelPoolMetricsTracker;
+import com.google.cloud.bigtable.data.v2.stub.metrics.ChannelPoolMetricsTracer;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
@@ -97,7 +97,7 @@ public class BigtableClientContext {
             : null;
 
     @Nullable OpenTelemetrySdk internalOtel = null;
-    @Nullable ChannelPoolMetricsTracker channelPoolMetricsTracker = null;
+    @Nullable ChannelPoolMetricsTracer channelPoolMetricsTracer = null;
     // Internal metrics are scoped to the connections, so we need a mutable transportProvider,
     // otherwise there is
     // no reason to build the internal OtelProvider
@@ -105,8 +105,8 @@ public class BigtableClientContext {
       internalOtel =
           settings.getInternalMetricsProvider().createOtelProvider(settings, credentials);
       if (internalOtel != null) {
-        channelPoolMetricsTracker =
-            new ChannelPoolMetricsTracker(
+        channelPoolMetricsTracer =
+            new ChannelPoolMetricsTracer(
                 internalOtel, EnhancedBigtableStub.createBuiltinAttributes(builder.build()));
 
         // Configure grpc metrics
@@ -137,14 +137,14 @@ public class BigtableClientContext {
           BigtableTransportChannelProvider.create(
               (InstantiatingGrpcChannelProvider) transportProvider.build(),
               channelPrimer,
-              channelPoolMetricsTracker);
+              channelPoolMetricsTracer);
 
       builder.setTransportChannelProvider(btTransportProvider);
     }
 
     ClientContext clientContext = ClientContext.create(builder.build());
-    if (channelPoolMetricsTracker != null) {
-      channelPoolMetricsTracker.start(clientContext.getExecutor());
+    if (channelPoolMetricsTracer != null) {
+      channelPoolMetricsTracer.start(clientContext.getExecutor());
     }
 
     return new BigtableClientContext(

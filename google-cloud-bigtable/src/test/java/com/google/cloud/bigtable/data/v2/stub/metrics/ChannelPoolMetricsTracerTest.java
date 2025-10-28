@@ -51,7 +51,7 @@ import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
 
 @RunWith(JUnit4.class)
-public class ChannelPoolMetricsTrackerTest {
+public class ChannelPoolMetricsTracerTest {
 
   @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
@@ -59,7 +59,7 @@ public class ChannelPoolMetricsTrackerTest {
   @Mock private ScheduledExecutorService mockScheduler;
   private ArgumentCaptor<Runnable> runnableCaptor;
 
-  private ChannelPoolMetricsTracker tracker;
+  private ChannelPoolMetricsTracer tracker;
   private Attributes baseAttributes;
 
   @Mock private BigtableChannelPoolObserver mockInsightsProvider;
@@ -76,7 +76,7 @@ public class ChannelPoolMetricsTrackerTest {
 
     baseAttributes = Attributes.builder().build();
 
-    tracker = new ChannelPoolMetricsTracker(openTelemetry, baseAttributes);
+    tracker = new ChannelPoolMetricsTracer(openTelemetry, baseAttributes);
 
     runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
     // Configure mockScheduler to capture the runnable when tracker.start() is called
@@ -99,12 +99,12 @@ public class ChannelPoolMetricsTrackerTest {
     when(mockInsight2.isAltsChannel()).thenReturn(false);
   }
 
-  /** Helper to run the captured ChannelPoolMetricsTracker task. */
+  /** Helper to run the captured ChannelPoolMetricsTracer task. */
   void runTrackerTask() {
     List<Runnable> capturedRunnables = runnableCaptor.getAllValues();
     assertThat(capturedRunnables).hasSize(1); // Expect only one task scheduled
     Runnable trackerRunnable = capturedRunnables.get(0);
-    assertThat(trackerRunnable).isInstanceOf(ChannelPoolMetricsTracker.class);
+    assertThat(trackerRunnable).isInstanceOf(ChannelPoolMetricsTracer.class);
     trackerRunnable.run();
   }
 
