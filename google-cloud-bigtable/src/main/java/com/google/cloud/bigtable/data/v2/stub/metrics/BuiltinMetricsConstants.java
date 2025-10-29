@@ -130,7 +130,7 @@ public class BuiltinMetricsConstants {
                   GRPC_XDS_SERVER_KEY.getKey(),
                   GRPC_XDS_RESOURCE_TYPE_KEY.getKey()))
           // TODO: "grpc.xds_client.resources"
-          // New gRPC subchannel metrics from cl/819914383
+          //  gRPC subchannel metrics
           .put(
               "grpc.subchannel.disconnections",
               ImmutableSet.of(
