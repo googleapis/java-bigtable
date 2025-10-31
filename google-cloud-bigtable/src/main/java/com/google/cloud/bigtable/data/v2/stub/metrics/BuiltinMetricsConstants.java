@@ -56,15 +56,17 @@ public class BuiltinMetricsConstants {
   static final AttributeKey<String> TRANSPORT_SUBZONE = AttributeKey.stringKey("transport_subzone");
 
   // gRPC attribute keys
+  // Note that these attributes keys from transformed from
+  // A.B.C to A_B_C before exporting to Cloud Monitoring.
   static final AttributeKey<String> GRPC_LB_BACKEND_SERVICE_KEY =
-      AttributeKey.stringKey("grpc_lb_backend_service");
+      AttributeKey.stringKey("grpc.lb.backend_service");
   static final AttributeKey<String> GRPC_DISCONNECT_ERROR_KEY =
-      AttributeKey.stringKey("grpc_disconnect_error");
+      AttributeKey.stringKey("grpc.disconnect_error");
   static final AttributeKey<String> GRPC_LB_LOCALITY_KEY =
-      AttributeKey.stringKey("grpc_lb_locality");
-  static final AttributeKey<String> GRPC_TARGET_KEY = AttributeKey.stringKey("grpc_target");
+      AttributeKey.stringKey("grpc.lb.locality");
+  static final AttributeKey<String> GRPC_TARGET_KEY = AttributeKey.stringKey("grpc.target");
   static final AttributeKey<String> GRPC_SECURITY_LEVEL_KEY =
-      AttributeKey.stringKey("grpc_security_level");
+      AttributeKey.stringKey("grpc.security_level");
   static final AttributeKey<String> GRPC_METHOD_KEY = AttributeKey.stringKey("grpc.method");
   static final AttributeKey<String> GRPC_STATUS_KEY = AttributeKey.stringKey("grpc.status");
   static final AttributeKey<String> GRPC_LB_RLS_DATA_PLANE_TARGET_KEY =
