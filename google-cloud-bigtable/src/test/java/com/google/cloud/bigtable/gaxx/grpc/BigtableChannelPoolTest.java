@@ -21,7 +21,13 @@ import static org.mockito.Mockito.*;
 
 import com.google.api.gax.grpc.ChannelFactory;
 import com.google.common.collect.Iterables;
-import io.grpc.*;
+import io.grpc.Attributes;
+import io.grpc.CallOptions;
+import io.grpc.ClientCall;
+import io.grpc.ManagedChannel;
+import io.grpc.Metadata;
+import io.grpc.MethodDescriptor;
+import io.grpc.Status;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
