@@ -22,15 +22,21 @@ import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.api.gax.rpc.StatusCode.Code;
+import com.google.auth.Credentials;
 import com.google.bigtable.v2.AuthorizedViewName;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
+import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest;
+import com.google.bigtable.v2.MaterializedViewName;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowsRequest;
+import com.google.bigtable.v2.ReadChangeStreamRequest;
 import com.google.bigtable.v2.ReadModifyWriteRowRequest;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ResponseParams;
 import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.TableName;
+import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.CallOptions;
@@ -39,6 +45,13 @@ import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import io.opencensus.tags.TagValue;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.metrics.InstrumentSelector;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
+import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
+import io.opentelemetry.sdk.metrics.View;
+import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
+import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -109,9 +122,11 @@ public class Util {
   static String extractTableId(Object request) {
     String tableName = null;
     String authorizedViewName = null;
+    String materializedViewName = null;
     if (request instanceof ReadRowsRequest) {
       tableName = ((ReadRowsRequest) request).getTableName();
       authorizedViewName = ((ReadRowsRequest) request).getAuthorizedViewName();
+      materializedViewName = ((ReadRowsRequest) request).getMaterializedViewName();
     } else if (request instanceof MutateRowsRequest) {
       tableName = ((MutateRowsRequest) request).getTableName();
       authorizedViewName = ((MutateRowsRequest) request).getAuthorizedViewName();
@@ -121,20 +136,28 @@ public class Util {
     } else if (request instanceof SampleRowKeysRequest) {
       tableName = ((SampleRowKeysRequest) request).getTableName();
       authorizedViewName = ((SampleRowKeysRequest) request).getAuthorizedViewName();
+      materializedViewName = ((SampleRowKeysRequest) request).getMaterializedViewName();
     } else if (request instanceof CheckAndMutateRowRequest) {
       tableName = ((CheckAndMutateRowRequest) request).getTableName();
       authorizedViewName = ((CheckAndMutateRowRequest) request).getAuthorizedViewName();
     } else if (request instanceof ReadModifyWriteRowRequest) {
       tableName = ((ReadModifyWriteRowRequest) request).getTableName();
       authorizedViewName = ((ReadModifyWriteRowRequest) request).getAuthorizedViewName();
+    } else if (request instanceof GenerateInitialChangeStreamPartitionsRequest) {
+      tableName = ((GenerateInitialChangeStreamPartitionsRequest) request).getTableName();
+    } else if (request instanceof ReadChangeStreamRequest) {
+      tableName = ((ReadChangeStreamRequest) request).getTableName();
     }
-    if (tableName == null && authorizedViewName == null) return "undefined";
-    if (tableName.isEmpty() && authorizedViewName.isEmpty()) return "undefined";
-    if (!tableName.isEmpty()) {
+    if (tableName != null && !tableName.isEmpty()) {
       return TableName.parse(tableName).getTable();
-    } else {
+    }
+    if (authorizedViewName != null && !authorizedViewName.isEmpty()) {
       return AuthorizedViewName.parse(authorizedViewName).getTable();
     }
+    if (materializedViewName != null && !materializedViewName.isEmpty()) {
+      return MaterializedViewName.parse(materializedViewName).getMaterializedView();
+    }
+    return "<unspecified>";
   }
 
   /**
@@ -230,5 +253,27 @@ public class Util {
       // so we can see what class context is.
       throw new RuntimeException("Unexpected context class: " + context.getClass().getName());
     }
+  }
+
+  public static OpenTelemetrySdk newInternalOpentelemetry(
+      EnhancedBigtableStubSettings settings, Credentials credentials) throws IOException {
+    SdkMeterProviderBuilder meterProviderBuilder = SdkMeterProvider.builder();
+
+    for (Map.Entry<InstrumentSelector, View> e :
+        BuiltinMetricsConstants.getInternalViews().entrySet()) {
+      meterProviderBuilder.registerView(e.getKey(), e.getValue());
+    }
+
+    meterProviderBuilder.registerMetricReader(
+        PeriodicMetricReader.create(
+            BigtableCloudMonitoringExporter.create(
+                "application metrics",
+                credentials,
+                settings.getMetricsEndpoint(),
+                settings.getUniverseDomain(),
+                new BigtableCloudMonitoringExporter.InternalTimeSeriesConverter(
+                    Suppliers.memoize(
+                        () -> BigtableExporterUtils.createInternalMonitoredResource(settings))))));
+    return OpenTelemetrySdk.builder().setMeterProvider(meterProviderBuilder.build()).build();
   }
 }

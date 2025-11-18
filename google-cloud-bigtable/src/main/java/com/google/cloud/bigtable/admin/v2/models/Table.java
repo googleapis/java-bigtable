@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.google.cloud.bigtable.admin.v2.models;
 
 import com.google.api.core.InternalApi;
 import com.google.bigtable.admin.v2.TableName;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -58,7 +60,7 @@ public final class Table {
 
     /**
      * The table is fully created and ready for use after a restore, and is being optimized for
-     * performance. When optimizations are complete, the table will transition to `READY` state.
+     * performance. When optimizations are complete, the table will transition to`READY` state.
      */
     READY_OPTIMIZING(
         com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState.READY_OPTIMIZING),
@@ -99,12 +101,49 @@ public final class Table {
     }
   }
 
+  public static class AutomatedBackupPolicy {
+    private final com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy proto;
+
+    /**
+     * Wraps the protobuf. This method is considered an internal implementation detail and not meant
+     * to be used by applications.
+     */
+    @InternalApi
+    public static AutomatedBackupPolicy fromProto(
+        com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy proto) {
+      return new AutomatedBackupPolicy(proto);
+    }
+
+    AutomatedBackupPolicy(@Nonnull com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy proto) {
+      this.proto = proto;
+    }
+
+    /**
+     * Creates the request protobuf. This method is considered an internal implementation detail and
+     * not meant to be used by applications.
+     */
+    @InternalApi
+    public com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy toProto() {
+      return proto;
+    }
+
+    /** Returns policy config contents as a string. */
+    public String viewConfig() {
+      return MoreObjects.toStringHelper(this)
+          .add(proto.getClass().getName() + ".retention_period", proto.getRetentionPeriod())
+          .add(proto.getClass().getName() + ".frequency", proto.getFrequency())
+          .toString();
+    }
+  }
+
   private final String id;
   private final String instanceId;
   private final Map<String, ReplicationState> replicationStatesByClusterId;
   private final List<ColumnFamily> columnFamilies;
 
   private final Duration changeStreamRetention;
+  private final boolean deletionProtection;
+  private static AutomatedBackupPolicy automatedBackupPolicy;
 
   @InternalApi
   public static Table fromProto(@Nonnull com.google.bigtable.admin.v2.Table proto) {
@@ -131,23 +170,35 @@ public final class Table {
               proto.getChangeStreamConfig().getRetentionPeriod().getNanos());
     }
 
+    if (proto.hasAutomatedBackupPolicy()) {
+      automatedBackupPolicy = AutomatedBackupPolicy.fromProto(proto.getAutomatedBackupPolicy());
+    } else {
+      automatedBackupPolicy = null;
+    }
+
     return new Table(
         TableName.parse(proto.getName()),
         replicationStates.build(),
         columnFamilies.build(),
-        changeStreamConfig);
+        changeStreamConfig,
+        proto.getDeletionProtection(),
+        automatedBackupPolicy);
   }
 
   private Table(
       TableName tableName,
       Map<String, ReplicationState> replicationStatesByClusterId,
       List<ColumnFamily> columnFamilies,
-      Duration changeStreamRetention) {
+      Duration changeStreamRetention,
+      boolean deletionProtection,
+      AutomatedBackupPolicy automatedBackupPolicy) {
     this.instanceId = tableName.getInstance();
     this.id = tableName.getTable();
     this.replicationStatesByClusterId = replicationStatesByClusterId;
     this.columnFamilies = columnFamilies;
     this.changeStreamRetention = changeStreamRetention;
+    this.deletionProtection = deletionProtection;
+    Table.automatedBackupPolicy = automatedBackupPolicy;
   }
 
   /** Gets the table's id. */
@@ -172,6 +223,21 @@ public final class Table {
     return changeStreamRetention;
   }
 
+  /** Returns whether this table is deletion protected. */
+  public boolean isDeletionProtected() {
+    return deletionProtection;
+  }
+
+  /** Returns whether this table has automated backups enabled. */
+  public boolean isAutomatedBackupEnabled() {
+    return automatedBackupPolicy == null ? false : true;
+  }
+
+  /** Returns the automated backup policy config. */
+  public AutomatedBackupPolicy getAutomatedBackupPolicy() {
+    return automatedBackupPolicy;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -185,12 +251,20 @@ public final class Table {
         && Objects.equal(instanceId, table.instanceId)
         && Objects.equal(replicationStatesByClusterId, table.replicationStatesByClusterId)
         && Objects.equal(columnFamilies, table.columnFamilies)
-        && Objects.equal(changeStreamRetention, table.changeStreamRetention);
+        && Objects.equal(changeStreamRetention, table.changeStreamRetention)
+        && Objects.equal(deletionProtection, table.deletionProtection)
+        && Objects.equal(automatedBackupPolicy, Table.automatedBackupPolicy);
   }
 
   @Override
   public int hashCode() {
     return Objects.hashCode(
-        id, instanceId, replicationStatesByClusterId, columnFamilies, changeStreamRetention);
+        id,
+        instanceId,
+        replicationStatesByClusterId,
+        columnFamilies,
+        changeStreamRetention,
+        deletionProtection,
+        automatedBackupPolicy);
   }
 }

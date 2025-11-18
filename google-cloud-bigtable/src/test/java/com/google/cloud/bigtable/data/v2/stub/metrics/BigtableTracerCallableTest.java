@@ -44,6 +44,7 @@ import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.SampleRowKeysRequest;
 import com.google.cloud.bigtable.data.v2.models.TableId;
+import com.google.cloud.bigtable.data.v2.stub.BigtableClientContext;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.common.collect.ImmutableMap;
 import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
@@ -126,11 +127,10 @@ public class BigtableTracerCallableTest {
             .setAppProfileId(APP_PROFILE_ID)
             .build();
 
+    BigtableClientContext bigtableClientContext =
+        EnhancedBigtableStub.createBigtableClientContext(settings.getStubSettings());
     ClientContext clientContext =
-        EnhancedBigtableStub.createClientContext(settings.getStubSettings());
-    clientContext =
-        clientContext
-            .toBuilder()
+        bigtableClientContext.getClientContext().toBuilder()
             .setTracerFactory(
                 EnhancedBigtableStub.createBigtableTracerFactory(
                     settings.getStubSettings(),
@@ -152,11 +152,10 @@ public class BigtableTracerCallableTest {
             .setAppProfileId(APP_PROFILE_ID)
             .build();
 
+    BigtableClientContext noHeaderBigtableClientContext =
+        EnhancedBigtableStub.createBigtableClientContext(noHeaderSettings.getStubSettings());
     ClientContext noHeaderClientContext =
-        EnhancedBigtableStub.createClientContext(noHeaderSettings.getStubSettings());
-    noHeaderClientContext =
-        noHeaderClientContext
-            .toBuilder()
+        noHeaderBigtableClientContext.getClientContext().toBuilder()
             .setTracerFactory(
                 EnhancedBigtableStub.createBigtableTracerFactory(
                     noHeaderSettings.getStubSettings(),

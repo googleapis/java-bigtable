@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,12 @@ package com.google.cloud.bigtable.admin.v2.stub;
 
 import static com.google.cloud.bigtable.admin.v2.BaseBigtableInstanceAdminClient.ListAppProfilesPagedResponse;
 import static com.google.cloud.bigtable.admin.v2.BaseBigtableInstanceAdminClient.ListHotTabletsPagedResponse;
+import static com.google.cloud.bigtable.admin.v2.BaseBigtableInstanceAdminClient.ListLogicalViewsPagedResponse;
+import static com.google.cloud.bigtable.admin.v2.BaseBigtableInstanceAdminClient.ListMaterializedViewsPagedResponse;
 
 import com.google.api.core.ApiFunction;
 import com.google.api.core.ApiFuture;
+import com.google.api.core.ObsoleteApi;
 import com.google.api.gax.core.GaxProperties;
 import com.google.api.gax.core.GoogleCredentialsProvider;
 import com.google.api.gax.core.InstantiatingExecutorProvider;
@@ -51,12 +54,20 @@ import com.google.bigtable.admin.v2.CreateClusterMetadata;
 import com.google.bigtable.admin.v2.CreateClusterRequest;
 import com.google.bigtable.admin.v2.CreateInstanceMetadata;
 import com.google.bigtable.admin.v2.CreateInstanceRequest;
+import com.google.bigtable.admin.v2.CreateLogicalViewMetadata;
+import com.google.bigtable.admin.v2.CreateLogicalViewRequest;
+import com.google.bigtable.admin.v2.CreateMaterializedViewMetadata;
+import com.google.bigtable.admin.v2.CreateMaterializedViewRequest;
 import com.google.bigtable.admin.v2.DeleteAppProfileRequest;
 import com.google.bigtable.admin.v2.DeleteClusterRequest;
 import com.google.bigtable.admin.v2.DeleteInstanceRequest;
+import com.google.bigtable.admin.v2.DeleteLogicalViewRequest;
+import com.google.bigtable.admin.v2.DeleteMaterializedViewRequest;
 import com.google.bigtable.admin.v2.GetAppProfileRequest;
 import com.google.bigtable.admin.v2.GetClusterRequest;
 import com.google.bigtable.admin.v2.GetInstanceRequest;
+import com.google.bigtable.admin.v2.GetLogicalViewRequest;
+import com.google.bigtable.admin.v2.GetMaterializedViewRequest;
 import com.google.bigtable.admin.v2.HotTablet;
 import com.google.bigtable.admin.v2.Instance;
 import com.google.bigtable.admin.v2.ListAppProfilesRequest;
@@ -67,6 +78,12 @@ import com.google.bigtable.admin.v2.ListHotTabletsRequest;
 import com.google.bigtable.admin.v2.ListHotTabletsResponse;
 import com.google.bigtable.admin.v2.ListInstancesRequest;
 import com.google.bigtable.admin.v2.ListInstancesResponse;
+import com.google.bigtable.admin.v2.ListLogicalViewsRequest;
+import com.google.bigtable.admin.v2.ListLogicalViewsResponse;
+import com.google.bigtable.admin.v2.ListMaterializedViewsRequest;
+import com.google.bigtable.admin.v2.ListMaterializedViewsResponse;
+import com.google.bigtable.admin.v2.LogicalView;
+import com.google.bigtable.admin.v2.MaterializedView;
 import com.google.bigtable.admin.v2.PartialUpdateClusterMetadata;
 import com.google.bigtable.admin.v2.PartialUpdateClusterRequest;
 import com.google.bigtable.admin.v2.PartialUpdateInstanceRequest;
@@ -74,6 +91,10 @@ import com.google.bigtable.admin.v2.UpdateAppProfileMetadata;
 import com.google.bigtable.admin.v2.UpdateAppProfileRequest;
 import com.google.bigtable.admin.v2.UpdateClusterMetadata;
 import com.google.bigtable.admin.v2.UpdateInstanceMetadata;
+import com.google.bigtable.admin.v2.UpdateLogicalViewMetadata;
+import com.google.bigtable.admin.v2.UpdateLogicalViewRequest;
+import com.google.bigtable.admin.v2.UpdateMaterializedViewMetadata;
+import com.google.bigtable.admin.v2.UpdateMaterializedViewRequest;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -86,9 +107,9 @@ import com.google.iam.v1.TestIamPermissionsResponse;
 import com.google.longrunning.Operation;
 import com.google.protobuf.Empty;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 import javax.annotation.Generated;
-import org.threeten.bp.Duration;
 
 // AUTO-GENERATED DOCUMENTATION AND CLASS.
 /**
@@ -105,7 +126,9 @@ import org.threeten.bp.Duration;
  * <p>The builder of this class is recursive, so contained classes are themselves builders. When
  * build() is called, the tree of builders is called to create the complete settings object.
  *
- * <p>For example, to set the total timeout of getInstance to 30 seconds:
+ * <p>For example, to set the
+ * [RetrySettings](https://cloud.google.com/java/docs/reference/gax/latest/com.google.api.gax.retrying.RetrySettings)
+ * of getInstance:
  *
  * <pre>{@code
  * // This snippet has been automatically generated and should be regarded as a code template only.
@@ -122,10 +145,47 @@ import org.threeten.bp.Duration;
  *             .getInstanceSettings()
  *             .getRetrySettings()
  *             .toBuilder()
- *             .setTotalTimeout(Duration.ofSeconds(30))
+ *             .setInitialRetryDelayDuration(Duration.ofSeconds(1))
+ *             .setInitialRpcTimeoutDuration(Duration.ofSeconds(5))
+ *             .setMaxAttempts(5)
+ *             .setMaxRetryDelayDuration(Duration.ofSeconds(30))
+ *             .setMaxRpcTimeoutDuration(Duration.ofSeconds(60))
+ *             .setRetryDelayMultiplier(1.3)
+ *             .setRpcTimeoutMultiplier(1.5)
+ *             .setTotalTimeoutDuration(Duration.ofSeconds(300))
  *             .build());
  * BigtableInstanceAdminStubSettings baseBigtableInstanceAdminSettings =
  *     baseBigtableInstanceAdminSettingsBuilder.build();
+ * }</pre>
+ *
+ * Please refer to the [Client Side Retry
+ * Guide](https://github.com/googleapis/google-cloud-java/blob/main/docs/client_retries.md) for
+ * additional support in setting retries.
+ *
+ * <p>To configure the RetrySettings of a Long Running Operation method, create an
+ * OperationTimedPollAlgorithm object and update the RPC's polling algorithm. For example, to
+ * configure the RetrySettings for createInstance:
+ *
+ * <pre>{@code
+ * // This snippet has been automatically generated and should be regarded as a code template only.
+ * // It will require modifications to work:
+ * // - It may require correct/in-range values for request initialization.
+ * // - It may require specifying regional endpoints when creating the service client as shown in
+ * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+ * BigtableInstanceAdminStubSettings.Builder baseBigtableInstanceAdminSettingsBuilder =
+ *     BigtableInstanceAdminStubSettings.newBuilder();
+ * TimedRetryAlgorithm timedRetryAlgorithm =
+ *     OperationalTimedPollAlgorithm.create(
+ *         RetrySettings.newBuilder()
+ *             .setInitialRetryDelayDuration(Duration.ofMillis(500))
+ *             .setRetryDelayMultiplier(1.5)
+ *             .setMaxRetryDelayDuration(Duration.ofMillis(5000))
+ *             .setTotalTimeoutDuration(Duration.ofHours(24))
+ *             .build());
+ * baseBigtableInstanceAdminSettingsBuilder
+ *     .createClusterOperationSettings()
+ *     .setPollingAlgorithm(timedRetryAlgorithm)
+ *     .build();
  * }</pre>
  */
 @Generated("by gapic-generator-java")
@@ -186,6 +246,38 @@ public class BigtableInstanceAdminStubSettings
   private final PagedCallSettings<
           ListHotTabletsRequest, ListHotTabletsResponse, ListHotTabletsPagedResponse>
       listHotTabletsSettings;
+  private final UnaryCallSettings<CreateLogicalViewRequest, Operation> createLogicalViewSettings;
+  private final OperationCallSettings<
+          CreateLogicalViewRequest, LogicalView, CreateLogicalViewMetadata>
+      createLogicalViewOperationSettings;
+  private final UnaryCallSettings<GetLogicalViewRequest, LogicalView> getLogicalViewSettings;
+  private final PagedCallSettings<
+          ListLogicalViewsRequest, ListLogicalViewsResponse, ListLogicalViewsPagedResponse>
+      listLogicalViewsSettings;
+  private final UnaryCallSettings<UpdateLogicalViewRequest, Operation> updateLogicalViewSettings;
+  private final OperationCallSettings<
+          UpdateLogicalViewRequest, LogicalView, UpdateLogicalViewMetadata>
+      updateLogicalViewOperationSettings;
+  private final UnaryCallSettings<DeleteLogicalViewRequest, Empty> deleteLogicalViewSettings;
+  private final UnaryCallSettings<CreateMaterializedViewRequest, Operation>
+      createMaterializedViewSettings;
+  private final OperationCallSettings<
+          CreateMaterializedViewRequest, MaterializedView, CreateMaterializedViewMetadata>
+      createMaterializedViewOperationSettings;
+  private final UnaryCallSettings<GetMaterializedViewRequest, MaterializedView>
+      getMaterializedViewSettings;
+  private final PagedCallSettings<
+          ListMaterializedViewsRequest,
+          ListMaterializedViewsResponse,
+          ListMaterializedViewsPagedResponse>
+      listMaterializedViewsSettings;
+  private final UnaryCallSettings<UpdateMaterializedViewRequest, Operation>
+      updateMaterializedViewSettings;
+  private final OperationCallSettings<
+          UpdateMaterializedViewRequest, MaterializedView, UpdateMaterializedViewMetadata>
+      updateMaterializedViewOperationSettings;
+  private final UnaryCallSettings<DeleteMaterializedViewRequest, Empty>
+      deleteMaterializedViewSettings;
 
   private static final PagedListDescriptor<
           ListAppProfilesRequest, ListAppProfilesResponse, AppProfile>
@@ -220,9 +312,7 @@ public class BigtableInstanceAdminStubSettings
 
             @Override
             public Iterable<AppProfile> extractResources(ListAppProfilesResponse payload) {
-              return payload.getAppProfilesList() == null
-                  ? ImmutableList.<AppProfile>of()
-                  : payload.getAppProfilesList();
+              return payload.getAppProfilesList();
             }
           };
 
@@ -257,9 +347,84 @@ public class BigtableInstanceAdminStubSettings
 
             @Override
             public Iterable<HotTablet> extractResources(ListHotTabletsResponse payload) {
-              return payload.getHotTabletsList() == null
-                  ? ImmutableList.<HotTablet>of()
-                  : payload.getHotTabletsList();
+              return payload.getHotTabletsList();
+            }
+          };
+
+  private static final PagedListDescriptor<
+          ListLogicalViewsRequest, ListLogicalViewsResponse, LogicalView>
+      LIST_LOGICAL_VIEWS_PAGE_STR_DESC =
+          new PagedListDescriptor<
+              ListLogicalViewsRequest, ListLogicalViewsResponse, LogicalView>() {
+            @Override
+            public String emptyToken() {
+              return "";
+            }
+
+            @Override
+            public ListLogicalViewsRequest injectToken(
+                ListLogicalViewsRequest payload, String token) {
+              return ListLogicalViewsRequest.newBuilder(payload).setPageToken(token).build();
+            }
+
+            @Override
+            public ListLogicalViewsRequest injectPageSize(
+                ListLogicalViewsRequest payload, int pageSize) {
+              return ListLogicalViewsRequest.newBuilder(payload).setPageSize(pageSize).build();
+            }
+
+            @Override
+            public Integer extractPageSize(ListLogicalViewsRequest payload) {
+              return payload.getPageSize();
+            }
+
+            @Override
+            public String extractNextToken(ListLogicalViewsResponse payload) {
+              return payload.getNextPageToken();
+            }
+
+            @Override
+            public Iterable<LogicalView> extractResources(ListLogicalViewsResponse payload) {
+              return payload.getLogicalViewsList();
+            }
+          };
+
+  private static final PagedListDescriptor<
+          ListMaterializedViewsRequest, ListMaterializedViewsResponse, MaterializedView>
+      LIST_MATERIALIZED_VIEWS_PAGE_STR_DESC =
+          new PagedListDescriptor<
+              ListMaterializedViewsRequest, ListMaterializedViewsResponse, MaterializedView>() {
+            @Override
+            public String emptyToken() {
+              return "";
+            }
+
+            @Override
+            public ListMaterializedViewsRequest injectToken(
+                ListMaterializedViewsRequest payload, String token) {
+              return ListMaterializedViewsRequest.newBuilder(payload).setPageToken(token).build();
+            }
+
+            @Override
+            public ListMaterializedViewsRequest injectPageSize(
+                ListMaterializedViewsRequest payload, int pageSize) {
+              return ListMaterializedViewsRequest.newBuilder(payload).setPageSize(pageSize).build();
+            }
+
+            @Override
+            public Integer extractPageSize(ListMaterializedViewsRequest payload) {
+              return payload.getPageSize();
+            }
+
+            @Override
+            public String extractNextToken(ListMaterializedViewsResponse payload) {
+              return payload.getNextPageToken();
+            }
+
+            @Override
+            public Iterable<MaterializedView> extractResources(
+                ListMaterializedViewsResponse payload) {
+              return payload.getMaterializedViewsList();
             }
           };
 
@@ -294,6 +459,49 @@ public class BigtableInstanceAdminStubSettings
               PageContext<ListHotTabletsRequest, ListHotTabletsResponse, HotTablet> pageContext =
                   PageContext.create(callable, LIST_HOT_TABLETS_PAGE_STR_DESC, request, context);
               return ListHotTabletsPagedResponse.createAsync(pageContext, futureResponse);
+            }
+          };
+
+  private static final PagedListResponseFactory<
+          ListLogicalViewsRequest, ListLogicalViewsResponse, ListLogicalViewsPagedResponse>
+      LIST_LOGICAL_VIEWS_PAGE_STR_FACT =
+          new PagedListResponseFactory<
+              ListLogicalViewsRequest, ListLogicalViewsResponse, ListLogicalViewsPagedResponse>() {
+            @Override
+            public ApiFuture<ListLogicalViewsPagedResponse> getFuturePagedResponse(
+                UnaryCallable<ListLogicalViewsRequest, ListLogicalViewsResponse> callable,
+                ListLogicalViewsRequest request,
+                ApiCallContext context,
+                ApiFuture<ListLogicalViewsResponse> futureResponse) {
+              PageContext<ListLogicalViewsRequest, ListLogicalViewsResponse, LogicalView>
+                  pageContext =
+                      PageContext.create(
+                          callable, LIST_LOGICAL_VIEWS_PAGE_STR_DESC, request, context);
+              return ListLogicalViewsPagedResponse.createAsync(pageContext, futureResponse);
+            }
+          };
+
+  private static final PagedListResponseFactory<
+          ListMaterializedViewsRequest,
+          ListMaterializedViewsResponse,
+          ListMaterializedViewsPagedResponse>
+      LIST_MATERIALIZED_VIEWS_PAGE_STR_FACT =
+          new PagedListResponseFactory<
+              ListMaterializedViewsRequest,
+              ListMaterializedViewsResponse,
+              ListMaterializedViewsPagedResponse>() {
+            @Override
+            public ApiFuture<ListMaterializedViewsPagedResponse> getFuturePagedResponse(
+                UnaryCallable<ListMaterializedViewsRequest, ListMaterializedViewsResponse> callable,
+                ListMaterializedViewsRequest request,
+                ApiCallContext context,
+                ApiFuture<ListMaterializedViewsResponse> futureResponse) {
+              PageContext<
+                      ListMaterializedViewsRequest, ListMaterializedViewsResponse, MaterializedView>
+                  pageContext =
+                      PageContext.create(
+                          callable, LIST_MATERIALIZED_VIEWS_PAGE_STR_DESC, request, context);
+              return ListMaterializedViewsPagedResponse.createAsync(pageContext, futureResponse);
             }
           };
 
@@ -444,6 +652,91 @@ public class BigtableInstanceAdminStubSettings
     return listHotTabletsSettings;
   }
 
+  /** Returns the object with the settings used for calls to createLogicalView. */
+  public UnaryCallSettings<CreateLogicalViewRequest, Operation> createLogicalViewSettings() {
+    return createLogicalViewSettings;
+  }
+
+  /** Returns the object with the settings used for calls to createLogicalView. */
+  public OperationCallSettings<CreateLogicalViewRequest, LogicalView, CreateLogicalViewMetadata>
+      createLogicalViewOperationSettings() {
+    return createLogicalViewOperationSettings;
+  }
+
+  /** Returns the object with the settings used for calls to getLogicalView. */
+  public UnaryCallSettings<GetLogicalViewRequest, LogicalView> getLogicalViewSettings() {
+    return getLogicalViewSettings;
+  }
+
+  /** Returns the object with the settings used for calls to listLogicalViews. */
+  public PagedCallSettings<
+          ListLogicalViewsRequest, ListLogicalViewsResponse, ListLogicalViewsPagedResponse>
+      listLogicalViewsSettings() {
+    return listLogicalViewsSettings;
+  }
+
+  /** Returns the object with the settings used for calls to updateLogicalView. */
+  public UnaryCallSettings<UpdateLogicalViewRequest, Operation> updateLogicalViewSettings() {
+    return updateLogicalViewSettings;
+  }
+
+  /** Returns the object with the settings used for calls to updateLogicalView. */
+  public OperationCallSettings<UpdateLogicalViewRequest, LogicalView, UpdateLogicalViewMetadata>
+      updateLogicalViewOperationSettings() {
+    return updateLogicalViewOperationSettings;
+  }
+
+  /** Returns the object with the settings used for calls to deleteLogicalView. */
+  public UnaryCallSettings<DeleteLogicalViewRequest, Empty> deleteLogicalViewSettings() {
+    return deleteLogicalViewSettings;
+  }
+
+  /** Returns the object with the settings used for calls to createMaterializedView. */
+  public UnaryCallSettings<CreateMaterializedViewRequest, Operation>
+      createMaterializedViewSettings() {
+    return createMaterializedViewSettings;
+  }
+
+  /** Returns the object with the settings used for calls to createMaterializedView. */
+  public OperationCallSettings<
+          CreateMaterializedViewRequest, MaterializedView, CreateMaterializedViewMetadata>
+      createMaterializedViewOperationSettings() {
+    return createMaterializedViewOperationSettings;
+  }
+
+  /** Returns the object with the settings used for calls to getMaterializedView. */
+  public UnaryCallSettings<GetMaterializedViewRequest, MaterializedView>
+      getMaterializedViewSettings() {
+    return getMaterializedViewSettings;
+  }
+
+  /** Returns the object with the settings used for calls to listMaterializedViews. */
+  public PagedCallSettings<
+          ListMaterializedViewsRequest,
+          ListMaterializedViewsResponse,
+          ListMaterializedViewsPagedResponse>
+      listMaterializedViewsSettings() {
+    return listMaterializedViewsSettings;
+  }
+
+  /** Returns the object with the settings used for calls to updateMaterializedView. */
+  public UnaryCallSettings<UpdateMaterializedViewRequest, Operation>
+      updateMaterializedViewSettings() {
+    return updateMaterializedViewSettings;
+  }
+
+  /** Returns the object with the settings used for calls to updateMaterializedView. */
+  public OperationCallSettings<
+          UpdateMaterializedViewRequest, MaterializedView, UpdateMaterializedViewMetadata>
+      updateMaterializedViewOperationSettings() {
+    return updateMaterializedViewOperationSettings;
+  }
+
+  /** Returns the object with the settings used for calls to deleteMaterializedView. */
+  public UnaryCallSettings<DeleteMaterializedViewRequest, Empty> deleteMaterializedViewSettings() {
+    return deleteMaterializedViewSettings;
+  }
+
   public BigtableInstanceAdminStub createStub() throws IOException {
     if (getTransportChannelProvider()
         .getTransportName()
@@ -467,6 +760,7 @@ public class BigtableInstanceAdminStubSettings
   }
 
   /** Returns the default service endpoint. */
+  @ObsoleteApi("Use getEndpoint() instead")
   public static String getDefaultEndpoint() {
     return "bigtableadmin.googleapis.com:443";
   }
@@ -553,6 +847,24 @@ public class BigtableInstanceAdminStubSettings
     setIamPolicySettings = settingsBuilder.setIamPolicySettings().build();
     testIamPermissionsSettings = settingsBuilder.testIamPermissionsSettings().build();
     listHotTabletsSettings = settingsBuilder.listHotTabletsSettings().build();
+    createLogicalViewSettings = settingsBuilder.createLogicalViewSettings().build();
+    createLogicalViewOperationSettings =
+        settingsBuilder.createLogicalViewOperationSettings().build();
+    getLogicalViewSettings = settingsBuilder.getLogicalViewSettings().build();
+    listLogicalViewsSettings = settingsBuilder.listLogicalViewsSettings().build();
+    updateLogicalViewSettings = settingsBuilder.updateLogicalViewSettings().build();
+    updateLogicalViewOperationSettings =
+        settingsBuilder.updateLogicalViewOperationSettings().build();
+    deleteLogicalViewSettings = settingsBuilder.deleteLogicalViewSettings().build();
+    createMaterializedViewSettings = settingsBuilder.createMaterializedViewSettings().build();
+    createMaterializedViewOperationSettings =
+        settingsBuilder.createMaterializedViewOperationSettings().build();
+    getMaterializedViewSettings = settingsBuilder.getMaterializedViewSettings().build();
+    listMaterializedViewsSettings = settingsBuilder.listMaterializedViewsSettings().build();
+    updateMaterializedViewSettings = settingsBuilder.updateMaterializedViewSettings().build();
+    updateMaterializedViewOperationSettings =
+        settingsBuilder.updateMaterializedViewOperationSettings().build();
+    deleteMaterializedViewSettings = settingsBuilder.deleteMaterializedViewSettings().build();
   }
 
   /** Builder for BigtableInstanceAdminStubSettings. */
@@ -610,6 +922,42 @@ public class BigtableInstanceAdminStubSettings
     private final PagedCallSettings.Builder<
             ListHotTabletsRequest, ListHotTabletsResponse, ListHotTabletsPagedResponse>
         listHotTabletsSettings;
+    private final UnaryCallSettings.Builder<CreateLogicalViewRequest, Operation>
+        createLogicalViewSettings;
+    private final OperationCallSettings.Builder<
+            CreateLogicalViewRequest, LogicalView, CreateLogicalViewMetadata>
+        createLogicalViewOperationSettings;
+    private final UnaryCallSettings.Builder<GetLogicalViewRequest, LogicalView>
+        getLogicalViewSettings;
+    private final PagedCallSettings.Builder<
+            ListLogicalViewsRequest, ListLogicalViewsResponse, ListLogicalViewsPagedResponse>
+        listLogicalViewsSettings;
+    private final UnaryCallSettings.Builder<UpdateLogicalViewRequest, Operation>
+        updateLogicalViewSettings;
+    private final OperationCallSettings.Builder<
+            UpdateLogicalViewRequest, LogicalView, UpdateLogicalViewMetadata>
+        updateLogicalViewOperationSettings;
+    private final UnaryCallSettings.Builder<DeleteLogicalViewRequest, Empty>
+        deleteLogicalViewSettings;
+    private final UnaryCallSettings.Builder<CreateMaterializedViewRequest, Operation>
+        createMaterializedViewSettings;
+    private final OperationCallSettings.Builder<
+            CreateMaterializedViewRequest, MaterializedView, CreateMaterializedViewMetadata>
+        createMaterializedViewOperationSettings;
+    private final UnaryCallSettings.Builder<GetMaterializedViewRequest, MaterializedView>
+        getMaterializedViewSettings;
+    private final PagedCallSettings.Builder<
+            ListMaterializedViewsRequest,
+            ListMaterializedViewsResponse,
+            ListMaterializedViewsPagedResponse>
+        listMaterializedViewsSettings;
+    private final UnaryCallSettings.Builder<UpdateMaterializedViewRequest, Operation>
+        updateMaterializedViewSettings;
+    private final OperationCallSettings.Builder<
+            UpdateMaterializedViewRequest, MaterializedView, UpdateMaterializedViewMetadata>
+        updateMaterializedViewOperationSettings;
+    private final UnaryCallSettings.Builder<DeleteMaterializedViewRequest, Empty>
+        deleteMaterializedViewSettings;
     private static final ImmutableMap<String, ImmutableSet<StatusCode.Code>>
         RETRYABLE_CODE_DEFINITIONS;
 
@@ -617,14 +965,14 @@ public class BigtableInstanceAdminStubSettings
       ImmutableMap.Builder<String, ImmutableSet<StatusCode.Code>> definitions =
           ImmutableMap.builder();
       definitions.put(
-          "no_retry_4_codes", ImmutableSet.copyOf(Lists.<StatusCode.Code>newArrayList()));
+          "no_retry_5_codes", ImmutableSet.copyOf(Lists.<StatusCode.Code>newArrayList()));
       definitions.put(
-          "retry_policy_5_codes",
+          "retry_policy_6_codes",
           ImmutableSet.copyOf(
               Lists.<StatusCode.Code>newArrayList(
                   StatusCode.Code.UNAVAILABLE, StatusCode.Code.DEADLINE_EXCEEDED)));
       definitions.put(
-          "no_retry_6_codes", ImmutableSet.copyOf(Lists.<StatusCode.Code>newArrayList()));
+          "no_retry_7_codes", ImmutableSet.copyOf(Lists.<StatusCode.Code>newArrayList()));
       definitions.put("no_retry_codes", ImmutableSet.copyOf(Lists.<StatusCode.Code>newArrayList()));
       RETRYABLE_CODE_DEFINITIONS = definitions.build();
     }
@@ -636,31 +984,31 @@ public class BigtableInstanceAdminStubSettings
       RetrySettings settings = null;
       settings =
           RetrySettings.newBuilder()
-              .setInitialRpcTimeout(Duration.ofMillis(300000L))
+              .setInitialRpcTimeoutDuration(Duration.ofMillis(300000L))
               .setRpcTimeoutMultiplier(1.0)
-              .setMaxRpcTimeout(Duration.ofMillis(300000L))
-              .setTotalTimeout(Duration.ofMillis(300000L))
+              .setMaxRpcTimeoutDuration(Duration.ofMillis(300000L))
+              .setTotalTimeoutDuration(Duration.ofMillis(300000L))
               .build();
-      definitions.put("no_retry_4_params", settings);
+      definitions.put("no_retry_5_params", settings);
       settings =
           RetrySettings.newBuilder()
-              .setInitialRetryDelay(Duration.ofMillis(1000L))
+              .setInitialRetryDelayDuration(Duration.ofMillis(1000L))
               .setRetryDelayMultiplier(2.0)
-              .setMaxRetryDelay(Duration.ofMillis(60000L))
-              .setInitialRpcTimeout(Duration.ofMillis(60000L))
+              .setMaxRetryDelayDuration(Duration.ofMillis(60000L))
+              .setInitialRpcTimeoutDuration(Duration.ofMillis(60000L))
               .setRpcTimeoutMultiplier(1.0)
-              .setMaxRpcTimeout(Duration.ofMillis(60000L))
-              .setTotalTimeout(Duration.ofMillis(60000L))
+              .setMaxRpcTimeoutDuration(Duration.ofMillis(60000L))
+              .setTotalTimeoutDuration(Duration.ofMillis(60000L))
               .build();
-      definitions.put("retry_policy_5_params", settings);
+      definitions.put("retry_policy_6_params", settings);
       settings =
           RetrySettings.newBuilder()
-              .setInitialRpcTimeout(Duration.ofMillis(60000L))
+              .setInitialRpcTimeoutDuration(Duration.ofMillis(60000L))
               .setRpcTimeoutMultiplier(1.0)
-              .setMaxRpcTimeout(Duration.ofMillis(60000L))
-              .setTotalTimeout(Duration.ofMillis(60000L))
+              .setMaxRpcTimeoutDuration(Duration.ofMillis(60000L))
+              .setTotalTimeoutDuration(Duration.ofMillis(60000L))
               .build();
-      definitions.put("no_retry_6_params", settings);
+      definitions.put("no_retry_7_params", settings);
       settings = RetrySettings.newBuilder().setRpcTimeoutMultiplier(1.0).build();
       definitions.put("no_retry_params", settings);
       RETRY_PARAM_DEFINITIONS = definitions.build();
@@ -700,6 +1048,21 @@ public class BigtableInstanceAdminStubSettings
       setIamPolicySettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       testIamPermissionsSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       listHotTabletsSettings = PagedCallSettings.newBuilder(LIST_HOT_TABLETS_PAGE_STR_FACT);
+      createLogicalViewSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      createLogicalViewOperationSettings = OperationCallSettings.newBuilder();
+      getLogicalViewSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      listLogicalViewsSettings = PagedCallSettings.newBuilder(LIST_LOGICAL_VIEWS_PAGE_STR_FACT);
+      updateLogicalViewSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      updateLogicalViewOperationSettings = OperationCallSettings.newBuilder();
+      deleteLogicalViewSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      createMaterializedViewSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      createMaterializedViewOperationSettings = OperationCallSettings.newBuilder();
+      getMaterializedViewSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      listMaterializedViewsSettings =
+          PagedCallSettings.newBuilder(LIST_MATERIALIZED_VIEWS_PAGE_STR_FACT);
+      updateMaterializedViewSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      updateMaterializedViewOperationSettings = OperationCallSettings.newBuilder();
+      deleteMaterializedViewSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
 
       unaryMethodSettingsBuilders =
           ImmutableList.<UnaryCallSettings.Builder<?, ?>>of(
@@ -723,7 +1086,17 @@ public class BigtableInstanceAdminStubSettings
               getIamPolicySettings,
               setIamPolicySettings,
               testIamPermissionsSettings,
-              listHotTabletsSettings);
+              listHotTabletsSettings,
+              createLogicalViewSettings,
+              getLogicalViewSettings,
+              listLogicalViewsSettings,
+              updateLogicalViewSettings,
+              deleteLogicalViewSettings,
+              createMaterializedViewSettings,
+              getMaterializedViewSettings,
+              listMaterializedViewsSettings,
+              updateMaterializedViewSettings,
+              deleteMaterializedViewSettings);
       initDefaults(this);
     }
 
@@ -759,6 +1132,22 @@ public class BigtableInstanceAdminStubSettings
       setIamPolicySettings = settings.setIamPolicySettings.toBuilder();
       testIamPermissionsSettings = settings.testIamPermissionsSettings.toBuilder();
       listHotTabletsSettings = settings.listHotTabletsSettings.toBuilder();
+      createLogicalViewSettings = settings.createLogicalViewSettings.toBuilder();
+      createLogicalViewOperationSettings = settings.createLogicalViewOperationSettings.toBuilder();
+      getLogicalViewSettings = settings.getLogicalViewSettings.toBuilder();
+      listLogicalViewsSettings = settings.listLogicalViewsSettings.toBuilder();
+      updateLogicalViewSettings = settings.updateLogicalViewSettings.toBuilder();
+      updateLogicalViewOperationSettings = settings.updateLogicalViewOperationSettings.toBuilder();
+      deleteLogicalViewSettings = settings.deleteLogicalViewSettings.toBuilder();
+      createMaterializedViewSettings = settings.createMaterializedViewSettings.toBuilder();
+      createMaterializedViewOperationSettings =
+          settings.createMaterializedViewOperationSettings.toBuilder();
+      getMaterializedViewSettings = settings.getMaterializedViewSettings.toBuilder();
+      listMaterializedViewsSettings = settings.listMaterializedViewsSettings.toBuilder();
+      updateMaterializedViewSettings = settings.updateMaterializedViewSettings.toBuilder();
+      updateMaterializedViewOperationSettings =
+          settings.updateMaterializedViewOperationSettings.toBuilder();
+      deleteMaterializedViewSettings = settings.deleteMaterializedViewSettings.toBuilder();
 
       unaryMethodSettingsBuilders =
           ImmutableList.<UnaryCallSettings.Builder<?, ?>>of(
@@ -782,7 +1171,17 @@ public class BigtableInstanceAdminStubSettings
               getIamPolicySettings,
               setIamPolicySettings,
               testIamPermissionsSettings,
-              listHotTabletsSettings);
+              listHotTabletsSettings,
+              createLogicalViewSettings,
+              getLogicalViewSettings,
+              listLogicalViewsSettings,
+              updateLogicalViewSettings,
+              deleteLogicalViewSettings,
+              createMaterializedViewSettings,
+              getMaterializedViewSettings,
+              listMaterializedViewsSettings,
+              updateMaterializedViewSettings,
+              deleteMaterializedViewSettings);
     }
 
     private static Builder createDefault() {
@@ -800,53 +1199,53 @@ public class BigtableInstanceAdminStubSettings
     private static Builder initDefaults(Builder builder) {
       builder
           .createInstanceSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_4_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_4_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_5_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_5_params"));
 
       builder
           .getInstanceSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_5_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_5_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_6_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_6_params"));
 
       builder
           .listInstancesSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_5_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_5_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_6_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_6_params"));
 
       builder
           .updateInstanceSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_5_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_5_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_6_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_6_params"));
 
       builder
           .partialUpdateInstanceSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_5_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_5_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_6_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_6_params"));
 
       builder
           .deleteInstanceSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_6_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_6_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_7_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_7_params"));
 
       builder
           .createClusterSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_6_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_6_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_7_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_7_params"));
 
       builder
           .getClusterSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_5_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_5_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_6_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_6_params"));
 
       builder
           .listClustersSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_5_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_5_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_6_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_6_params"));
 
       builder
           .updateClusterSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_5_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_5_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_6_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_6_params"));
 
       builder
           .partialUpdateClusterSettings()
@@ -855,61 +1254,111 @@ public class BigtableInstanceAdminStubSettings
 
       builder
           .deleteClusterSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_6_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_6_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_7_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_7_params"));
 
       builder
           .createAppProfileSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_6_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_6_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_7_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_7_params"));
 
       builder
           .getAppProfileSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_5_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_5_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_6_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_6_params"));
 
       builder
           .listAppProfilesSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_5_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_5_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_6_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_6_params"));
 
       builder
           .updateAppProfileSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_5_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_5_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_6_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_6_params"));
 
       builder
           .deleteAppProfileSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_6_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_6_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_7_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_7_params"));
 
       builder
           .getIamPolicySettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_5_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_5_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_6_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_6_params"));
 
       builder
           .setIamPolicySettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_6_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_6_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_7_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_7_params"));
 
       builder
           .testIamPermissionsSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_5_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_5_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_6_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_6_params"));
 
       builder
           .listHotTabletsSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_5_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_5_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_6_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_6_params"));
+
+      builder
+          .createLogicalViewSettings()
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
+
+      builder
+          .getLogicalViewSettings()
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
+
+      builder
+          .listLogicalViewsSettings()
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
+
+      builder
+          .updateLogicalViewSettings()
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
+
+      builder
+          .deleteLogicalViewSettings()
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
+
+      builder
+          .createMaterializedViewSettings()
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
+
+      builder
+          .getMaterializedViewSettings()
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
+
+      builder
+          .listMaterializedViewsSettings()
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
+
+      builder
+          .updateMaterializedViewSettings()
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
+
+      builder
+          .deleteMaterializedViewSettings()
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
 
       builder
           .createInstanceOperationSettings()
           .setInitialCallSettings(
               UnaryCallSettings
                   .<CreateInstanceRequest, OperationSnapshot>newUnaryCallSettingsBuilder()
-                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_4_codes"))
-                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_4_params"))
+                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_5_codes"))
+                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_5_params"))
                   .build())
           .setResponseTransformer(
               ProtoOperationTransformers.ResponseTransformer.create(Instance.class))
@@ -918,13 +1367,13 @@ public class BigtableInstanceAdminStubSettings
           .setPollingAlgorithm(
               OperationTimedPollAlgorithm.create(
                   RetrySettings.newBuilder()
-                      .setInitialRetryDelay(Duration.ofMillis(500L))
+                      .setInitialRetryDelayDuration(Duration.ofMillis(500L))
                       .setRetryDelayMultiplier(1.5)
-                      .setMaxRetryDelay(Duration.ofMillis(5000L))
-                      .setInitialRpcTimeout(Duration.ZERO)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(5000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
                       .setRpcTimeoutMultiplier(1.0)
-                      .setMaxRpcTimeout(Duration.ZERO)
-                      .setTotalTimeout(Duration.ofMillis(600000L))
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(600000L))
                       .build()));
 
       builder
@@ -932,8 +1381,8 @@ public class BigtableInstanceAdminStubSettings
           .setInitialCallSettings(
               UnaryCallSettings
                   .<PartialUpdateInstanceRequest, OperationSnapshot>newUnaryCallSettingsBuilder()
-                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_5_codes"))
-                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_5_params"))
+                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_6_codes"))
+                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_6_params"))
                   .build())
           .setResponseTransformer(
               ProtoOperationTransformers.ResponseTransformer.create(Instance.class))
@@ -942,13 +1391,13 @@ public class BigtableInstanceAdminStubSettings
           .setPollingAlgorithm(
               OperationTimedPollAlgorithm.create(
                   RetrySettings.newBuilder()
-                      .setInitialRetryDelay(Duration.ofMillis(500L))
+                      .setInitialRetryDelayDuration(Duration.ofMillis(500L))
                       .setRetryDelayMultiplier(1.5)
-                      .setMaxRetryDelay(Duration.ofMillis(5000L))
-                      .setInitialRpcTimeout(Duration.ZERO)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(5000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
                       .setRpcTimeoutMultiplier(1.0)
-                      .setMaxRpcTimeout(Duration.ZERO)
-                      .setTotalTimeout(Duration.ofMillis(600000L))
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(600000L))
                       .build()));
 
       builder
@@ -956,8 +1405,8 @@ public class BigtableInstanceAdminStubSettings
           .setInitialCallSettings(
               UnaryCallSettings
                   .<CreateClusterRequest, OperationSnapshot>newUnaryCallSettingsBuilder()
-                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_6_codes"))
-                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_6_params"))
+                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_7_codes"))
+                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_7_params"))
                   .build())
           .setResponseTransformer(
               ProtoOperationTransformers.ResponseTransformer.create(Cluster.class))
@@ -966,21 +1415,21 @@ public class BigtableInstanceAdminStubSettings
           .setPollingAlgorithm(
               OperationTimedPollAlgorithm.create(
                   RetrySettings.newBuilder()
-                      .setInitialRetryDelay(Duration.ofMillis(5000L))
+                      .setInitialRetryDelayDuration(Duration.ofMillis(5000L))
                       .setRetryDelayMultiplier(1.5)
-                      .setMaxRetryDelay(Duration.ofMillis(60000L))
-                      .setInitialRpcTimeout(Duration.ZERO)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(60000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
                       .setRpcTimeoutMultiplier(1.0)
-                      .setMaxRpcTimeout(Duration.ZERO)
-                      .setTotalTimeout(Duration.ofMillis(21600000L))
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(21600000L))
                       .build()));
 
       builder
           .updateClusterOperationSettings()
           .setInitialCallSettings(
               UnaryCallSettings.<Cluster, OperationSnapshot>newUnaryCallSettingsBuilder()
-                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_5_codes"))
-                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_5_params"))
+                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_6_codes"))
+                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_6_params"))
                   .build())
           .setResponseTransformer(
               ProtoOperationTransformers.ResponseTransformer.create(Cluster.class))
@@ -989,13 +1438,13 @@ public class BigtableInstanceAdminStubSettings
           .setPollingAlgorithm(
               OperationTimedPollAlgorithm.create(
                   RetrySettings.newBuilder()
-                      .setInitialRetryDelay(Duration.ofMillis(500L))
+                      .setInitialRetryDelayDuration(Duration.ofMillis(500L))
                       .setRetryDelayMultiplier(1.5)
-                      .setMaxRetryDelay(Duration.ofMillis(5000L))
-                      .setInitialRpcTimeout(Duration.ZERO)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(5000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
                       .setRpcTimeoutMultiplier(1.0)
-                      .setMaxRpcTimeout(Duration.ZERO)
-                      .setTotalTimeout(Duration.ofMillis(600000L))
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(600000L))
                       .build()));
 
       builder
@@ -1014,13 +1463,13 @@ public class BigtableInstanceAdminStubSettings
           .setPollingAlgorithm(
               OperationTimedPollAlgorithm.create(
                   RetrySettings.newBuilder()
-                      .setInitialRetryDelay(Duration.ofMillis(500L))
+                      .setInitialRetryDelayDuration(Duration.ofMillis(500L))
                       .setRetryDelayMultiplier(1.5)
-                      .setMaxRetryDelay(Duration.ofMillis(5000L))
-                      .setInitialRpcTimeout(Duration.ZERO)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(5000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
                       .setRpcTimeoutMultiplier(1.0)
-                      .setMaxRpcTimeout(Duration.ZERO)
-                      .setTotalTimeout(Duration.ofMillis(600000L))
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(600000L))
                       .build()));
 
       builder
@@ -1028,8 +1477,8 @@ public class BigtableInstanceAdminStubSettings
           .setInitialCallSettings(
               UnaryCallSettings
                   .<UpdateAppProfileRequest, OperationSnapshot>newUnaryCallSettingsBuilder()
-                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_5_codes"))
-                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_5_params"))
+                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_6_codes"))
+                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_6_params"))
                   .build())
           .setResponseTransformer(
               ProtoOperationTransformers.ResponseTransformer.create(AppProfile.class))
@@ -1038,13 +1487,113 @@ public class BigtableInstanceAdminStubSettings
           .setPollingAlgorithm(
               OperationTimedPollAlgorithm.create(
                   RetrySettings.newBuilder()
-                      .setInitialRetryDelay(Duration.ofMillis(500L))
+                      .setInitialRetryDelayDuration(Duration.ofMillis(500L))
                       .setRetryDelayMultiplier(1.5)
-                      .setMaxRetryDelay(Duration.ofMillis(5000L))
-                      .setInitialRpcTimeout(Duration.ZERO)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(5000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
                       .setRpcTimeoutMultiplier(1.0)
-                      .setMaxRpcTimeout(Duration.ZERO)
-                      .setTotalTimeout(Duration.ofMillis(600000L))
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(600000L))
+                      .build()));
+
+      builder
+          .createLogicalViewOperationSettings()
+          .setInitialCallSettings(
+              UnaryCallSettings
+                  .<CreateLogicalViewRequest, OperationSnapshot>newUnaryCallSettingsBuilder()
+                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"))
+                  .build())
+          .setResponseTransformer(
+              ProtoOperationTransformers.ResponseTransformer.create(LogicalView.class))
+          .setMetadataTransformer(
+              ProtoOperationTransformers.MetadataTransformer.create(
+                  CreateLogicalViewMetadata.class))
+          .setPollingAlgorithm(
+              OperationTimedPollAlgorithm.create(
+                  RetrySettings.newBuilder()
+                      .setInitialRetryDelayDuration(Duration.ofMillis(5000L))
+                      .setRetryDelayMultiplier(1.5)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(45000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
+                      .setRpcTimeoutMultiplier(1.0)
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(300000L))
+                      .build()));
+
+      builder
+          .updateLogicalViewOperationSettings()
+          .setInitialCallSettings(
+              UnaryCallSettings
+                  .<UpdateLogicalViewRequest, OperationSnapshot>newUnaryCallSettingsBuilder()
+                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"))
+                  .build())
+          .setResponseTransformer(
+              ProtoOperationTransformers.ResponseTransformer.create(LogicalView.class))
+          .setMetadataTransformer(
+              ProtoOperationTransformers.MetadataTransformer.create(
+                  UpdateLogicalViewMetadata.class))
+          .setPollingAlgorithm(
+              OperationTimedPollAlgorithm.create(
+                  RetrySettings.newBuilder()
+                      .setInitialRetryDelayDuration(Duration.ofMillis(5000L))
+                      .setRetryDelayMultiplier(1.5)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(45000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
+                      .setRpcTimeoutMultiplier(1.0)
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(300000L))
+                      .build()));
+
+      builder
+          .createMaterializedViewOperationSettings()
+          .setInitialCallSettings(
+              UnaryCallSettings
+                  .<CreateMaterializedViewRequest, OperationSnapshot>newUnaryCallSettingsBuilder()
+                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"))
+                  .build())
+          .setResponseTransformer(
+              ProtoOperationTransformers.ResponseTransformer.create(MaterializedView.class))
+          .setMetadataTransformer(
+              ProtoOperationTransformers.MetadataTransformer.create(
+                  CreateMaterializedViewMetadata.class))
+          .setPollingAlgorithm(
+              OperationTimedPollAlgorithm.create(
+                  RetrySettings.newBuilder()
+                      .setInitialRetryDelayDuration(Duration.ofMillis(5000L))
+                      .setRetryDelayMultiplier(1.5)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(45000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
+                      .setRpcTimeoutMultiplier(1.0)
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(300000L))
+                      .build()));
+
+      builder
+          .updateMaterializedViewOperationSettings()
+          .setInitialCallSettings(
+              UnaryCallSettings
+                  .<UpdateMaterializedViewRequest, OperationSnapshot>newUnaryCallSettingsBuilder()
+                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"))
+                  .build())
+          .setResponseTransformer(
+              ProtoOperationTransformers.ResponseTransformer.create(MaterializedView.class))
+          .setMetadataTransformer(
+              ProtoOperationTransformers.MetadataTransformer.create(
+                  UpdateMaterializedViewMetadata.class))
+          .setPollingAlgorithm(
+              OperationTimedPollAlgorithm.create(
+                  RetrySettings.newBuilder()
+                      .setInitialRetryDelayDuration(Duration.ofMillis(5000L))
+                      .setRetryDelayMultiplier(1.5)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(45000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
+                      .setRpcTimeoutMultiplier(1.0)
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(300000L))
                       .build()));
 
       return builder;
@@ -1218,6 +1767,96 @@ public class BigtableInstanceAdminStubSettings
             ListHotTabletsRequest, ListHotTabletsResponse, ListHotTabletsPagedResponse>
         listHotTabletsSettings() {
       return listHotTabletsSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to createLogicalView. */
+    public UnaryCallSettings.Builder<CreateLogicalViewRequest, Operation>
+        createLogicalViewSettings() {
+      return createLogicalViewSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to createLogicalView. */
+    public OperationCallSettings.Builder<
+            CreateLogicalViewRequest, LogicalView, CreateLogicalViewMetadata>
+        createLogicalViewOperationSettings() {
+      return createLogicalViewOperationSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to getLogicalView. */
+    public UnaryCallSettings.Builder<GetLogicalViewRequest, LogicalView> getLogicalViewSettings() {
+      return getLogicalViewSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to listLogicalViews. */
+    public PagedCallSettings.Builder<
+            ListLogicalViewsRequest, ListLogicalViewsResponse, ListLogicalViewsPagedResponse>
+        listLogicalViewsSettings() {
+      return listLogicalViewsSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to updateLogicalView. */
+    public UnaryCallSettings.Builder<UpdateLogicalViewRequest, Operation>
+        updateLogicalViewSettings() {
+      return updateLogicalViewSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to updateLogicalView. */
+    public OperationCallSettings.Builder<
+            UpdateLogicalViewRequest, LogicalView, UpdateLogicalViewMetadata>
+        updateLogicalViewOperationSettings() {
+      return updateLogicalViewOperationSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to deleteLogicalView. */
+    public UnaryCallSettings.Builder<DeleteLogicalViewRequest, Empty> deleteLogicalViewSettings() {
+      return deleteLogicalViewSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to createMaterializedView. */
+    public UnaryCallSettings.Builder<CreateMaterializedViewRequest, Operation>
+        createMaterializedViewSettings() {
+      return createMaterializedViewSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to createMaterializedView. */
+    public OperationCallSettings.Builder<
+            CreateMaterializedViewRequest, MaterializedView, CreateMaterializedViewMetadata>
+        createMaterializedViewOperationSettings() {
+      return createMaterializedViewOperationSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to getMaterializedView. */
+    public UnaryCallSettings.Builder<GetMaterializedViewRequest, MaterializedView>
+        getMaterializedViewSettings() {
+      return getMaterializedViewSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to listMaterializedViews. */
+    public PagedCallSettings.Builder<
+            ListMaterializedViewsRequest,
+            ListMaterializedViewsResponse,
+            ListMaterializedViewsPagedResponse>
+        listMaterializedViewsSettings() {
+      return listMaterializedViewsSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to updateMaterializedView. */
+    public UnaryCallSettings.Builder<UpdateMaterializedViewRequest, Operation>
+        updateMaterializedViewSettings() {
+      return updateMaterializedViewSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to updateMaterializedView. */
+    public OperationCallSettings.Builder<
+            UpdateMaterializedViewRequest, MaterializedView, UpdateMaterializedViewMetadata>
+        updateMaterializedViewOperationSettings() {
+      return updateMaterializedViewOperationSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to deleteMaterializedView. */
+    public UnaryCallSettings.Builder<DeleteMaterializedViewRequest, Empty>
+        deleteMaterializedViewSettings() {
+      return deleteMaterializedViewSettings;
     }
 
     @Override

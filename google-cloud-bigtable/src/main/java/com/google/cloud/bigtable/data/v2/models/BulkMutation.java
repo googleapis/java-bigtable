@@ -43,7 +43,9 @@ public final class BulkMutation implements Serializable, Cloneable {
 
   private long mutationCountSum = 0;
 
-  /** @deprecated Please use {@link BulkMutation#create(TargetId)} instead. */
+  /**
+   * @deprecated Please use {@link BulkMutation#create(TargetId)} instead.
+   */
   @Deprecated
   public static BulkMutation create(String tableId) {
     return new BulkMutation(TableId.of(tableId));
@@ -99,9 +101,9 @@ public final class BulkMutation implements Serializable, Cloneable {
     long mutationCount = mutation.getMutations().size();
     Preconditions.checkArgument(
         mutationCountSum + mutationCount <= MAX_MUTATION,
-        String.format(
-            "Too many mutations, got %s, limit is %s",
-            mutationCountSum + mutationCount, MAX_MUTATION));
+        "Too many mutations, got %s, limit is %s",
+        mutationCountSum + mutationCount,
+        MAX_MUTATION);
     this.mutationCountSum += mutationCount;
 
     builder.addEntries(

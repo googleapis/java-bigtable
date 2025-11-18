@@ -31,7 +31,7 @@ public abstract class TableId implements TargetId {
     return new AutoValue_TableId(tableId);
   }
 
-  abstract String getTableId();
+  public abstract String getTableId();
 
   @Override
   @InternalApi
@@ -42,6 +42,12 @@ public abstract class TableId implements TargetId {
   @Override
   @InternalApi
   public boolean scopedForAuthorizedView() {
+    return false;
+  }
+
+  @Override
+  @InternalApi
+  public boolean scopedForMaterializedView() {
     return false;
   }
 }

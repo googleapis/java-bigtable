@@ -21,9 +21,11 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.boolTyp
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.boolValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.bytesType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.bytesValue;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.callContext;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.columnMetadata;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.dateType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.dateValue;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.enumType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.float32Type;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.float64Type;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.floatValue;
@@ -33,6 +35,7 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.mapElem
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.mapType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.mapValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.metadata;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.protoType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.structField;
@@ -46,14 +49,19 @@ import static org.junit.Assert.assertThrows;
 import com.google.api.core.SettableApiFuture;
 import com.google.bigtable.v2.ExecuteQueryRequest;
 import com.google.cloud.Date;
+import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSet;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 import com.google.cloud.bigtable.data.v2.stub.sql.ExecuteQueryCallContext;
+import com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStream;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStreamImpl;
+import com.google.cloud.bigtable.data.v2.test.SingerProto.Genre;
+import com.google.cloud.bigtable.data.v2.test.SingerProto.Singer;
 import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi.ServerStreamingStashCallable;
 import com.google.protobuf.ByteString;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -62,41 +70,47 @@ import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 public class ResultSetImplTest {
 
-  private static ResultSet resultSetWithFakeStream(ResultSetMetadata metadata, SqlRow... rows) {
+  private static ResultSet resultSetWithFakeStream(
+      com.google.bigtable.v2.ResultSetMetadata protoMetadata, SqlRow... rows) {
     ServerStreamingStashCallable<ExecuteQueryCallContext, SqlRow> stream =
         new ServerStreamingStashCallable<>(Arrays.asList(rows));
     SettableApiFuture<ResultSetMetadata> future = SettableApiFuture.create();
+    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(protoMetadata);
     future.set(metadata);
-    ExecuteQueryCallContext fakeCallContext =
-        ExecuteQueryCallContext.create(ExecuteQueryRequest.newBuilder().build(), future);
+    PreparedStatement preparedStatement = SqlProtoFactory.preparedStatement(protoMetadata);
+    ExecuteQueryCallContext fakeCallContext = callContext(preparedStatement.bind().build(), future);
     return ResultSetImpl.create(SqlServerStreamImpl.create(future, stream.call(fakeCallContext)));
   }
 
+  @SuppressWarnings("DoubleBraceInitialization")
   @Test
   public void testSingleRow() throws ExecutionException, InterruptedException {
-    ResultSetMetadata metadata =
-        ProtoResultSetMetadata.fromProto(
-            metadata(
-                    columnMetadata("string", stringType()),
-                    columnMetadata("bytes", bytesType()),
-                    columnMetadata("long", int64Type()),
-                    columnMetadata("double", float64Type()),
-                    columnMetadata("float", float32Type()),
-                    columnMetadata("boolean", boolType()),
-                    columnMetadata("timestamp", timestampType()),
-                    columnMetadata("date", dateType()),
-                    columnMetadata("struct", structType(structField("string", stringType()))),
-                    columnMetadata("list", arrayType(stringType())),
-                    columnMetadata("map", mapType(stringType(), stringType())))
-                .getMetadata());
+    Singer singer = Singer.newBuilder().setName("Foo").setGenre(Genre.POP).build();
+    com.google.bigtable.v2.ResultSetMetadata protoMetadata =
+        metadata(
+            columnMetadata("string", stringType()),
+            columnMetadata("bytes", bytesType()),
+            columnMetadata("long", int64Type()),
+            columnMetadata("double", float64Type()),
+            columnMetadata("float", float32Type()),
+            columnMetadata("boolean", boolType()),
+            columnMetadata("timestamp", timestampType()),
+            columnMetadata("date", dateType()),
+            columnMetadata("struct", structType(structField("string", stringType()))),
+            columnMetadata("list", arrayType(stringType())),
+            columnMetadata("map", mapType(stringType(), stringType())),
+            columnMetadata(
+                "proto", protoType("com.google.cloud.bigtable.data.v2.test.Singer", "my_bundle")),
+            columnMetadata(
+                "enum", enumType("com.google.cloud.bigtable.data.v2.test.Genre", "other_bundle")));
+    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(protoMetadata);
     ResultSet resultSet =
         resultSetWithFakeStream(
-            metadata,
+            protoMetadata,
             ProtoSqlRow.create(
                 metadata,
                 Arrays.asList(
@@ -110,7 +124,9 @@ public class ResultSetImplTest {
                     dateValue(2024, 6, 5),
                     structValue(stringValue("foo")),
                     arrayValue(stringValue("foo"), stringValue("bar")),
-                    mapValue(mapElement(stringValue("key"), stringValue("val"))))));
+                    mapValue(mapElement(stringValue("key"), stringValue("val"))),
+                    bytesValue(singer.toByteArray()),
+                    int64Value(0))));
     int rows = 0;
     while (resultSet.next()) {
       rows++;
@@ -161,7 +177,12 @@ public class ResultSetImplTest {
                   put("key", "val");
                 }
               });
+      assertThat(resultSet.getProtoMessage(11, Singer.getDefaultInstance())).isEqualTo(singer);
+      assertThat(resultSet.getProtoMessage("proto", Singer.getDefaultInstance())).isEqualTo(singer);
+      assertThat(resultSet.getProtoEnum(12, Genre::forNumber)).isEqualTo(Genre.POP);
+      assertThat(resultSet.getProtoEnum("enum", Genre::forNumber)).isEqualTo(Genre.POP);
     }
+
     assertThat(rows).isEqualTo(1);
     assertThat(resultSet.next()).isFalse();
     assertThat(resultSet.getMetadata()).isEqualTo(metadata);
@@ -170,12 +191,12 @@ public class ResultSetImplTest {
 
   @Test
   public void testIteration() {
-    ResultSetMetadata metadata =
-        ProtoResultSetMetadata.fromProto(
-            metadata(columnMetadata("string", stringType())).getMetadata());
+    com.google.bigtable.v2.ResultSetMetadata protoMetadata =
+        metadata(columnMetadata("string", stringType()));
+    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(protoMetadata);
     try (ResultSet resultSet =
         resultSetWithFakeStream(
-            metadata,
+            protoMetadata,
             ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("foo"))),
             ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("bar"))),
             ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("baz"))),
@@ -197,11 +218,11 @@ public class ResultSetImplTest {
   }
 
   @Test
-  public void testEmptyResultSet() throws ExecutionException, InterruptedException {
-    ResultSetMetadata metadata =
-        ProtoResultSetMetadata.fromProto(
-            metadata(columnMetadata("string", stringType())).getMetadata());
-    try (ResultSet resultSet = resultSetWithFakeStream(metadata)) {
+  public void testEmptyResultSet() {
+    com.google.bigtable.v2.ResultSetMetadata protoMetadata =
+        metadata(columnMetadata("string", stringType()));
+    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(protoMetadata);
+    try (ResultSet resultSet = resultSetWithFakeStream(protoMetadata)) {
       assertThat(resultSet.next()).isFalse();
       assertThat(resultSet.getMetadata()).isEqualTo(metadata);
     }
@@ -209,13 +230,13 @@ public class ResultSetImplTest {
 
   @Test
   public void getCallsPrevented_afterNextReturnsFalse() {
-    ResultSetMetadata metadata =
-        ProtoResultSetMetadata.fromProto(
-            metadata(columnMetadata("string", stringType())).getMetadata());
+    com.google.bigtable.v2.ResultSetMetadata protoMetadata =
+        metadata(columnMetadata("string", stringType()));
+    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(protoMetadata);
 
     ResultSet resultSet =
         resultSetWithFakeStream(
-            metadata,
+            protoMetadata,
             ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("foo"))),
             ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("bar"))));
 
@@ -233,12 +254,13 @@ public class ResultSetImplTest {
 
   @Test
   public void close_preventsGetCalls() {
-    ResultSetMetadata metadata =
-        ProtoResultSetMetadata.fromProto(
-            metadata(columnMetadata("string", stringType())).getMetadata());
+    com.google.bigtable.v2.ResultSetMetadata protoMetadata =
+        metadata(columnMetadata("string", stringType()));
+    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(protoMetadata);
     ResultSet resultSet =
         resultSetWithFakeStream(
-            metadata, ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("foo"))));
+            protoMetadata,
+            ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("foo"))));
 
     assertThat(resultSet.next()).isTrue();
     resultSet.close();
@@ -248,8 +270,7 @@ public class ResultSetImplTest {
   @Test
   public void close_cancelsStreamWhenResultsNotConsumed() {
     ResultSetMetadata metadata =
-        ProtoResultSetMetadata.fromProto(
-            metadata(columnMetadata("string", stringType())).getMetadata());
+        ProtoResultSetMetadata.fromProto(metadata(columnMetadata("string", stringType())));
     ServerStreamingStashCallable<ExecuteQueryRequest, SqlRow> stream =
         new ServerStreamingStashCallable<>(
             Collections.singletonList(
@@ -267,8 +288,7 @@ public class ResultSetImplTest {
   @Test
   public void close_doesNotCancelStreamWhenResultsConsumed() {
     ResultSetMetadata metadata =
-        ProtoResultSetMetadata.fromProto(
-            metadata(columnMetadata("string", stringType())).getMetadata());
+        ProtoResultSetMetadata.fromProto(metadata(columnMetadata("string", stringType())));
     ServerStreamingStashCallable<ExecuteQueryRequest, SqlRow> stream =
         new ServerStreamingStashCallable<>(
             Collections.singletonList(
@@ -287,12 +307,12 @@ public class ResultSetImplTest {
 
   @Test
   public void getBeforeNext_throwsException() {
-    ResultSetMetadata metadata =
-        ProtoResultSetMetadata.fromProto(
-            metadata(columnMetadata("string", stringType())).getMetadata());
+    com.google.bigtable.v2.ResultSetMetadata protoMetadata =
+        metadata(columnMetadata("string", stringType()));
+    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(protoMetadata);
     try (ResultSet resultSet =
         resultSetWithFakeStream(
-            metadata,
+            protoMetadata,
             ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("foo"))))) {
       assertThrows(IllegalStateException.class, () -> resultSet.getString(0));
     }
@@ -300,13 +320,12 @@ public class ResultSetImplTest {
 
   @Test
   public void getOnColumnWithDuplicateName_throwsException() {
-    ResultSetMetadata metadata =
-        ProtoResultSetMetadata.fromProto(
-            metadata(columnMetadata("name", stringType()), columnMetadata("name", stringType()))
-                .getMetadata());
+    com.google.bigtable.v2.ResultSetMetadata protoMetadata =
+        metadata(columnMetadata("string", stringType()));
+    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(protoMetadata);
     try (ResultSet resultSet =
         resultSetWithFakeStream(
-            metadata,
+            protoMetadata,
             ProtoSqlRow.create(metadata, Arrays.asList(stringValue("foo"), stringValue("bar"))))) {
 
       assertThat(resultSet.next()).isTrue();
@@ -319,8 +338,10 @@ public class ResultSetImplTest {
     SettableApiFuture<ResultSetMetadata> metadataFuture = SettableApiFuture.create();
     ServerStreamingStashCallable<ExecuteQueryCallContext, SqlRow> stream =
         new ServerStreamingStashCallable<>(Collections.emptyList());
+    PreparedStatement preparedStatement =
+        SqlProtoFactory.preparedStatement(metadata(columnMetadata("foo", stringType())));
     ExecuteQueryCallContext fakeCallContext =
-        ExecuteQueryCallContext.create(ExecuteQueryRequest.newBuilder().build(), metadataFuture);
+        callContext(preparedStatement.bind().build(), metadataFuture);
     ResultSet rs =
         ResultSetImpl.create(
             SqlServerStreamImpl.create(metadataFuture, stream.call(fakeCallContext)));
@@ -334,8 +355,10 @@ public class ResultSetImplTest {
     SettableApiFuture<ResultSetMetadata> metadataFuture = SettableApiFuture.create();
     ServerStreamingStashCallable<ExecuteQueryCallContext, SqlRow> stream =
         new ServerStreamingStashCallable<>(Collections.emptyList());
+    PreparedStatement preparedStatement =
+        SqlProtoFactory.preparedStatement(metadata(columnMetadata("foo", stringType())));
     ExecuteQueryCallContext fakeCallContext =
-        ExecuteQueryCallContext.create(ExecuteQueryRequest.newBuilder().build(), metadataFuture);
+        callContext(preparedStatement.bind().build(), metadataFuture);
     ResultSet rs =
         ResultSetImpl.create(
             SqlServerStreamImpl.create(metadataFuture, stream.call(fakeCallContext)));

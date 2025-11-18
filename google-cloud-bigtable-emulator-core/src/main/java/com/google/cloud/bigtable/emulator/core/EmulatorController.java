@@ -52,6 +52,7 @@ public class EmulatorController {
   public static EmulatorController createFromPath(Path path) {
     return new EmulatorController(path);
   }
+
   /**
    * Create a new instance of emulator. The emulator will use the bundled binaries in this jar.
    * Please note that the emulator is created in a stopped state, please use {@link #start()} after
@@ -90,12 +91,15 @@ public class EmulatorController {
   public synchronized boolean isRunning() {
     return !isStopped;
   }
+
   /** Starts the emulator process and waits for it to be ready. */
-  public synchronized void start() throws IOException, TimeoutException, InterruptedException {
+  public synchronized void start(int port)
+      throws IOException, TimeoutException, InterruptedException {
     if (!isStopped) {
       throw new IllegalStateException("Emulator is already started");
     }
-    this.port = getAvailablePort();
+
+    this.port = port;
 
     // Try to align the localhost address across java & golang emulator
     // This should fix issues on systems that default to ipv4 but the jvm is started with
@@ -141,6 +145,11 @@ public class EmulatorController {
     waitForPort(port);
   }
 
+  /** Starts the emulator process and waits for it to be ready. */
+  public synchronized void start() throws IOException, TimeoutException, InterruptedException {
+    start(getAvailablePort());
+  }
+
   /** Stops the emulator process. */
   public synchronized void stop() {
     if (isStopped) {
@@ -162,6 +171,7 @@ public class EmulatorController {
     }
     return port;
   }
+
   // <editor-fold desc="Helpers">
 
   /** Gets the current platform, which will be used to select the appropriate emulator binary. */

@@ -19,6 +19,7 @@ import com.google.api.core.BetaApi;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.BaseApiTracer;
+import java.time.Duration;
 import javax.annotation.Nullable;
 
 /**
@@ -53,6 +54,13 @@ public class BigtableTracer extends BaseApiTracer {
   }
 
   /**
+   * Used by BigtableUnaryOperationCallable to signal that the user visible portion of the RPC is
+   * complete and that metrics should freeze the timers and then publish the frozen values when the
+   * internal portion of the operation completes.
+   */
+  public void operationFinishEarly() {}
+
+  /**
    * Get the attempt number of the current call. Attempt number for the current call is passed in
    * and should be recorded in {@link #attemptStarted(int)}. With the getter we can access it from
    * {@link ApiCallContext}. Attempt number starts from 0.
@@ -83,7 +91,28 @@ public class BigtableTracer extends BaseApiTracer {
     // noop
   }
 
+  /** Set the underlying transport used to process the attempt */
+  public void setTransportAttrs(BuiltinMetricsTracer.TransportAttrs attrs) {}
+
+  @Deprecated
+  /**
+   * @deprecated {@link #grpcMessageSent()} is called instead.
+   */
   public void grpcChannelQueuedLatencies(long queuedTimeMs) {
+    // noop
+  }
+
+  /** Called when the message is sent on a grpc channel. */
+  public void grpcMessageSent() {
+    // noop
+  }
+
+  /**
+   * Record the operation timeout from user settings for calculating remaining deadline. Currently,
+   * it's called in BuiltinMetricsTracer on attempt start from {@link BigtableTracerUnaryCallable}
+   * and {@link BigtableTracerStreamingCallable}.
+   */
+  public void setTotalTimeoutDuration(Duration totalTimeoutDuration) {
     // noop
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,13 @@ package com.google.cloud.bigtable.admin.v2.stub;
 
 import static com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListAuthorizedViewsPagedResponse;
 import static com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListBackupsPagedResponse;
+import static com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListSchemaBundlesPagedResponse;
 import static com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListSnapshotsPagedResponse;
 import static com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListTablesPagedResponse;
 
 import com.google.api.core.ApiFunction;
 import com.google.api.core.ApiFuture;
+import com.google.api.core.ObsoleteApi;
 import com.google.api.gax.core.GaxProperties;
 import com.google.api.gax.core.GoogleCredentialsProvider;
 import com.google.api.gax.core.InstantiatingExecutorProvider;
@@ -56,11 +58,14 @@ import com.google.bigtable.admin.v2.CreateAuthorizedViewMetadata;
 import com.google.bigtable.admin.v2.CreateAuthorizedViewRequest;
 import com.google.bigtable.admin.v2.CreateBackupMetadata;
 import com.google.bigtable.admin.v2.CreateBackupRequest;
+import com.google.bigtable.admin.v2.CreateSchemaBundleMetadata;
+import com.google.bigtable.admin.v2.CreateSchemaBundleRequest;
 import com.google.bigtable.admin.v2.CreateTableFromSnapshotMetadata;
 import com.google.bigtable.admin.v2.CreateTableFromSnapshotRequest;
 import com.google.bigtable.admin.v2.CreateTableRequest;
 import com.google.bigtable.admin.v2.DeleteAuthorizedViewRequest;
 import com.google.bigtable.admin.v2.DeleteBackupRequest;
+import com.google.bigtable.admin.v2.DeleteSchemaBundleRequest;
 import com.google.bigtable.admin.v2.DeleteSnapshotRequest;
 import com.google.bigtable.admin.v2.DeleteTableRequest;
 import com.google.bigtable.admin.v2.DropRowRangeRequest;
@@ -68,12 +73,15 @@ import com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest;
 import com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse;
 import com.google.bigtable.admin.v2.GetAuthorizedViewRequest;
 import com.google.bigtable.admin.v2.GetBackupRequest;
+import com.google.bigtable.admin.v2.GetSchemaBundleRequest;
 import com.google.bigtable.admin.v2.GetSnapshotRequest;
 import com.google.bigtable.admin.v2.GetTableRequest;
 import com.google.bigtable.admin.v2.ListAuthorizedViewsRequest;
 import com.google.bigtable.admin.v2.ListAuthorizedViewsResponse;
 import com.google.bigtable.admin.v2.ListBackupsRequest;
 import com.google.bigtable.admin.v2.ListBackupsResponse;
+import com.google.bigtable.admin.v2.ListSchemaBundlesRequest;
+import com.google.bigtable.admin.v2.ListSchemaBundlesResponse;
 import com.google.bigtable.admin.v2.ListSnapshotsRequest;
 import com.google.bigtable.admin.v2.ListSnapshotsResponse;
 import com.google.bigtable.admin.v2.ListTablesRequest;
@@ -81,6 +89,7 @@ import com.google.bigtable.admin.v2.ListTablesResponse;
 import com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest;
 import com.google.bigtable.admin.v2.RestoreTableMetadata;
 import com.google.bigtable.admin.v2.RestoreTableRequest;
+import com.google.bigtable.admin.v2.SchemaBundle;
 import com.google.bigtable.admin.v2.Snapshot;
 import com.google.bigtable.admin.v2.SnapshotTableMetadata;
 import com.google.bigtable.admin.v2.SnapshotTableRequest;
@@ -90,6 +99,8 @@ import com.google.bigtable.admin.v2.UndeleteTableRequest;
 import com.google.bigtable.admin.v2.UpdateAuthorizedViewMetadata;
 import com.google.bigtable.admin.v2.UpdateAuthorizedViewRequest;
 import com.google.bigtable.admin.v2.UpdateBackupRequest;
+import com.google.bigtable.admin.v2.UpdateSchemaBundleMetadata;
+import com.google.bigtable.admin.v2.UpdateSchemaBundleRequest;
 import com.google.bigtable.admin.v2.UpdateTableMetadata;
 import com.google.bigtable.admin.v2.UpdateTableRequest;
 import com.google.common.collect.ImmutableList;
@@ -104,9 +115,9 @@ import com.google.iam.v1.TestIamPermissionsResponse;
 import com.google.longrunning.Operation;
 import com.google.protobuf.Empty;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 import javax.annotation.Generated;
-import org.threeten.bp.Duration;
 
 // AUTO-GENERATED DOCUMENTATION AND CLASS.
 /**
@@ -123,7 +134,9 @@ import org.threeten.bp.Duration;
  * <p>The builder of this class is recursive, so contained classes are themselves builders. When
  * build() is called, the tree of builders is called to create the complete settings object.
  *
- * <p>For example, to set the total timeout of createTable to 30 seconds:
+ * <p>For example, to set the
+ * [RetrySettings](https://cloud.google.com/java/docs/reference/gax/latest/com.google.api.gax.retrying.RetrySettings)
+ * of createTable:
  *
  * <pre>{@code
  * // This snippet has been automatically generated and should be regarded as a code template only.
@@ -140,10 +153,47 @@ import org.threeten.bp.Duration;
  *             .createTableSettings()
  *             .getRetrySettings()
  *             .toBuilder()
- *             .setTotalTimeout(Duration.ofSeconds(30))
+ *             .setInitialRetryDelayDuration(Duration.ofSeconds(1))
+ *             .setInitialRpcTimeoutDuration(Duration.ofSeconds(5))
+ *             .setMaxAttempts(5)
+ *             .setMaxRetryDelayDuration(Duration.ofSeconds(30))
+ *             .setMaxRpcTimeoutDuration(Duration.ofSeconds(60))
+ *             .setRetryDelayMultiplier(1.3)
+ *             .setRpcTimeoutMultiplier(1.5)
+ *             .setTotalTimeoutDuration(Duration.ofSeconds(300))
  *             .build());
  * BigtableTableAdminStubSettings baseBigtableTableAdminSettings =
  *     baseBigtableTableAdminSettingsBuilder.build();
+ * }</pre>
+ *
+ * Please refer to the [Client Side Retry
+ * Guide](https://github.com/googleapis/google-cloud-java/blob/main/docs/client_retries.md) for
+ * additional support in setting retries.
+ *
+ * <p>To configure the RetrySettings of a Long Running Operation method, create an
+ * OperationTimedPollAlgorithm object and update the RPC's polling algorithm. For example, to
+ * configure the RetrySettings for createTableFromSnapshot:
+ *
+ * <pre>{@code
+ * // This snippet has been automatically generated and should be regarded as a code template only.
+ * // It will require modifications to work:
+ * // - It may require correct/in-range values for request initialization.
+ * // - It may require specifying regional endpoints when creating the service client as shown in
+ * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+ * BigtableTableAdminStubSettings.Builder baseBigtableTableAdminSettingsBuilder =
+ *     BigtableTableAdminStubSettings.newBuilder();
+ * TimedRetryAlgorithm timedRetryAlgorithm =
+ *     OperationalTimedPollAlgorithm.create(
+ *         RetrySettings.newBuilder()
+ *             .setInitialRetryDelayDuration(Duration.ofMillis(500))
+ *             .setRetryDelayMultiplier(1.5)
+ *             .setMaxRetryDelayDuration(Duration.ofMillis(5000))
+ *             .setTotalTimeoutDuration(Duration.ofHours(24))
+ *             .build());
+ * baseBigtableTableAdminSettingsBuilder
+ *     .createClusterOperationSettings()
+ *     .setPollingAlgorithm(timedRetryAlgorithm)
+ *     .build();
  * }</pre>
  */
 @Generated("by gapic-generator-java")
@@ -223,6 +273,19 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
   private final UnaryCallSettings<SetIamPolicyRequest, Policy> setIamPolicySettings;
   private final UnaryCallSettings<TestIamPermissionsRequest, TestIamPermissionsResponse>
       testIamPermissionsSettings;
+  private final UnaryCallSettings<CreateSchemaBundleRequest, Operation> createSchemaBundleSettings;
+  private final OperationCallSettings<
+          CreateSchemaBundleRequest, SchemaBundle, CreateSchemaBundleMetadata>
+      createSchemaBundleOperationSettings;
+  private final UnaryCallSettings<UpdateSchemaBundleRequest, Operation> updateSchemaBundleSettings;
+  private final OperationCallSettings<
+          UpdateSchemaBundleRequest, SchemaBundle, UpdateSchemaBundleMetadata>
+      updateSchemaBundleOperationSettings;
+  private final UnaryCallSettings<GetSchemaBundleRequest, SchemaBundle> getSchemaBundleSettings;
+  private final PagedCallSettings<
+          ListSchemaBundlesRequest, ListSchemaBundlesResponse, ListSchemaBundlesPagedResponse>
+      listSchemaBundlesSettings;
+  private final UnaryCallSettings<DeleteSchemaBundleRequest, Empty> deleteSchemaBundleSettings;
 
   private static final PagedListDescriptor<ListTablesRequest, ListTablesResponse, Table>
       LIST_TABLES_PAGE_STR_DESC =
@@ -254,9 +317,7 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
 
             @Override
             public Iterable<Table> extractResources(ListTablesResponse payload) {
-              return payload.getTablesList() == null
-                  ? ImmutableList.<Table>of()
-                  : payload.getTablesList();
+              return payload.getTablesList();
             }
           };
 
@@ -294,9 +355,7 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
 
             @Override
             public Iterable<AuthorizedView> extractResources(ListAuthorizedViewsResponse payload) {
-              return payload.getAuthorizedViewsList() == null
-                  ? ImmutableList.<AuthorizedView>of()
-                  : payload.getAuthorizedViewsList();
+              return payload.getAuthorizedViewsList();
             }
           };
 
@@ -330,9 +389,7 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
 
             @Override
             public Iterable<Snapshot> extractResources(ListSnapshotsResponse payload) {
-              return payload.getSnapshotsList() == null
-                  ? ImmutableList.<Snapshot>of()
-                  : payload.getSnapshotsList();
+              return payload.getSnapshotsList();
             }
           };
 
@@ -366,9 +423,45 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
 
             @Override
             public Iterable<Backup> extractResources(ListBackupsResponse payload) {
-              return payload.getBackupsList() == null
-                  ? ImmutableList.<Backup>of()
-                  : payload.getBackupsList();
+              return payload.getBackupsList();
+            }
+          };
+
+  private static final PagedListDescriptor<
+          ListSchemaBundlesRequest, ListSchemaBundlesResponse, SchemaBundle>
+      LIST_SCHEMA_BUNDLES_PAGE_STR_DESC =
+          new PagedListDescriptor<
+              ListSchemaBundlesRequest, ListSchemaBundlesResponse, SchemaBundle>() {
+            @Override
+            public String emptyToken() {
+              return "";
+            }
+
+            @Override
+            public ListSchemaBundlesRequest injectToken(
+                ListSchemaBundlesRequest payload, String token) {
+              return ListSchemaBundlesRequest.newBuilder(payload).setPageToken(token).build();
+            }
+
+            @Override
+            public ListSchemaBundlesRequest injectPageSize(
+                ListSchemaBundlesRequest payload, int pageSize) {
+              return ListSchemaBundlesRequest.newBuilder(payload).setPageSize(pageSize).build();
+            }
+
+            @Override
+            public Integer extractPageSize(ListSchemaBundlesRequest payload) {
+              return payload.getPageSize();
+            }
+
+            @Override
+            public String extractNextToken(ListSchemaBundlesResponse payload) {
+              return payload.getNextPageToken();
+            }
+
+            @Override
+            public Iterable<SchemaBundle> extractResources(ListSchemaBundlesResponse payload) {
+              return payload.getSchemaBundlesList();
             }
           };
 
@@ -441,6 +534,27 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
               PageContext<ListBackupsRequest, ListBackupsResponse, Backup> pageContext =
                   PageContext.create(callable, LIST_BACKUPS_PAGE_STR_DESC, request, context);
               return ListBackupsPagedResponse.createAsync(pageContext, futureResponse);
+            }
+          };
+
+  private static final PagedListResponseFactory<
+          ListSchemaBundlesRequest, ListSchemaBundlesResponse, ListSchemaBundlesPagedResponse>
+      LIST_SCHEMA_BUNDLES_PAGE_STR_FACT =
+          new PagedListResponseFactory<
+              ListSchemaBundlesRequest,
+              ListSchemaBundlesResponse,
+              ListSchemaBundlesPagedResponse>() {
+            @Override
+            public ApiFuture<ListSchemaBundlesPagedResponse> getFuturePagedResponse(
+                UnaryCallable<ListSchemaBundlesRequest, ListSchemaBundlesResponse> callable,
+                ListSchemaBundlesRequest request,
+                ApiCallContext context,
+                ApiFuture<ListSchemaBundlesResponse> futureResponse) {
+              PageContext<ListSchemaBundlesRequest, ListSchemaBundlesResponse, SchemaBundle>
+                  pageContext =
+                      PageContext.create(
+                          callable, LIST_SCHEMA_BUNDLES_PAGE_STR_DESC, request, context);
+              return ListSchemaBundlesPagedResponse.createAsync(pageContext, futureResponse);
             }
           };
 
@@ -660,6 +774,45 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
     return testIamPermissionsSettings;
   }
 
+  /** Returns the object with the settings used for calls to createSchemaBundle. */
+  public UnaryCallSettings<CreateSchemaBundleRequest, Operation> createSchemaBundleSettings() {
+    return createSchemaBundleSettings;
+  }
+
+  /** Returns the object with the settings used for calls to createSchemaBundle. */
+  public OperationCallSettings<CreateSchemaBundleRequest, SchemaBundle, CreateSchemaBundleMetadata>
+      createSchemaBundleOperationSettings() {
+    return createSchemaBundleOperationSettings;
+  }
+
+  /** Returns the object with the settings used for calls to updateSchemaBundle. */
+  public UnaryCallSettings<UpdateSchemaBundleRequest, Operation> updateSchemaBundleSettings() {
+    return updateSchemaBundleSettings;
+  }
+
+  /** Returns the object with the settings used for calls to updateSchemaBundle. */
+  public OperationCallSettings<UpdateSchemaBundleRequest, SchemaBundle, UpdateSchemaBundleMetadata>
+      updateSchemaBundleOperationSettings() {
+    return updateSchemaBundleOperationSettings;
+  }
+
+  /** Returns the object with the settings used for calls to getSchemaBundle. */
+  public UnaryCallSettings<GetSchemaBundleRequest, SchemaBundle> getSchemaBundleSettings() {
+    return getSchemaBundleSettings;
+  }
+
+  /** Returns the object with the settings used for calls to listSchemaBundles. */
+  public PagedCallSettings<
+          ListSchemaBundlesRequest, ListSchemaBundlesResponse, ListSchemaBundlesPagedResponse>
+      listSchemaBundlesSettings() {
+    return listSchemaBundlesSettings;
+  }
+
+  /** Returns the object with the settings used for calls to deleteSchemaBundle. */
+  public UnaryCallSettings<DeleteSchemaBundleRequest, Empty> deleteSchemaBundleSettings() {
+    return deleteSchemaBundleSettings;
+  }
+
   public BigtableTableAdminStub createStub() throws IOException {
     if (getTransportChannelProvider()
         .getTransportName()
@@ -683,6 +836,7 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
   }
 
   /** Returns the default service endpoint. */
+  @ObsoleteApi("Use getEndpoint() instead")
   public static String getDefaultEndpoint() {
     return "bigtableadmin.googleapis.com:443";
   }
@@ -782,6 +936,15 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
     getIamPolicySettings = settingsBuilder.getIamPolicySettings().build();
     setIamPolicySettings = settingsBuilder.setIamPolicySettings().build();
     testIamPermissionsSettings = settingsBuilder.testIamPermissionsSettings().build();
+    createSchemaBundleSettings = settingsBuilder.createSchemaBundleSettings().build();
+    createSchemaBundleOperationSettings =
+        settingsBuilder.createSchemaBundleOperationSettings().build();
+    updateSchemaBundleSettings = settingsBuilder.updateSchemaBundleSettings().build();
+    updateSchemaBundleOperationSettings =
+        settingsBuilder.updateSchemaBundleOperationSettings().build();
+    getSchemaBundleSettings = settingsBuilder.getSchemaBundleSettings().build();
+    listSchemaBundlesSettings = settingsBuilder.listSchemaBundlesSettings().build();
+    deleteSchemaBundleSettings = settingsBuilder.deleteSchemaBundleSettings().build();
   }
 
   /** Builder for BigtableTableAdminStubSettings. */
@@ -860,6 +1023,23 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
     private final UnaryCallSettings.Builder<SetIamPolicyRequest, Policy> setIamPolicySettings;
     private final UnaryCallSettings.Builder<TestIamPermissionsRequest, TestIamPermissionsResponse>
         testIamPermissionsSettings;
+    private final UnaryCallSettings.Builder<CreateSchemaBundleRequest, Operation>
+        createSchemaBundleSettings;
+    private final OperationCallSettings.Builder<
+            CreateSchemaBundleRequest, SchemaBundle, CreateSchemaBundleMetadata>
+        createSchemaBundleOperationSettings;
+    private final UnaryCallSettings.Builder<UpdateSchemaBundleRequest, Operation>
+        updateSchemaBundleSettings;
+    private final OperationCallSettings.Builder<
+            UpdateSchemaBundleRequest, SchemaBundle, UpdateSchemaBundleMetadata>
+        updateSchemaBundleOperationSettings;
+    private final UnaryCallSettings.Builder<GetSchemaBundleRequest, SchemaBundle>
+        getSchemaBundleSettings;
+    private final PagedCallSettings.Builder<
+            ListSchemaBundlesRequest, ListSchemaBundlesResponse, ListSchemaBundlesPagedResponse>
+        listSchemaBundlesSettings;
+    private final UnaryCallSettings.Builder<DeleteSchemaBundleRequest, Empty>
+        deleteSchemaBundleSettings;
     private static final ImmutableMap<String, ImmutableSet<StatusCode.Code>>
         RETRYABLE_CODE_DEFINITIONS;
 
@@ -875,7 +1055,12 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
               Lists.<StatusCode.Code>newArrayList(
                   StatusCode.Code.UNAVAILABLE, StatusCode.Code.DEADLINE_EXCEEDED)));
       definitions.put(
-          "no_retry_3_codes", ImmutableSet.copyOf(Lists.<StatusCode.Code>newArrayList()));
+          "no_retry_4_codes", ImmutableSet.copyOf(Lists.<StatusCode.Code>newArrayList()));
+      definitions.put(
+          "retry_policy_3_codes",
+          ImmutableSet.copyOf(
+              Lists.<StatusCode.Code>newArrayList(
+                  StatusCode.Code.UNAVAILABLE, StatusCode.Code.DEADLINE_EXCEEDED)));
       definitions.put(
           "no_retry_1_codes", ImmutableSet.copyOf(Lists.<StatusCode.Code>newArrayList()));
       RETRYABLE_CODE_DEFINITIONS = definitions.build();
@@ -888,39 +1073,50 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
       RetrySettings settings = null;
       settings =
           RetrySettings.newBuilder()
-              .setInitialRpcTimeout(Duration.ofMillis(300000L))
+              .setInitialRpcTimeoutDuration(Duration.ofMillis(300000L))
               .setRpcTimeoutMultiplier(1.0)
-              .setMaxRpcTimeout(Duration.ofMillis(300000L))
-              .setTotalTimeout(Duration.ofMillis(300000L))
+              .setMaxRpcTimeoutDuration(Duration.ofMillis(300000L))
+              .setTotalTimeoutDuration(Duration.ofMillis(300000L))
               .build();
       definitions.put("no_retry_0_params", settings);
       settings = RetrySettings.newBuilder().setRpcTimeoutMultiplier(1.0).build();
       definitions.put("no_retry_params", settings);
       settings =
           RetrySettings.newBuilder()
-              .setInitialRetryDelay(Duration.ofMillis(1000L))
+              .setInitialRetryDelayDuration(Duration.ofMillis(1000L))
               .setRetryDelayMultiplier(2.0)
-              .setMaxRetryDelay(Duration.ofMillis(60000L))
-              .setInitialRpcTimeout(Duration.ofMillis(60000L))
+              .setMaxRetryDelayDuration(Duration.ofMillis(60000L))
+              .setInitialRpcTimeoutDuration(Duration.ofMillis(60000L))
               .setRpcTimeoutMultiplier(1.0)
-              .setMaxRpcTimeout(Duration.ofMillis(60000L))
-              .setTotalTimeout(Duration.ofMillis(60000L))
+              .setMaxRpcTimeoutDuration(Duration.ofMillis(60000L))
+              .setTotalTimeoutDuration(Duration.ofMillis(60000L))
               .build();
       definitions.put("retry_policy_2_params", settings);
       settings =
           RetrySettings.newBuilder()
-              .setInitialRpcTimeout(Duration.ofMillis(3600000L))
+              .setInitialRpcTimeoutDuration(Duration.ofMillis(3600000L))
               .setRpcTimeoutMultiplier(1.0)
-              .setMaxRpcTimeout(Duration.ofMillis(3600000L))
-              .setTotalTimeout(Duration.ofMillis(3600000L))
+              .setMaxRpcTimeoutDuration(Duration.ofMillis(3600000L))
+              .setTotalTimeoutDuration(Duration.ofMillis(3600000L))
               .build();
-      definitions.put("no_retry_3_params", settings);
+      definitions.put("no_retry_4_params", settings);
       settings =
           RetrySettings.newBuilder()
-              .setInitialRpcTimeout(Duration.ofMillis(60000L))
+              .setInitialRetryDelayDuration(Duration.ofMillis(1000L))
+              .setRetryDelayMultiplier(2.0)
+              .setMaxRetryDelayDuration(Duration.ofMillis(60000L))
+              .setInitialRpcTimeoutDuration(Duration.ofMillis(3600000L))
               .setRpcTimeoutMultiplier(1.0)
-              .setMaxRpcTimeout(Duration.ofMillis(60000L))
-              .setTotalTimeout(Duration.ofMillis(60000L))
+              .setMaxRpcTimeoutDuration(Duration.ofMillis(3600000L))
+              .setTotalTimeoutDuration(Duration.ofMillis(3600000L))
+              .build();
+      definitions.put("retry_policy_3_params", settings);
+      settings =
+          RetrySettings.newBuilder()
+              .setInitialRpcTimeoutDuration(Duration.ofMillis(60000L))
+              .setRpcTimeoutMultiplier(1.0)
+              .setMaxRpcTimeoutDuration(Duration.ofMillis(60000L))
+              .setTotalTimeoutDuration(Duration.ofMillis(60000L))
               .build();
       definitions.put("no_retry_1_params", settings);
       RETRY_PARAM_DEFINITIONS = definitions.build();
@@ -973,6 +1169,13 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
       getIamPolicySettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       setIamPolicySettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       testIamPermissionsSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      createSchemaBundleSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      createSchemaBundleOperationSettings = OperationCallSettings.newBuilder();
+      updateSchemaBundleSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      updateSchemaBundleOperationSettings = OperationCallSettings.newBuilder();
+      getSchemaBundleSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      listSchemaBundlesSettings = PagedCallSettings.newBuilder(LIST_SCHEMA_BUNDLES_PAGE_STR_FACT);
+      deleteSchemaBundleSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
 
       unaryMethodSettingsBuilders =
           ImmutableList.<UnaryCallSettings.Builder<?, ?>>of(
@@ -1005,7 +1208,12 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
               copyBackupSettings,
               getIamPolicySettings,
               setIamPolicySettings,
-              testIamPermissionsSettings);
+              testIamPermissionsSettings,
+              createSchemaBundleSettings,
+              updateSchemaBundleSettings,
+              getSchemaBundleSettings,
+              listSchemaBundlesSettings,
+              deleteSchemaBundleSettings);
       initDefaults(this);
     }
 
@@ -1054,6 +1262,15 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
       getIamPolicySettings = settings.getIamPolicySettings.toBuilder();
       setIamPolicySettings = settings.setIamPolicySettings.toBuilder();
       testIamPermissionsSettings = settings.testIamPermissionsSettings.toBuilder();
+      createSchemaBundleSettings = settings.createSchemaBundleSettings.toBuilder();
+      createSchemaBundleOperationSettings =
+          settings.createSchemaBundleOperationSettings.toBuilder();
+      updateSchemaBundleSettings = settings.updateSchemaBundleSettings.toBuilder();
+      updateSchemaBundleOperationSettings =
+          settings.updateSchemaBundleOperationSettings.toBuilder();
+      getSchemaBundleSettings = settings.getSchemaBundleSettings.toBuilder();
+      listSchemaBundlesSettings = settings.listSchemaBundlesSettings.toBuilder();
+      deleteSchemaBundleSettings = settings.deleteSchemaBundleSettings.toBuilder();
 
       unaryMethodSettingsBuilders =
           ImmutableList.<UnaryCallSettings.Builder<?, ?>>of(
@@ -1086,7 +1303,12 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
               copyBackupSettings,
               getIamPolicySettings,
               setIamPolicySettings,
-              testIamPermissionsSettings);
+              testIamPermissionsSettings,
+              createSchemaBundleSettings,
+              updateSchemaBundleSettings,
+              getSchemaBundleSettings,
+              listSchemaBundlesSettings,
+              deleteSchemaBundleSettings);
     }
 
     private static Builder createDefault() {
@@ -1169,8 +1391,8 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
 
       builder
           .dropRowRangeSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_3_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_3_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_4_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_4_params"));
 
       builder
           .generateConsistencyTokenSettings()
@@ -1179,8 +1401,8 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
 
       builder
           .checkConsistencySettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_2_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_2_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_3_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_3_params"));
 
       builder
           .snapshotTableSettings()
@@ -1253,6 +1475,31 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
           .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_2_params"));
 
       builder
+          .createSchemaBundleSettings()
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
+
+      builder
+          .updateSchemaBundleSettings()
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
+
+      builder
+          .getSchemaBundleSettings()
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
+
+      builder
+          .listSchemaBundlesSettings()
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
+
+      builder
+          .deleteSchemaBundleSettings()
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
+
+      builder
           .createTableFromSnapshotOperationSettings()
           .setInitialCallSettings(
               UnaryCallSettings
@@ -1268,13 +1515,13 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
           .setPollingAlgorithm(
               OperationTimedPollAlgorithm.create(
                   RetrySettings.newBuilder()
-                      .setInitialRetryDelay(Duration.ofMillis(5000L))
+                      .setInitialRetryDelayDuration(Duration.ofMillis(5000L))
                       .setRetryDelayMultiplier(1.5)
-                      .setMaxRetryDelay(Duration.ofMillis(60000L))
-                      .setInitialRpcTimeout(Duration.ZERO)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(60000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
                       .setRpcTimeoutMultiplier(1.0)
-                      .setMaxRpcTimeout(Duration.ZERO)
-                      .setTotalTimeout(Duration.ofMillis(3600000L))
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(3600000L))
                       .build()));
 
       builder
@@ -1291,13 +1538,13 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
           .setPollingAlgorithm(
               OperationTimedPollAlgorithm.create(
                   RetrySettings.newBuilder()
-                      .setInitialRetryDelay(Duration.ofMillis(5000L))
+                      .setInitialRetryDelayDuration(Duration.ofMillis(5000L))
                       .setRetryDelayMultiplier(1.5)
-                      .setMaxRetryDelay(Duration.ofMillis(45000L))
-                      .setInitialRpcTimeout(Duration.ZERO)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(45000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
                       .setRpcTimeoutMultiplier(1.0)
-                      .setMaxRpcTimeout(Duration.ZERO)
-                      .setTotalTimeout(Duration.ofMillis(300000L))
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(300000L))
                       .build()));
 
       builder
@@ -1315,13 +1562,13 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
           .setPollingAlgorithm(
               OperationTimedPollAlgorithm.create(
                   RetrySettings.newBuilder()
-                      .setInitialRetryDelay(Duration.ofMillis(5000L))
+                      .setInitialRetryDelayDuration(Duration.ofMillis(5000L))
                       .setRetryDelayMultiplier(1.5)
-                      .setMaxRetryDelay(Duration.ofMillis(45000L))
-                      .setInitialRpcTimeout(Duration.ZERO)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(45000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
                       .setRpcTimeoutMultiplier(1.0)
-                      .setMaxRpcTimeout(Duration.ZERO)
-                      .setTotalTimeout(Duration.ofMillis(300000L))
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(300000L))
                       .build()));
 
       builder
@@ -1340,13 +1587,13 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
           .setPollingAlgorithm(
               OperationTimedPollAlgorithm.create(
                   RetrySettings.newBuilder()
-                      .setInitialRetryDelay(Duration.ofMillis(5000L))
+                      .setInitialRetryDelayDuration(Duration.ofMillis(5000L))
                       .setRetryDelayMultiplier(1.5)
-                      .setMaxRetryDelay(Duration.ofMillis(45000L))
-                      .setInitialRpcTimeout(Duration.ZERO)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(45000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
                       .setRpcTimeoutMultiplier(1.0)
-                      .setMaxRpcTimeout(Duration.ZERO)
-                      .setTotalTimeout(Duration.ofMillis(300000L))
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(300000L))
                       .build()));
 
       builder
@@ -1365,13 +1612,13 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
           .setPollingAlgorithm(
               OperationTimedPollAlgorithm.create(
                   RetrySettings.newBuilder()
-                      .setInitialRetryDelay(Duration.ofMillis(5000L))
+                      .setInitialRetryDelayDuration(Duration.ofMillis(5000L))
                       .setRetryDelayMultiplier(1.5)
-                      .setMaxRetryDelay(Duration.ofMillis(45000L))
-                      .setInitialRpcTimeout(Duration.ZERO)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(45000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
                       .setRpcTimeoutMultiplier(1.0)
-                      .setMaxRpcTimeout(Duration.ZERO)
-                      .setTotalTimeout(Duration.ofMillis(300000L))
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(300000L))
                       .build()));
 
       builder
@@ -1389,13 +1636,13 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
           .setPollingAlgorithm(
               OperationTimedPollAlgorithm.create(
                   RetrySettings.newBuilder()
-                      .setInitialRetryDelay(Duration.ofMillis(500L))
+                      .setInitialRetryDelayDuration(Duration.ofMillis(500L))
                       .setRetryDelayMultiplier(1.5)
-                      .setMaxRetryDelay(Duration.ofMillis(5000L))
-                      .setInitialRpcTimeout(Duration.ZERO)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(5000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
                       .setRpcTimeoutMultiplier(1.0)
-                      .setMaxRpcTimeout(Duration.ZERO)
-                      .setTotalTimeout(Duration.ofMillis(600000L))
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(600000L))
                       .build()));
 
       builder
@@ -1413,13 +1660,13 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
           .setPollingAlgorithm(
               OperationTimedPollAlgorithm.create(
                   RetrySettings.newBuilder()
-                      .setInitialRetryDelay(Duration.ofMillis(500L))
+                      .setInitialRetryDelayDuration(Duration.ofMillis(500L))
                       .setRetryDelayMultiplier(1.5)
-                      .setMaxRetryDelay(Duration.ofMillis(5000L))
-                      .setInitialRpcTimeout(Duration.ZERO)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(5000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
                       .setRpcTimeoutMultiplier(1.0)
-                      .setMaxRpcTimeout(Duration.ZERO)
-                      .setTotalTimeout(Duration.ofMillis(600000L))
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(600000L))
                       .build()));
 
       builder
@@ -1437,13 +1684,13 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
           .setPollingAlgorithm(
               OperationTimedPollAlgorithm.create(
                   RetrySettings.newBuilder()
-                      .setInitialRetryDelay(Duration.ofMillis(500L))
+                      .setInitialRetryDelayDuration(Duration.ofMillis(500L))
                       .setRetryDelayMultiplier(1.5)
-                      .setMaxRetryDelay(Duration.ofMillis(5000L))
-                      .setInitialRpcTimeout(Duration.ZERO)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(5000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
                       .setRpcTimeoutMultiplier(1.0)
-                      .setMaxRpcTimeout(Duration.ZERO)
-                      .setTotalTimeout(Duration.ofMillis(600000L))
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(600000L))
                       .build()));
 
       builder
@@ -1460,13 +1707,63 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
           .setPollingAlgorithm(
               OperationTimedPollAlgorithm.create(
                   RetrySettings.newBuilder()
-                      .setInitialRetryDelay(Duration.ofMillis(5000L))
+                      .setInitialRetryDelayDuration(Duration.ofMillis(5000L))
                       .setRetryDelayMultiplier(1.5)
-                      .setMaxRetryDelay(Duration.ofMillis(45000L))
-                      .setInitialRpcTimeout(Duration.ZERO)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(45000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
                       .setRpcTimeoutMultiplier(1.0)
-                      .setMaxRpcTimeout(Duration.ZERO)
-                      .setTotalTimeout(Duration.ofMillis(300000L))
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(300000L))
+                      .build()));
+
+      builder
+          .createSchemaBundleOperationSettings()
+          .setInitialCallSettings(
+              UnaryCallSettings
+                  .<CreateSchemaBundleRequest, OperationSnapshot>newUnaryCallSettingsBuilder()
+                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"))
+                  .build())
+          .setResponseTransformer(
+              ProtoOperationTransformers.ResponseTransformer.create(SchemaBundle.class))
+          .setMetadataTransformer(
+              ProtoOperationTransformers.MetadataTransformer.create(
+                  CreateSchemaBundleMetadata.class))
+          .setPollingAlgorithm(
+              OperationTimedPollAlgorithm.create(
+                  RetrySettings.newBuilder()
+                      .setInitialRetryDelayDuration(Duration.ofMillis(5000L))
+                      .setRetryDelayMultiplier(1.5)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(45000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
+                      .setRpcTimeoutMultiplier(1.0)
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(300000L))
+                      .build()));
+
+      builder
+          .updateSchemaBundleOperationSettings()
+          .setInitialCallSettings(
+              UnaryCallSettings
+                  .<UpdateSchemaBundleRequest, OperationSnapshot>newUnaryCallSettingsBuilder()
+                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"))
+                  .build())
+          .setResponseTransformer(
+              ProtoOperationTransformers.ResponseTransformer.create(SchemaBundle.class))
+          .setMetadataTransformer(
+              ProtoOperationTransformers.MetadataTransformer.create(
+                  UpdateSchemaBundleMetadata.class))
+          .setPollingAlgorithm(
+              OperationTimedPollAlgorithm.create(
+                  RetrySettings.newBuilder()
+                      .setInitialRetryDelayDuration(Duration.ofMillis(5000L))
+                      .setRetryDelayMultiplier(1.5)
+                      .setMaxRetryDelayDuration(Duration.ofMillis(45000L))
+                      .setInitialRpcTimeoutDuration(Duration.ZERO)
+                      .setRpcTimeoutMultiplier(1.0)
+                      .setMaxRpcTimeoutDuration(Duration.ZERO)
+                      .setTotalTimeoutDuration(Duration.ofMillis(300000L))
                       .build()));
 
       return builder;
@@ -1711,6 +2008,51 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
     public UnaryCallSettings.Builder<TestIamPermissionsRequest, TestIamPermissionsResponse>
         testIamPermissionsSettings() {
       return testIamPermissionsSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to createSchemaBundle. */
+    public UnaryCallSettings.Builder<CreateSchemaBundleRequest, Operation>
+        createSchemaBundleSettings() {
+      return createSchemaBundleSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to createSchemaBundle. */
+    public OperationCallSettings.Builder<
+            CreateSchemaBundleRequest, SchemaBundle, CreateSchemaBundleMetadata>
+        createSchemaBundleOperationSettings() {
+      return createSchemaBundleOperationSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to updateSchemaBundle. */
+    public UnaryCallSettings.Builder<UpdateSchemaBundleRequest, Operation>
+        updateSchemaBundleSettings() {
+      return updateSchemaBundleSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to updateSchemaBundle. */
+    public OperationCallSettings.Builder<
+            UpdateSchemaBundleRequest, SchemaBundle, UpdateSchemaBundleMetadata>
+        updateSchemaBundleOperationSettings() {
+      return updateSchemaBundleOperationSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to getSchemaBundle. */
+    public UnaryCallSettings.Builder<GetSchemaBundleRequest, SchemaBundle>
+        getSchemaBundleSettings() {
+      return getSchemaBundleSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to listSchemaBundles. */
+    public PagedCallSettings.Builder<
+            ListSchemaBundlesRequest, ListSchemaBundlesResponse, ListSchemaBundlesPagedResponse>
+        listSchemaBundlesSettings() {
+      return listSchemaBundlesSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to deleteSchemaBundle. */
+    public UnaryCallSettings.Builder<DeleteSchemaBundleRequest, Empty>
+        deleteSchemaBundleSettings() {
+      return deleteSchemaBundleSettings;
     }
 
     @Override

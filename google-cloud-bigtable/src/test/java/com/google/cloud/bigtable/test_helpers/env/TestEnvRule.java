@@ -24,9 +24,17 @@ import com.google.cloud.bigtable.admin.v2.BigtableTableAdminSettings;
 import com.google.cloud.bigtable.admin.v2.models.AppProfile;
 import com.google.cloud.bigtable.admin.v2.models.Cluster;
 import com.google.cloud.bigtable.admin.v2.models.Instance;
+import com.google.cloud.bigtable.admin.v2.models.LogicalView;
+import com.google.cloud.bigtable.admin.v2.models.MaterializedView;
+import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.admin.v2.models.UpdateAuthorizedViewRequest;
+import com.google.cloud.bigtable.admin.v2.models.UpdateLogicalViewRequest;
+import com.google.cloud.bigtable.admin.v2.models.UpdateMaterializedViewRequest;
+import com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest;
 import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -37,8 +45,6 @@ import java.util.logging.Logger;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.threeten.bp.Instant;
-import org.threeten.bp.temporal.ChronoUnit;
 
 /**
  * JUnit rule to start and stop the target test environment.
@@ -109,7 +115,8 @@ public class TestEnvRule implements TestRule {
       default:
         throw new IllegalArgumentException(
             String.format(
-                "Unknown env: %s. Please set the system property %s to either 'emulator' or 'cloud'.",
+                "Unknown env: %s. Please set the system property %s to either 'emulator' or"
+                    + " 'cloud'.",
                 env, ENV_PROPERTY));
     }
     testEnv.start();
@@ -158,28 +165,41 @@ public class TestEnvRule implements TestRule {
   /**
    * Clean up AppProfile that were dynamically created in the default instance that have been
    * orphaned.
-   *
-   * @param stalePrefix
    */
   private void cleanupStaleTables(String stalePrefix) {
+    LOGGER.info("Start cleaning up stale tables with stalePrefix=" + stalePrefix);
     for (String tableId : env().getTableAdminClient().listTables()) {
       if (!tableId.startsWith(PrefixGenerator.PREFIX)) {
+        LOGGER.info("Skip cleaning up table: " + tableId);
         continue;
       }
       if (stalePrefix.compareTo(tableId) > 0) {
+        LOGGER.info("Preparing stale table for delete: " + tableId);
         prepTableForDelete(tableId);
         try {
+          LOGGER.info("Deleting stable table: " + tableId);
           env().getTableAdminClient().deleteTable(tableId);
-        } catch (NotFoundException ignored) {
-
+        } catch (NotFoundException e) {
+          LOGGER.log(Level.WARNING, "Deleting stale table failed: " + tableId, e);
         }
       }
     }
   }
 
   private void prepTableForDelete(String tableId) {
-    // Unprotected views
     if (!(env() instanceof EmulatorEnv)) {
+      // unprotect table
+      Table table = env().getTableAdminClient().getTable(tableId);
+      if (table.isDeletionProtected() || table.getChangeStreamRetention() != null) {
+        env()
+            .getTableAdminClient()
+            .updateTable(
+                UpdateTableRequest.of(tableId)
+                    .setDeletionProtection(false)
+                    .disableChangeStreamRetention());
+      }
+
+      // Unprotected views
       for (String viewId : env().getTableAdminClient().listAuthorizedViews(tableId)) {
         try {
           env()
@@ -195,8 +215,6 @@ public class TestEnvRule implements TestRule {
   /**
    * Clean up AppProfile that were dynamically created in the default instance that have been
    * orphaned.
-   *
-   * @param stalePrefix
    */
   private void cleanUpStaleAppProfile(String stalePrefix) {
     for (AppProfile appProfile :
@@ -221,8 +239,6 @@ public class TestEnvRule implements TestRule {
   /**
    * Clean up clusters that were dynamically created in the default instance that have been
    * orphaned.
-   *
-   * @param stalePrefix
    */
   private void cleanUpStaleClusters(String stalePrefix)
       throws ExecutionException, InterruptedException {
@@ -246,11 +262,36 @@ public class TestEnvRule implements TestRule {
     }
   }
 
-  /**
-   * Clean up dynamically created (non-default) instances that have been orphaned.
-   *
-   * @param stalePrefix
-   */
+  private void prepInstanceForDelete(String instanceId) {
+    if (env() instanceof EmulatorEnv) {
+      return;
+    }
+    // Unprotected MaterializedViews.
+    for (MaterializedView materializedView :
+        env().getInstanceAdminClient().listMaterializedViews(instanceId)) {
+      try {
+        env()
+            .getInstanceAdminClient()
+            .updateMaterializedView(
+                UpdateMaterializedViewRequest.of(instanceId, materializedView.getId())
+                    .setDeletionProtection(false));
+      } catch (NotFoundException ignored) {
+      }
+    }
+    // Unprotected LogicalViews.
+    for (LogicalView logicalView : env().getInstanceAdminClient().listLogicalViews(instanceId)) {
+      try {
+        env()
+            .getInstanceAdminClient()
+            .updateLogicalView(
+                UpdateLogicalViewRequest.of(instanceId, logicalView.getId())
+                    .setDeletionProtection(false));
+      } catch (NotFoundException ignored) {
+      }
+    }
+  }
+
+  /** Clean up dynamically created (non-default) instances that have been orphaned. */
   private void cleanUpStaleInstances(String stalePrefix)
       throws IOException, ExecutionException, InterruptedException {
     for (Instance instance : env().getInstanceAdminClient().listInstances()) {
@@ -261,6 +302,7 @@ public class TestEnvRule implements TestRule {
       if (isNewerThanStale) {
         continue;
       }
+      prepInstanceForDelete(instance.getId());
       try {
         deleteInstance(instance.getId());
       } catch (NotFoundException ignored) {

@@ -48,7 +48,9 @@ public class CreateTableRequestTest {
             .addFamily("another-family", GCRULES.maxAge(100, TimeUnit.HOURS))
             .addSplit(splitKey)
             .addSplit(secondSplitKey)
-            .addChangeStreamRetention(Duration.ofHours(24));
+            .addChangeStreamRetention(Duration.ofHours(24))
+            .setDeletionProtection(true)
+            .setAutomatedBackup(Duration.ofHours(24), Duration.ofHours(24));
 
     com.google.bigtable.admin.v2.CreateTableRequest requestProto =
         com.google.bigtable.admin.v2.CreateTableRequest.newBuilder()
@@ -70,7 +72,19 @@ public class CreateTableRequestTest {
                         ChangeStreamConfig.newBuilder()
                             .setRetentionPeriod(
                                 com.google.protobuf.Duration.newBuilder().setSeconds(86400))
-                            .build()))
+                            .build())
+                    .setAutomatedBackupPolicy(
+                        com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy.newBuilder()
+                            .setRetentionPeriod(
+                                com.google.protobuf.Duration.newBuilder()
+                                    .setSeconds(86400)
+                                    .setNanos(0))
+                            .setFrequency(
+                                com.google.protobuf.Duration.newBuilder()
+                                    .setSeconds(86400)
+                                    .setNanos(0))
+                            .build())
+                    .setDeletionProtection(true))
             .setParent(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
             .addInitialSplits(
                 com.google.bigtable.admin.v2.CreateTableRequest.Split.newBuilder().setKey(splitKey))
@@ -134,6 +148,7 @@ public class CreateTableRequestTest {
         CreateTableRequest.of(TABLE_ID)
             .addFamily("family-id")
             .addFamily("another-family", GCRULES.maxAge(100, TimeUnit.HOURS))
+            .setAutomatedBackup(Duration.ofHours(100), Duration.ofHours(100))
             .addSplit(splitKey);
 
     assertThat(request)
@@ -141,6 +156,7 @@ public class CreateTableRequestTest {
             CreateTableRequest.of(TABLE_ID)
                 .addFamily("family-id")
                 .addFamily("another-family", GCRULES.maxAge(Duration.ofHours(100)))
+                .setAutomatedBackup(Duration.ofHours(100), Duration.ofHours(100))
                 .addSplit(splitKey));
 
     assertThat(request)
@@ -148,6 +164,7 @@ public class CreateTableRequestTest {
             CreateTableRequest.of(TABLE_ID)
                 .addFamily("family-id")
                 .addFamily("another-family")
+                .setAutomatedBackup(Duration.ofHours(100), Duration.ofHours(10))
                 .addSplit(splitKey));
   }
 

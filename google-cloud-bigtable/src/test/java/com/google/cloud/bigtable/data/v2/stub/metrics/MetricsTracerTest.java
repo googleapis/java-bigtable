@@ -38,6 +38,7 @@ import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
+import com.google.cloud.bigtable.data.v2.stub.BigtableClientContext;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.common.base.Stopwatch;
@@ -56,6 +57,7 @@ import io.opencensus.stats.StatsComponent;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tags;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -120,11 +122,10 @@ public class MetricsTracerTest {
             .setAppProfileId(APP_PROFILE_ID)
             .build();
 
+    BigtableClientContext bigtableClientContext =
+        EnhancedBigtableStub.createBigtableClientContext(settings.getStubSettings());
     ClientContext clientContext =
-        EnhancedBigtableStub.createClientContext(settings.getStubSettings());
-    clientContext =
-        clientContext
-            .toBuilder()
+        bigtableClientContext.getClientContext().toBuilder()
             .setTracerFactory(
                 EnhancedBigtableStub.createBigtableTracerFactory(
                     settings.getStubSettings(),
@@ -162,7 +163,9 @@ public class MetricsTracerTest {
         .readRows(any(ReadRowsRequest.class), any());
 
     Stopwatch stopwatch = Stopwatch.createStarted();
-    Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    ArrayList<Row> ignored =
+        Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
     long opLatency =
@@ -195,8 +198,12 @@ public class MetricsTracerTest {
         .when(mockService)
         .readRows(any(ReadRowsRequest.class), any());
 
-    Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
-    Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    ArrayList<Row> ignored =
+        Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    ArrayList<Row> ignored2 =
+        Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
 
     long opLatency =
         StatsTestUtils.getAggregationValueAsLong(
@@ -293,7 +300,9 @@ public class MetricsTracerTest {
         .when(mockService)
         .readRows(any(ReadRowsRequest.class), any());
 
-    Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    ArrayList<Row> ignored =
+        Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
 
     long opLatency =
         StatsTestUtils.getAggregationValueAsLong(
@@ -338,7 +347,9 @@ public class MetricsTracerTest {
         .readRows(any(ReadRowsRequest.class), any());
 
     Stopwatch stopwatch = Stopwatch.createStarted();
-    Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    ArrayList<Row> ignored =
+        Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
     long attemptLatency =
