@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.threeten.bp.Duration;
 
 /**
  * Settings class to configure an instance of {@link BigtableDataClient}.
@@ -129,14 +128,17 @@ public final class BigtableDataSettings {
         // disable channel refreshing when creating an emulator
         .setRefreshingChannel(false)
         .setMetricsProvider(NoopMetricsProvider.INSTANCE) // disable exporting metrics for emulator
+        .disableInternalMetrics()
         .setTransportChannelProvider(
             InstantiatingGrpcChannelProvider.newBuilder()
                 .setMaxInboundMessageSize(256 * 1024 * 1024)
                 .setChannelPoolSettings(ChannelPoolSettings.staticallySized(1))
                 .setChannelConfigurator(ManagedChannelBuilder::usePlaintext)
-                .setKeepAliveTime(Duration.ofSeconds(61)) // sends ping in this interval
-                .setKeepAliveTimeout(
-                    Duration.ofSeconds(10)) // wait this long before considering the connection dead
+                .setKeepAliveTimeDuration(
+                    java.time.Duration.ofSeconds(61)) // sends ping in this interval
+                .setKeepAliveTimeoutDuration(
+                    java.time.Duration.ofSeconds(
+                        10)) // wait this long before considering the connection dead
                 .build());
 
     LOGGER.info("Connecting to the Bigtable emulator at " + hostname + ":" + port);
@@ -144,6 +146,7 @@ public final class BigtableDataSettings {
   }
 
   /**
+   * @deprecated OpenCensus support is deprecated and will be removed in a future version
    * Enables OpenCensus metric aggregations.
    *
    * <p>This will register Bigtable client relevant {@link io.opencensus.stats.View}s. When coupled
@@ -177,7 +180,7 @@ public final class BigtableDataSettings {
    *   BigtableDataSettings.enableOpenCensusStats();
    * }</pre>
    */
-  @BetaApi("OpenCensus stats integration is currently unstable and may change in the future")
+  @Deprecated
   public static void enableOpenCensusStats() {
     com.google.cloud.bigtable.data.v2.stub.metrics.RpcViews.registerBigtableClientViews();
     // TODO(igorbernstein): Enable grpc views once we upgrade to grpc-java 1.24.0
@@ -186,15 +189,14 @@ public final class BigtableDataSettings {
   }
 
   /**
-   * Enables OpenCensus GFE metric aggregations.
-   *
-   * <p>This will register views for gfe_latency and gfe_header_missing_count metrics.
-   *
-   * <p>gfe_latency measures the latency between Google's network receives an RPC and reads back the
-   * first byte of the response. gfe_header_missing_count is a counter of the number of RPC
-   * responses received without the server-timing header.
+   * @deprecated OpenCensus support is deprecated and will be removed in a future version Enables
+   *     OpenCensus GFE metric aggregations.
+   *     <p>This will register views for gfe_latency and gfe_header_missing_count metrics.
+   *     <p>gfe_latency measures the latency between Google's network receives an RPC and reads back
+   *     the first byte of the response. gfe_header_missing_count is a counter of the number of RPC
+   *     responses received without the server-timing header.
    */
-  @BetaApi("OpenCensus stats integration is currently unstable and may change in the future")
+  @Deprecated
   public static void enableGfeOpenCensusStats() {
     com.google.cloud.bigtable.data.v2.stub.metrics.RpcViews.registerBigtableClientGfeViews();
   }
@@ -296,6 +298,11 @@ public final class BigtableDataSettings {
     return stubSettings.getMetricsProvider();
   }
 
+  /** Checks if internal metrics are enabled */
+  public boolean areInternalMetricsEnabled() {
+    return stubSettings.areInternalMetricsEnabled();
+  }
+
   /** Returns the underlying RPC settings. */
   public EnhancedBigtableStubSettings getStubSettings() {
     return stubSettings;
@@ -319,6 +326,7 @@ public final class BigtableDataSettings {
   /** Builder for BigtableDataSettings. */
   public static class Builder {
     private final EnhancedBigtableStubSettings.Builder stubSettings;
+
     /**
      * Initializes a new Builder with sane defaults for all settings.
      *
@@ -567,6 +575,15 @@ public final class BigtableDataSettings {
     /** Gets the {@link MetricsProvider}. */
     public MetricsProvider getMetricsProvider() {
       return stubSettings.getMetricsProvider();
+    }
+
+    public Builder disableInternalMetrics() {
+      stubSettings.disableInternalMetrics();
+      return this;
+    }
+
+    public boolean areInternalMetricsEnabled() {
+      return stubSettings.areInternalMetricsEnabled();
     }
 
     /**

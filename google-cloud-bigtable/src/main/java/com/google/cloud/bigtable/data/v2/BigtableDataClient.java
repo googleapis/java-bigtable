@@ -30,6 +30,9 @@ import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStream;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.UnaryCallable;
+import com.google.cloud.bigtable.data.v2.internal.PrepareQueryRequest;
+import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
+import com.google.cloud.bigtable.data.v2.internal.PreparedStatementImpl;
 import com.google.cloud.bigtable.data.v2.internal.ResultSetImpl;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecord;
@@ -48,14 +51,17 @@ import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.cloud.bigtable.data.v2.models.SampleRowKeysRequest;
 import com.google.cloud.bigtable.data.v2.models.TableId;
 import com.google.cloud.bigtable.data.v2.models.TargetId;
+import com.google.cloud.bigtable.data.v2.models.sql.BoundStatement;
+import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSet;
-import com.google.cloud.bigtable.data.v2.models.sql.Statement;
+import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStream;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -1280,6 +1286,53 @@ public class BigtableDataClient implements AutoCloseable {
   }
 
   /**
+   * Streams back the results of the read query & omits large rows. The returned callable object
+   * allows for customization of api invocation.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
+   *   String tableId = "[TABLE]";
+   *
+   *   Query query = Query.create(tableId)
+   *          .range("[START KEY]", "[END KEY]")
+   *          .filter(FILTERS.qualifier().regex("[COLUMN PREFIX].*"));
+   *
+   *   // Iterator style
+   *   try {
+   *     for(Row row : bigtableDataClient.skipLargeRowsCallable().call(query)) {
+   *       // Do something with row
+   *     }
+   *   } catch (NotFoundException e) {
+   *     System.out.println("Tried to read a non-existent table");
+   *   } catch (RuntimeException e) {
+   *     e.printStackTrace();
+   *   }
+   *
+   *   // Sync style
+   *   try {
+   *     List<Row> rows = bigtableDataClient.skipLargeRowsCallable().all().call(query);
+   *   } catch (NotFoundException e) {
+   *     System.out.println("Tried to read a non-existent table");
+   *   } catch (RuntimeException e) {
+   *     e.printStackTrace();
+   *   }
+   *
+   *   // etc
+   * }
+   * }</pre>
+   *
+   * @see ServerStreamingCallable For call styles.
+   * @see Query For query options.
+   * @see com.google.cloud.bigtable.data.v2.models.Filters For the filter building DSL.
+   */
+  @InternalApi("only to be used by Bigtable beam connector")
+  public ServerStreamingCallable<Query, Row> skipLargeRowsCallable() {
+    return stub.skipLargeRowsCallable();
+  }
+
+  /**
    * Streams back the results of the query. This callable allows for customization of the logical
    * representation of a row. It's meant for advanced use cases.
    *
@@ -1312,6 +1365,46 @@ public class BigtableDataClient implements AutoCloseable {
    */
   public <RowT> ServerStreamingCallable<Query, RowT> readRowsCallable(RowAdapter<RowT> rowAdapter) {
     return stub.createReadRowsCallable(rowAdapter);
+  }
+
+  /**
+   * This is an internal API, it is subject to breaking changes and should not be relied on by user
+   * code
+   *
+   * <p>Streams back the results of the query skipping the large-rows. This callable allows for
+   * customization of the logical representation of a row. It's meant for advanced use cases.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
+   *   String tableId = "[TABLE]";
+   *
+   *   Query query = Query.create(tableId)
+   *          .range("[START KEY]", "[END KEY]")
+   *          .filter(FILTERS.qualifier().regex("[COLUMN PREFIX].*"));
+   *
+   *   // Iterator style
+   *   try {
+   *     for(CustomRow row : bigtableDataClient.skipLargeRowsCallable(new CustomRowAdapter()).call(query)) {
+   *       // Do something with row
+   *     }
+   *   } catch (NotFoundException e) {
+   *     System.out.println("Tried to read a non-existent table");
+   *   } catch (RuntimeException e) {
+   *     e.printStackTrace();
+   *   }
+   * }
+   * }</pre>
+   *
+   * @see ServerStreamingCallable For call styles.
+   * @see Query For query options.
+   * @see com.google.cloud.bigtable.data.v2.models.Filters For the filter building DSL.
+   */
+  @InternalApi("only to be used by Bigtable beam connector")
+  public <RowT> ServerStreamingCallable<Query, RowT> skipLargeRowsCallable(
+      RowAdapter<RowT> rowAdapter) {
+    return stub.createSkipLargeRowsCallable(rowAdapter);
   }
 
   /**
@@ -2618,28 +2711,59 @@ public class BigtableDataClient implements AutoCloseable {
    * Executes a SQL Query and returns a ResultSet to iterate over the results. The returned
    * ResultSet instance is not threadsafe, it can only be used from single thread.
    *
+   * <p> The {@link BoundStatement} must be built from a {@link PreparedStatement} created using
+   * the same instance and app profile.
+   *
    * <p>Sample code:
    *
    * <pre>{@code
    * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
    *   String query = "SELECT CAST(cf['stringCol'] AS STRING) FROM [TABLE]";
-   *
-   *   try (ResultSet resultSet = bigtableDataClient.executeQuery(Statement.of(query))) {
-   *     while (resultSet.next()) {
-   *        String s = resultSet.getString("stringCol");
-   *        // do something with data
-   *     }
-   *   } catch (RuntimeException e) {
-   *     e.printStackTrace();
+   *   Map<String, SqlType<?>> paramTypes = new HashMap<>();
+   *   PreparedStatement preparedStatement = bigtableDataClient.prepareStatement(query, paramTypes));
+   *   // Ideally one PreparedStatement should be reused across requests
+   *   BoundStatement boundStatement = preparedStatement.bind()
+   *      // set any query params before calling build
+   *      .build();
+   *   try (ResultSet resultSet = bigtableDataClient.executeQuery(boundStatement)) {
+   *       while (resultSet.next()) {
+   *           String s = resultSet.getString("stringCol");
+   *            // do something with data
+   *       }
+   *    } catch (RuntimeException e) {
+   *        e.printStackTrace();
    *   }
    * }</pre>
    *
-   * @see Statement For query options.
+   * @see {@link PreparedStatement} & {@link BoundStatement} for query options.
    */
-  @BetaApi
-  public ResultSet executeQuery(Statement statement) {
-    SqlServerStream stream = stub.createExecuteQueryCallable().call(statement);
+  public ResultSet executeQuery(BoundStatement boundStatement) {
+    boundStatement.assertUsingSameStub(stub);
+    SqlServerStream stream = stub.createExecuteQueryCallable().call(boundStatement);
     return ResultSetImpl.create(stream);
+  }
+
+  /**
+   * Prepares a query for execution. If possible this should be called once and reused across
+   * requests. This will amortize the cost of query preparation.
+   *
+   * <p>A parameterized query should contain placeholders in the form of {@literal @} followed by
+   * the parameter name. Parameter names may consist of any combination of letters, numbers, and
+   * underscores.
+   *
+   * <p>Parameters can appear anywhere that a literal value is expected. The same parameter name can
+   * be used more than once, for example: {@code WHERE cf["qualifier1"] = @value OR cf["qualifier2"]
+   * = @value }
+   *
+   * @param query sql query string to prepare
+   * @param paramTypes a Map of the parameter names and the corresponding {@link SqlType} for all
+   *     query parameters in 'query'
+   * @return {@link PreparedStatement} which is used to create {@link BoundStatement}s to execute
+   */
+  public PreparedStatement prepareStatement(String query, Map<String, SqlType<?>> paramTypes) {
+    PrepareQueryRequest request = PrepareQueryRequest.create(query, paramTypes);
+    PrepareResponse response = stub.prepareQueryCallable().call(request);
+    return PreparedStatementImpl.create(response, paramTypes, request, stub);
   }
 
   /** Close the clients and releases all associated resources. */

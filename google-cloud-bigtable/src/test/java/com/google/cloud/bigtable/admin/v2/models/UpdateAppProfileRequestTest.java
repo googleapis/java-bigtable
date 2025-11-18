@@ -102,8 +102,7 @@ public class UpdateAppProfileRequestTest {
         .isEqualTo(
             com.google.bigtable.admin.v2.UpdateAppProfileRequest.newBuilder()
                 .setAppProfile(
-                    existingProto
-                        .toBuilder()
+                    existingProto.toBuilder()
                         .setStandardIsolation(
                             StandardIsolation.newBuilder()
                                 .setPriority(
@@ -136,14 +135,42 @@ public class UpdateAppProfileRequestTest {
         .isEqualTo(
             com.google.bigtable.admin.v2.UpdateAppProfileRequest.newBuilder()
                 .setAppProfile(
-                    existingProto
-                        .toBuilder()
+                    existingProto.toBuilder()
                         .setDataBoostIsolationReadOnly(
                             DataBoostIsolationReadOnly.newBuilder()
                                 .setComputeBillingOwner(
                                     DataBoostIsolationReadOnly.ComputeBillingOwner.HOST_PAYS)
                                 .build()))
                 .setUpdateMask(FieldMask.newBuilder().addPaths("data_boost_isolation_read_only"))
+                .build());
+  }
+
+  @Test
+  public void testUpdateRowAffinity() {
+    com.google.bigtable.admin.v2.AppProfile existingProto =
+        com.google.bigtable.admin.v2.AppProfile.newBuilder()
+            .setName("projects/my-project/instances/my-instance/appProfiles/my-profile")
+            .setEtag("my-etag")
+            .setDescription("description")
+            .setMultiClusterRoutingUseAny(MultiClusterRoutingUseAny.getDefaultInstance())
+            .build();
+
+    AppProfile existingWrapper = AppProfile.fromProto(existingProto);
+
+    UpdateAppProfileRequest updateWrapper =
+        UpdateAppProfileRequest.of(existingWrapper)
+            .setRoutingPolicy(AppProfile.MultiClusterRoutingPolicy.withRowAffinity());
+
+    assertThat(updateWrapper.toProto("my-project"))
+        .isEqualTo(
+            com.google.bigtable.admin.v2.UpdateAppProfileRequest.newBuilder()
+                .setAppProfile(
+                    existingProto.toBuilder()
+                        .setMultiClusterRoutingUseAny(
+                            MultiClusterRoutingUseAny.newBuilder()
+                                .setRowAffinity(
+                                    MultiClusterRoutingUseAny.RowAffinity.newBuilder().build())))
+                .setUpdateMask(FieldMask.newBuilder().addPaths("multi_cluster_routing_use_any"))
                 .build());
   }
 }

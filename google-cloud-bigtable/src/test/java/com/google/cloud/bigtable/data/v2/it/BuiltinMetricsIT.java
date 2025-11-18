@@ -33,7 +33,6 @@ import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants;
-import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsView;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
 import com.google.cloud.bigtable.test_helpers.env.CloudEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
@@ -60,6 +59,8 @@ import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -76,8 +77,6 @@ import org.junit.Test;
 import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Duration;
-import org.threeten.bp.Instant;
 
 @Ignore("Temporarily disable flaky test")
 @RunWith(JUnit4.class)
@@ -118,7 +117,8 @@ public class BuiltinMetricsIT {
 
     assume()
         .withMessage(
-            "Builtin metrics integration test needs to be able to use a custom app profile and the app profile is currently forced to "
+            "Builtin metrics integration test needs to be able to use a custom app profile and the"
+                + " app profile is currently forced to "
                 + appProfileId)
         .that(appProfileId)
         .isEmpty();
@@ -135,7 +135,7 @@ public class BuiltinMetricsIT {
 
     SdkMeterProviderBuilder meterProvider =
         SdkMeterProvider.builder().registerMetricReader(metricReader);
-    BuiltinMetricsView.registerBuiltinMetrics(testEnvRule.env().getProjectId(), meterProvider);
+    CustomOpenTelemetryMetricsProvider.setupSdkMeterProvider(meterProvider);
     OpenTelemetry openTelemetry =
         OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
 
@@ -206,9 +206,9 @@ public class BuiltinMetricsIT {
       // Verify that metrics are published for MutateRow request
       String metricFilter =
           String.format(
-              "metric.type=\"bigtable.googleapis.com/client/%s\" "
-                  + "AND resource.labels.instance=\"%s\" AND metric.labels.method=\"Bigtable.MutateRow\""
-                  + " AND resource.labels.table=\"%s\"",
+              "metric.type=\"bigtable.googleapis.com/client/%s\" AND"
+                  + " resource.labels.instance=\"%s\" AND"
+                  + " metric.labels.method=\"Bigtable.MutateRow\" AND resource.labels.table=\"%s\"",
               view, testEnvRule.env().getInstanceId(), tableDefault.getId());
       ListTimeSeriesRequest.Builder requestBuilder =
           ListTimeSeriesRequest.newBuilder()
@@ -221,9 +221,9 @@ public class BuiltinMetricsIT {
       // Verify that metrics are published for ReadRows request
       metricFilter =
           String.format(
-              "metric.type=\"bigtable.googleapis.com/client/%s\" "
-                  + "AND resource.labels.instance=\"%s\" AND metric.labels.method=\"Bigtable.ReadRows\""
-                  + " AND resource.labels.table=\"%s\"",
+              "metric.type=\"bigtable.googleapis.com/client/%s\" AND"
+                  + " resource.labels.instance=\"%s\" AND"
+                  + " metric.labels.method=\"Bigtable.ReadRows\" AND resource.labels.table=\"%s\"",
               view, testEnvRule.env().getInstanceId(), tableDefault.getId());
       requestBuilder.setFilter(metricFilter);
 
@@ -274,9 +274,9 @@ public class BuiltinMetricsIT {
       // Verify that metrics are correct for MutateRows request
       String metricFilter =
           String.format(
-              "metric.type=\"bigtable.googleapis.com/client/%s\" "
-                  + "AND resource.labels.instance=\"%s\" AND metric.labels.method=\"Bigtable.MutateRow\""
-                  + " AND resource.labels.table=\"%s\"",
+              "metric.type=\"bigtable.googleapis.com/client/%s\" AND"
+                  + " resource.labels.instance=\"%s\" AND"
+                  + " metric.labels.method=\"Bigtable.MutateRow\" AND resource.labels.table=\"%s\"",
               view, testEnvRule.env().getInstanceId(), tableCustomOtel.getId());
       ListTimeSeriesRequest.Builder requestBuilder =
           ListTimeSeriesRequest.newBuilder()
@@ -292,9 +292,9 @@ public class BuiltinMetricsIT {
       // Verify that metrics are correct for ReadRows request
       metricFilter =
           String.format(
-              "metric.type=\"bigtable.googleapis.com/client/%s\" "
-                  + "AND resource.labels.instance=\"%s\" AND metric.labels.method=\"Bigtable.ReadRows\""
-                  + " AND resource.labels.table=\"%s\"",
+              "metric.type=\"bigtable.googleapis.com/client/%s\" AND"
+                  + " resource.labels.instance=\"%s\" AND"
+                  + " metric.labels.method=\"Bigtable.ReadRows\" AND resource.labels.table=\"%s\"",
               view, testEnvRule.env().getInstanceId(), tableCustomOtel.getId());
       requestBuilder.setFilter(metricFilter);
 

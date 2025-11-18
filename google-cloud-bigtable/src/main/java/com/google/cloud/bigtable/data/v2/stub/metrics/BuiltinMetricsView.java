@@ -29,8 +29,11 @@ import javax.annotation.Nullable;
 /**
  * A util class to register built-in metrics on a custom OpenTelemetry instance. This is for
  * advanced usage, and is only necessary when wanting to write built-in metrics to cloud monitoring
- * and custom sinks. Please refer to {@link CustomOpenTelemetryMetricsProvider} for example usage.
+ * and custom sinks.
+ *
+ * @deprecated Use methods in {@link CustomOpenTelemetryMetricsProvider} instead.
  */
+@Deprecated
 public class BuiltinMetricsView {
 
   private BuiltinMetricsView() {}
@@ -96,11 +99,28 @@ public class BuiltinMetricsView {
   public static void registerBuiltinMetrics(
       @Nullable Credentials credentials, SdkMeterProviderBuilder builder, @Nullable String endpoint)
       throws IOException {
-    MetricExporter metricExporter = BigtableCloudMonitoringExporter.create(credentials, endpoint);
+    registerBuiltinMetricsWithUniverseDomain(
+        credentials, builder, endpoint, Credentials.GOOGLE_DEFAULT_UNIVERSE);
+  }
+
+  static void registerBuiltinMetricsWithUniverseDomain(
+      @Nullable Credentials credentials,
+      SdkMeterProviderBuilder builder,
+      @Nullable String endpoint,
+      String universeDomain)
+      throws IOException {
+    MetricExporter publicExporter =
+        BigtableCloudMonitoringExporter.create(
+            "bigtable metrics",
+            credentials,
+            endpoint,
+            universeDomain,
+            new BigtableCloudMonitoringExporter.PublicTimeSeriesConverter());
+
     for (Map.Entry<InstrumentSelector, View> entry :
         BuiltinMetricsConstants.getAllViews().entrySet()) {
       builder.registerView(entry.getKey(), entry.getValue());
     }
-    builder.registerMetricReader(PeriodicMetricReader.create(metricExporter));
+    builder.registerMetricReader(PeriodicMetricReader.create(publicExporter));
   }
 }

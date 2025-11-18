@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.admin.v2;
 
 import static com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListAuthorizedViewsPagedResponse;
 import static com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListBackupsPagedResponse;
+import static com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListSchemaBundlesPagedResponse;
 import static com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListSnapshotsPagedResponse;
 import static com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListTablesPagedResponse;
 
@@ -42,10 +43,12 @@ import com.google.bigtable.admin.v2.ColumnFamily;
 import com.google.bigtable.admin.v2.CopyBackupRequest;
 import com.google.bigtable.admin.v2.CreateAuthorizedViewRequest;
 import com.google.bigtable.admin.v2.CreateBackupRequest;
+import com.google.bigtable.admin.v2.CreateSchemaBundleRequest;
 import com.google.bigtable.admin.v2.CreateTableFromSnapshotRequest;
 import com.google.bigtable.admin.v2.CreateTableRequest;
 import com.google.bigtable.admin.v2.DeleteAuthorizedViewRequest;
 import com.google.bigtable.admin.v2.DeleteBackupRequest;
+import com.google.bigtable.admin.v2.DeleteSchemaBundleRequest;
 import com.google.bigtable.admin.v2.DeleteSnapshotRequest;
 import com.google.bigtable.admin.v2.DeleteTableRequest;
 import com.google.bigtable.admin.v2.DropRowRangeRequest;
@@ -54,6 +57,7 @@ import com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest;
 import com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse;
 import com.google.bigtable.admin.v2.GetAuthorizedViewRequest;
 import com.google.bigtable.admin.v2.GetBackupRequest;
+import com.google.bigtable.admin.v2.GetSchemaBundleRequest;
 import com.google.bigtable.admin.v2.GetSnapshotRequest;
 import com.google.bigtable.admin.v2.GetTableRequest;
 import com.google.bigtable.admin.v2.InstanceName;
@@ -61,6 +65,8 @@ import com.google.bigtable.admin.v2.ListAuthorizedViewsRequest;
 import com.google.bigtable.admin.v2.ListAuthorizedViewsResponse;
 import com.google.bigtable.admin.v2.ListBackupsRequest;
 import com.google.bigtable.admin.v2.ListBackupsResponse;
+import com.google.bigtable.admin.v2.ListSchemaBundlesRequest;
+import com.google.bigtable.admin.v2.ListSchemaBundlesResponse;
 import com.google.bigtable.admin.v2.ListSnapshotsRequest;
 import com.google.bigtable.admin.v2.ListSnapshotsResponse;
 import com.google.bigtable.admin.v2.ListTablesRequest;
@@ -68,14 +74,18 @@ import com.google.bigtable.admin.v2.ListTablesResponse;
 import com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest;
 import com.google.bigtable.admin.v2.RestoreInfo;
 import com.google.bigtable.admin.v2.RestoreTableRequest;
+import com.google.bigtable.admin.v2.SchemaBundle;
+import com.google.bigtable.admin.v2.SchemaBundleName;
 import com.google.bigtable.admin.v2.Snapshot;
 import com.google.bigtable.admin.v2.SnapshotName;
 import com.google.bigtable.admin.v2.SnapshotTableRequest;
 import com.google.bigtable.admin.v2.Table;
 import com.google.bigtable.admin.v2.TableName;
+import com.google.bigtable.admin.v2.Type;
 import com.google.bigtable.admin.v2.UndeleteTableRequest;
 import com.google.bigtable.admin.v2.UpdateAuthorizedViewRequest;
 import com.google.bigtable.admin.v2.UpdateBackupRequest;
+import com.google.bigtable.admin.v2.UpdateSchemaBundleRequest;
 import com.google.bigtable.admin.v2.UpdateTableRequest;
 import com.google.common.collect.Lists;
 import com.google.iam.v1.AuditConfig;
@@ -156,6 +166,7 @@ public class BaseBigtableTableAdminClientTest {
             .setRestoreInfo(RestoreInfo.newBuilder().build())
             .setChangeStreamConfig(ChangeStreamConfig.newBuilder().build())
             .setDeletionProtection(true)
+            .setRowKeySchema(Type.Struct.newBuilder().build())
             .build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
@@ -205,6 +216,7 @@ public class BaseBigtableTableAdminClientTest {
             .setRestoreInfo(RestoreInfo.newBuilder().build())
             .setChangeStreamConfig(ChangeStreamConfig.newBuilder().build())
             .setDeletionProtection(true)
+            .setRowKeySchema(Type.Struct.newBuilder().build())
             .build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
@@ -254,6 +266,7 @@ public class BaseBigtableTableAdminClientTest {
             .setRestoreInfo(RestoreInfo.newBuilder().build())
             .setChangeStreamConfig(ChangeStreamConfig.newBuilder().build())
             .setDeletionProtection(true)
+            .setRowKeySchema(Type.Struct.newBuilder().build())
             .build();
     Operation resultOperation =
         Operation.newBuilder()
@@ -315,6 +328,7 @@ public class BaseBigtableTableAdminClientTest {
             .setRestoreInfo(RestoreInfo.newBuilder().build())
             .setChangeStreamConfig(ChangeStreamConfig.newBuilder().build())
             .setDeletionProtection(true)
+            .setRowKeySchema(Type.Struct.newBuilder().build())
             .build();
     Operation resultOperation =
         Operation.newBuilder()
@@ -374,6 +388,7 @@ public class BaseBigtableTableAdminClientTest {
             .setRestoreInfo(RestoreInfo.newBuilder().build())
             .setChangeStreamConfig(ChangeStreamConfig.newBuilder().build())
             .setDeletionProtection(true)
+            .setRowKeySchema(Type.Struct.newBuilder().build())
             .build();
     Operation resultOperation =
         Operation.newBuilder()
@@ -435,6 +450,7 @@ public class BaseBigtableTableAdminClientTest {
             .setRestoreInfo(RestoreInfo.newBuilder().build())
             .setChangeStreamConfig(ChangeStreamConfig.newBuilder().build())
             .setDeletionProtection(true)
+            .setRowKeySchema(Type.Struct.newBuilder().build())
             .build();
     Operation resultOperation =
         Operation.newBuilder()
@@ -582,6 +598,7 @@ public class BaseBigtableTableAdminClientTest {
             .setRestoreInfo(RestoreInfo.newBuilder().build())
             .setChangeStreamConfig(ChangeStreamConfig.newBuilder().build())
             .setDeletionProtection(true)
+            .setRowKeySchema(Type.Struct.newBuilder().build())
             .build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
@@ -625,6 +642,7 @@ public class BaseBigtableTableAdminClientTest {
             .setRestoreInfo(RestoreInfo.newBuilder().build())
             .setChangeStreamConfig(ChangeStreamConfig.newBuilder().build())
             .setDeletionProtection(true)
+            .setRowKeySchema(Type.Struct.newBuilder().build())
             .build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
@@ -668,6 +686,7 @@ public class BaseBigtableTableAdminClientTest {
             .setRestoreInfo(RestoreInfo.newBuilder().build())
             .setChangeStreamConfig(ChangeStreamConfig.newBuilder().build())
             .setDeletionProtection(true)
+            .setRowKeySchema(Type.Struct.newBuilder().build())
             .build();
     Operation resultOperation =
         Operation.newBuilder()
@@ -790,6 +809,7 @@ public class BaseBigtableTableAdminClientTest {
             .setRestoreInfo(RestoreInfo.newBuilder().build())
             .setChangeStreamConfig(ChangeStreamConfig.newBuilder().build())
             .setDeletionProtection(true)
+            .setRowKeySchema(Type.Struct.newBuilder().build())
             .build();
     Operation resultOperation =
         Operation.newBuilder()
@@ -841,6 +861,7 @@ public class BaseBigtableTableAdminClientTest {
             .setRestoreInfo(RestoreInfo.newBuilder().build())
             .setChangeStreamConfig(ChangeStreamConfig.newBuilder().build())
             .setDeletionProtection(true)
+            .setRowKeySchema(Type.Struct.newBuilder().build())
             .build();
     Operation resultOperation =
         Operation.newBuilder()
@@ -1309,6 +1330,7 @@ public class BaseBigtableTableAdminClientTest {
             .setRestoreInfo(RestoreInfo.newBuilder().build())
             .setChangeStreamConfig(ChangeStreamConfig.newBuilder().build())
             .setDeletionProtection(true)
+            .setRowKeySchema(Type.Struct.newBuilder().build())
             .build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
@@ -1356,6 +1378,7 @@ public class BaseBigtableTableAdminClientTest {
             .setRestoreInfo(RestoreInfo.newBuilder().build())
             .setChangeStreamConfig(ChangeStreamConfig.newBuilder().build())
             .setDeletionProtection(true)
+            .setRowKeySchema(Type.Struct.newBuilder().build())
             .build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
@@ -2511,6 +2534,7 @@ public class BaseBigtableTableAdminClientTest {
             .setRestoreInfo(RestoreInfo.newBuilder().build())
             .setChangeStreamConfig(ChangeStreamConfig.newBuilder().build())
             .setDeletionProtection(true)
+            .setRowKeySchema(Type.Struct.newBuilder().build())
             .build();
     Operation resultOperation =
         Operation.newBuilder()
@@ -2829,7 +2853,8 @@ public class BaseBigtableTableAdminClientTest {
             .build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
-    ResourceName resource = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
+    ResourceName resource =
+        AuthorizedViewName.of("[PROJECT]", "[INSTANCE]", "[TABLE]", "[AUTHORIZED_VIEW]");
 
     Policy actualResponse = client.getIamPolicy(resource);
     Assert.assertEquals(expectedResponse, actualResponse);
@@ -2851,7 +2876,8 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addException(exception);
 
     try {
-      ResourceName resource = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
+      ResourceName resource =
+          AuthorizedViewName.of("[PROJECT]", "[INSTANCE]", "[TABLE]", "[AUTHORIZED_VIEW]");
       client.getIamPolicy(resource);
       Assert.fail("No exception raised");
     } catch (InvalidArgumentException e) {
@@ -2911,7 +2937,8 @@ public class BaseBigtableTableAdminClientTest {
             .build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
-    ResourceName resource = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
+    ResourceName resource =
+        AuthorizedViewName.of("[PROJECT]", "[INSTANCE]", "[TABLE]", "[AUTHORIZED_VIEW]");
     Policy policy = Policy.newBuilder().build();
 
     Policy actualResponse = client.setIamPolicy(resource, policy);
@@ -2935,7 +2962,8 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addException(exception);
 
     try {
-      ResourceName resource = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
+      ResourceName resource =
+          AuthorizedViewName.of("[PROJECT]", "[INSTANCE]", "[TABLE]", "[AUTHORIZED_VIEW]");
       Policy policy = Policy.newBuilder().build();
       client.setIamPolicy(resource, policy);
       Assert.fail("No exception raised");
@@ -2994,7 +3022,8 @@ public class BaseBigtableTableAdminClientTest {
         TestIamPermissionsResponse.newBuilder().addAllPermissions(new ArrayList<String>()).build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
-    ResourceName resource = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
+    ResourceName resource =
+        AuthorizedViewName.of("[PROJECT]", "[INSTANCE]", "[TABLE]", "[AUTHORIZED_VIEW]");
     List<String> permissions = new ArrayList<>();
 
     TestIamPermissionsResponse actualResponse = client.testIamPermissions(resource, permissions);
@@ -3018,7 +3047,8 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addException(exception);
 
     try {
-      ResourceName resource = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
+      ResourceName resource =
+          AuthorizedViewName.of("[PROJECT]", "[INSTANCE]", "[TABLE]", "[AUTHORIZED_VIEW]");
       List<String> permissions = new ArrayList<>();
       client.testIamPermissions(resource, permissions);
       Assert.fail("No exception raised");
@@ -3060,6 +3090,412 @@ public class BaseBigtableTableAdminClientTest {
       String resource = "resource-341064690";
       List<String> permissions = new ArrayList<>();
       client.testIamPermissions(resource, permissions);
+      Assert.fail("No exception raised");
+    } catch (InvalidArgumentException e) {
+      // Expected exception.
+    }
+  }
+
+  @Test
+  public void createSchemaBundleTest() throws Exception {
+    SchemaBundle expectedResponse =
+        SchemaBundle.newBuilder()
+            .setName(
+                SchemaBundleName.of("[PROJECT]", "[INSTANCE]", "[TABLE]", "[SCHEMA_BUNDLE]")
+                    .toString())
+            .setEtag("etag3123477")
+            .build();
+    Operation resultOperation =
+        Operation.newBuilder()
+            .setName("createSchemaBundleTest")
+            .setDone(true)
+            .setResponse(Any.pack(expectedResponse))
+            .build();
+    mockBigtableTableAdmin.addResponse(resultOperation);
+
+    TableName parent = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+    String schemaBundleId = "schemaBundleId2039843326";
+    SchemaBundle schemaBundle = SchemaBundle.newBuilder().build();
+
+    SchemaBundle actualResponse =
+        client.createSchemaBundleAsync(parent, schemaBundleId, schemaBundle).get();
+    Assert.assertEquals(expectedResponse, actualResponse);
+
+    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
+    Assert.assertEquals(1, actualRequests.size());
+    CreateSchemaBundleRequest actualRequest = ((CreateSchemaBundleRequest) actualRequests.get(0));
+
+    Assert.assertEquals(parent.toString(), actualRequest.getParent());
+    Assert.assertEquals(schemaBundleId, actualRequest.getSchemaBundleId());
+    Assert.assertEquals(schemaBundle, actualRequest.getSchemaBundle());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
+  }
+
+  @Test
+  public void createSchemaBundleExceptionTest() throws Exception {
+    StatusRuntimeException exception = new StatusRuntimeException(io.grpc.Status.INVALID_ARGUMENT);
+    mockBigtableTableAdmin.addException(exception);
+
+    try {
+      TableName parent = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+      String schemaBundleId = "schemaBundleId2039843326";
+      SchemaBundle schemaBundle = SchemaBundle.newBuilder().build();
+      client.createSchemaBundleAsync(parent, schemaBundleId, schemaBundle).get();
+      Assert.fail("No exception raised");
+    } catch (ExecutionException e) {
+      Assert.assertEquals(InvalidArgumentException.class, e.getCause().getClass());
+      InvalidArgumentException apiException = ((InvalidArgumentException) e.getCause());
+      Assert.assertEquals(StatusCode.Code.INVALID_ARGUMENT, apiException.getStatusCode().getCode());
+    }
+  }
+
+  @Test
+  public void createSchemaBundleTest2() throws Exception {
+    SchemaBundle expectedResponse =
+        SchemaBundle.newBuilder()
+            .setName(
+                SchemaBundleName.of("[PROJECT]", "[INSTANCE]", "[TABLE]", "[SCHEMA_BUNDLE]")
+                    .toString())
+            .setEtag("etag3123477")
+            .build();
+    Operation resultOperation =
+        Operation.newBuilder()
+            .setName("createSchemaBundleTest")
+            .setDone(true)
+            .setResponse(Any.pack(expectedResponse))
+            .build();
+    mockBigtableTableAdmin.addResponse(resultOperation);
+
+    String parent = "parent-995424086";
+    String schemaBundleId = "schemaBundleId2039843326";
+    SchemaBundle schemaBundle = SchemaBundle.newBuilder().build();
+
+    SchemaBundle actualResponse =
+        client.createSchemaBundleAsync(parent, schemaBundleId, schemaBundle).get();
+    Assert.assertEquals(expectedResponse, actualResponse);
+
+    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
+    Assert.assertEquals(1, actualRequests.size());
+    CreateSchemaBundleRequest actualRequest = ((CreateSchemaBundleRequest) actualRequests.get(0));
+
+    Assert.assertEquals(parent, actualRequest.getParent());
+    Assert.assertEquals(schemaBundleId, actualRequest.getSchemaBundleId());
+    Assert.assertEquals(schemaBundle, actualRequest.getSchemaBundle());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
+  }
+
+  @Test
+  public void createSchemaBundleExceptionTest2() throws Exception {
+    StatusRuntimeException exception = new StatusRuntimeException(io.grpc.Status.INVALID_ARGUMENT);
+    mockBigtableTableAdmin.addException(exception);
+
+    try {
+      String parent = "parent-995424086";
+      String schemaBundleId = "schemaBundleId2039843326";
+      SchemaBundle schemaBundle = SchemaBundle.newBuilder().build();
+      client.createSchemaBundleAsync(parent, schemaBundleId, schemaBundle).get();
+      Assert.fail("No exception raised");
+    } catch (ExecutionException e) {
+      Assert.assertEquals(InvalidArgumentException.class, e.getCause().getClass());
+      InvalidArgumentException apiException = ((InvalidArgumentException) e.getCause());
+      Assert.assertEquals(StatusCode.Code.INVALID_ARGUMENT, apiException.getStatusCode().getCode());
+    }
+  }
+
+  @Test
+  public void updateSchemaBundleTest() throws Exception {
+    SchemaBundle expectedResponse =
+        SchemaBundle.newBuilder()
+            .setName(
+                SchemaBundleName.of("[PROJECT]", "[INSTANCE]", "[TABLE]", "[SCHEMA_BUNDLE]")
+                    .toString())
+            .setEtag("etag3123477")
+            .build();
+    Operation resultOperation =
+        Operation.newBuilder()
+            .setName("updateSchemaBundleTest")
+            .setDone(true)
+            .setResponse(Any.pack(expectedResponse))
+            .build();
+    mockBigtableTableAdmin.addResponse(resultOperation);
+
+    SchemaBundle schemaBundle = SchemaBundle.newBuilder().build();
+    FieldMask updateMask = FieldMask.newBuilder().build();
+
+    SchemaBundle actualResponse = client.updateSchemaBundleAsync(schemaBundle, updateMask).get();
+    Assert.assertEquals(expectedResponse, actualResponse);
+
+    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
+    Assert.assertEquals(1, actualRequests.size());
+    UpdateSchemaBundleRequest actualRequest = ((UpdateSchemaBundleRequest) actualRequests.get(0));
+
+    Assert.assertEquals(schemaBundle, actualRequest.getSchemaBundle());
+    Assert.assertEquals(updateMask, actualRequest.getUpdateMask());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
+  }
+
+  @Test
+  public void updateSchemaBundleExceptionTest() throws Exception {
+    StatusRuntimeException exception = new StatusRuntimeException(io.grpc.Status.INVALID_ARGUMENT);
+    mockBigtableTableAdmin.addException(exception);
+
+    try {
+      SchemaBundle schemaBundle = SchemaBundle.newBuilder().build();
+      FieldMask updateMask = FieldMask.newBuilder().build();
+      client.updateSchemaBundleAsync(schemaBundle, updateMask).get();
+      Assert.fail("No exception raised");
+    } catch (ExecutionException e) {
+      Assert.assertEquals(InvalidArgumentException.class, e.getCause().getClass());
+      InvalidArgumentException apiException = ((InvalidArgumentException) e.getCause());
+      Assert.assertEquals(StatusCode.Code.INVALID_ARGUMENT, apiException.getStatusCode().getCode());
+    }
+  }
+
+  @Test
+  public void getSchemaBundleTest() throws Exception {
+    SchemaBundle expectedResponse =
+        SchemaBundle.newBuilder()
+            .setName(
+                SchemaBundleName.of("[PROJECT]", "[INSTANCE]", "[TABLE]", "[SCHEMA_BUNDLE]")
+                    .toString())
+            .setEtag("etag3123477")
+            .build();
+    mockBigtableTableAdmin.addResponse(expectedResponse);
+
+    SchemaBundleName name =
+        SchemaBundleName.of("[PROJECT]", "[INSTANCE]", "[TABLE]", "[SCHEMA_BUNDLE]");
+
+    SchemaBundle actualResponse = client.getSchemaBundle(name);
+    Assert.assertEquals(expectedResponse, actualResponse);
+
+    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
+    Assert.assertEquals(1, actualRequests.size());
+    GetSchemaBundleRequest actualRequest = ((GetSchemaBundleRequest) actualRequests.get(0));
+
+    Assert.assertEquals(name.toString(), actualRequest.getName());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
+  }
+
+  @Test
+  public void getSchemaBundleExceptionTest() throws Exception {
+    StatusRuntimeException exception = new StatusRuntimeException(io.grpc.Status.INVALID_ARGUMENT);
+    mockBigtableTableAdmin.addException(exception);
+
+    try {
+      SchemaBundleName name =
+          SchemaBundleName.of("[PROJECT]", "[INSTANCE]", "[TABLE]", "[SCHEMA_BUNDLE]");
+      client.getSchemaBundle(name);
+      Assert.fail("No exception raised");
+    } catch (InvalidArgumentException e) {
+      // Expected exception.
+    }
+  }
+
+  @Test
+  public void getSchemaBundleTest2() throws Exception {
+    SchemaBundle expectedResponse =
+        SchemaBundle.newBuilder()
+            .setName(
+                SchemaBundleName.of("[PROJECT]", "[INSTANCE]", "[TABLE]", "[SCHEMA_BUNDLE]")
+                    .toString())
+            .setEtag("etag3123477")
+            .build();
+    mockBigtableTableAdmin.addResponse(expectedResponse);
+
+    String name = "name3373707";
+
+    SchemaBundle actualResponse = client.getSchemaBundle(name);
+    Assert.assertEquals(expectedResponse, actualResponse);
+
+    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
+    Assert.assertEquals(1, actualRequests.size());
+    GetSchemaBundleRequest actualRequest = ((GetSchemaBundleRequest) actualRequests.get(0));
+
+    Assert.assertEquals(name, actualRequest.getName());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
+  }
+
+  @Test
+  public void getSchemaBundleExceptionTest2() throws Exception {
+    StatusRuntimeException exception = new StatusRuntimeException(io.grpc.Status.INVALID_ARGUMENT);
+    mockBigtableTableAdmin.addException(exception);
+
+    try {
+      String name = "name3373707";
+      client.getSchemaBundle(name);
+      Assert.fail("No exception raised");
+    } catch (InvalidArgumentException e) {
+      // Expected exception.
+    }
+  }
+
+  @Test
+  public void listSchemaBundlesTest() throws Exception {
+    SchemaBundle responsesElement = SchemaBundle.newBuilder().build();
+    ListSchemaBundlesResponse expectedResponse =
+        ListSchemaBundlesResponse.newBuilder()
+            .setNextPageToken("")
+            .addAllSchemaBundles(Arrays.asList(responsesElement))
+            .build();
+    mockBigtableTableAdmin.addResponse(expectedResponse);
+
+    TableName parent = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+
+    ListSchemaBundlesPagedResponse pagedListResponse = client.listSchemaBundles(parent);
+
+    List<SchemaBundle> resources = Lists.newArrayList(pagedListResponse.iterateAll());
+
+    Assert.assertEquals(1, resources.size());
+    Assert.assertEquals(expectedResponse.getSchemaBundlesList().get(0), resources.get(0));
+
+    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
+    Assert.assertEquals(1, actualRequests.size());
+    ListSchemaBundlesRequest actualRequest = ((ListSchemaBundlesRequest) actualRequests.get(0));
+
+    Assert.assertEquals(parent.toString(), actualRequest.getParent());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
+  }
+
+  @Test
+  public void listSchemaBundlesExceptionTest() throws Exception {
+    StatusRuntimeException exception = new StatusRuntimeException(io.grpc.Status.INVALID_ARGUMENT);
+    mockBigtableTableAdmin.addException(exception);
+
+    try {
+      TableName parent = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+      client.listSchemaBundles(parent);
+      Assert.fail("No exception raised");
+    } catch (InvalidArgumentException e) {
+      // Expected exception.
+    }
+  }
+
+  @Test
+  public void listSchemaBundlesTest2() throws Exception {
+    SchemaBundle responsesElement = SchemaBundle.newBuilder().build();
+    ListSchemaBundlesResponse expectedResponse =
+        ListSchemaBundlesResponse.newBuilder()
+            .setNextPageToken("")
+            .addAllSchemaBundles(Arrays.asList(responsesElement))
+            .build();
+    mockBigtableTableAdmin.addResponse(expectedResponse);
+
+    String parent = "parent-995424086";
+
+    ListSchemaBundlesPagedResponse pagedListResponse = client.listSchemaBundles(parent);
+
+    List<SchemaBundle> resources = Lists.newArrayList(pagedListResponse.iterateAll());
+
+    Assert.assertEquals(1, resources.size());
+    Assert.assertEquals(expectedResponse.getSchemaBundlesList().get(0), resources.get(0));
+
+    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
+    Assert.assertEquals(1, actualRequests.size());
+    ListSchemaBundlesRequest actualRequest = ((ListSchemaBundlesRequest) actualRequests.get(0));
+
+    Assert.assertEquals(parent, actualRequest.getParent());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
+  }
+
+  @Test
+  public void listSchemaBundlesExceptionTest2() throws Exception {
+    StatusRuntimeException exception = new StatusRuntimeException(io.grpc.Status.INVALID_ARGUMENT);
+    mockBigtableTableAdmin.addException(exception);
+
+    try {
+      String parent = "parent-995424086";
+      client.listSchemaBundles(parent);
+      Assert.fail("No exception raised");
+    } catch (InvalidArgumentException e) {
+      // Expected exception.
+    }
+  }
+
+  @Test
+  public void deleteSchemaBundleTest() throws Exception {
+    Empty expectedResponse = Empty.newBuilder().build();
+    mockBigtableTableAdmin.addResponse(expectedResponse);
+
+    SchemaBundleName name =
+        SchemaBundleName.of("[PROJECT]", "[INSTANCE]", "[TABLE]", "[SCHEMA_BUNDLE]");
+
+    client.deleteSchemaBundle(name);
+
+    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
+    Assert.assertEquals(1, actualRequests.size());
+    DeleteSchemaBundleRequest actualRequest = ((DeleteSchemaBundleRequest) actualRequests.get(0));
+
+    Assert.assertEquals(name.toString(), actualRequest.getName());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
+  }
+
+  @Test
+  public void deleteSchemaBundleExceptionTest() throws Exception {
+    StatusRuntimeException exception = new StatusRuntimeException(io.grpc.Status.INVALID_ARGUMENT);
+    mockBigtableTableAdmin.addException(exception);
+
+    try {
+      SchemaBundleName name =
+          SchemaBundleName.of("[PROJECT]", "[INSTANCE]", "[TABLE]", "[SCHEMA_BUNDLE]");
+      client.deleteSchemaBundle(name);
+      Assert.fail("No exception raised");
+    } catch (InvalidArgumentException e) {
+      // Expected exception.
+    }
+  }
+
+  @Test
+  public void deleteSchemaBundleTest2() throws Exception {
+    Empty expectedResponse = Empty.newBuilder().build();
+    mockBigtableTableAdmin.addResponse(expectedResponse);
+
+    String name = "name3373707";
+
+    client.deleteSchemaBundle(name);
+
+    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
+    Assert.assertEquals(1, actualRequests.size());
+    DeleteSchemaBundleRequest actualRequest = ((DeleteSchemaBundleRequest) actualRequests.get(0));
+
+    Assert.assertEquals(name, actualRequest.getName());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
+  }
+
+  @Test
+  public void deleteSchemaBundleExceptionTest2() throws Exception {
+    StatusRuntimeException exception = new StatusRuntimeException(io.grpc.Status.INVALID_ARGUMENT);
+    mockBigtableTableAdmin.addException(exception);
+
+    try {
+      String name = "name3373707";
+      client.deleteSchemaBundle(name);
       Assert.fail("No exception raised");
     } catch (InvalidArgumentException e) {
       // Expected exception.

@@ -21,10 +21,14 @@ import com.google.cloud.Date;
 import com.google.cloud.bigtable.common.Type;
 import com.google.cloud.bigtable.common.Type.SchemalessStruct;
 import com.google.cloud.bigtable.common.Type.StructWithSchema;
+import com.google.protobuf.AbstractMessage;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.Parser;
+import com.google.protobuf.ProtocolMessageEnum;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.List;
-import org.threeten.bp.Instant;
+import java.util.function.Function;
 
 /**
  * Represents a data type in a SQL query.
@@ -34,7 +38,6 @@ import org.threeten.bp.Instant;
  *
  * @param <T> the corresponding java type
  */
-@BetaApi
 public interface SqlType<T> extends Serializable {
 
   /* Enumeration of the types */
@@ -49,10 +52,14 @@ public interface SqlType<T> extends Serializable {
     DATE,
     STRUCT,
     ARRAY,
-    MAP
+    MAP,
+    PROTO,
+    ENUM
   }
 
-  /** @return {@link Code} enum for this type */
+  /**
+   * @return {@link Code} enum for this type
+   */
   Code getCode();
 
   /**
@@ -62,10 +69,14 @@ public interface SqlType<T> extends Serializable {
    * @param <V> Java type of the Map value data
    */
   interface Map<K, V> extends SqlType<java.util.Map<K, V>> {
-    /** @return {@link SqlType} of the map's key */
+    /**
+     * @return {@link SqlType} of the map's key
+     */
     SqlType<K> getKeyType();
 
-    /** @return {@link SqlType} of the map's value */
+    /**
+     * @return {@link SqlType} of the map's value
+     */
     SqlType<V> getValueType();
   }
 
@@ -75,7 +86,9 @@ public interface SqlType<T> extends Serializable {
    * @param <Elem> Java type of the Array element data
    */
   interface Array<Elem> extends SqlType<List<Elem>> {
-    /** @return {@link SqlType} of the array's elements */
+    /**
+     * @return {@link SqlType} of the array's elements
+     */
     SqlType<Elem> getElementType();
   }
 
@@ -86,14 +99,20 @@ public interface SqlType<T> extends Serializable {
     // This extends ColumnMetadata so that we can reuse some helpers for both types
     /** Represents a field in a struct */
     interface Field extends ColumnMetadata {
-      /** @return the name of the field. Returns an empty string for fields without names. */
+      /**
+       * @return the name of the field. Returns an empty string for fields without names.
+       */
       String name();
 
-      /** @return the {@link SqlType} of the field */
+      /**
+       * @return the {@link SqlType} of the field
+       */
       SqlType<?> type();
     }
 
-    /** @return the ordered list of {@link Field}s for the struct */
+    /**
+     * @return the ordered list of {@link Field}s for the struct
+     */
     List<? extends Field> getFields();
 
     /**
@@ -117,6 +136,38 @@ public interface SqlType<T> extends Serializable {
      *     multiple columns with the given name
      */
     int getColumnIndex(String fieldName);
+  }
+
+  /**
+   * Represents a protobuf message type in SQL.
+   *
+   * @param <T> Java type of the protobuf message
+   */
+  @BetaApi("This feature is currently experimental and can change in the future")
+  interface Proto<T extends AbstractMessage> extends SqlType<T> {
+
+    /**
+     * @return the parser for the proto message.
+     */
+    Parser<T> getParserForType();
+
+    String getMessageName();
+  }
+
+  /**
+   * Represents a protobuf enum type in SQL.
+   *
+   * @param <T> Java type of the protobuf enum
+   */
+  @BetaApi("This feature is currently experimental and can change in the future")
+  interface Enum<T extends ProtocolMessageEnum> extends SqlType<T> {
+
+    /**
+     * @return the function to convert an integer to the enum value.
+     */
+    Function<Integer, T> getForNumber();
+
+    String getEnumName();
   }
 
   /** returns a {@link SqlType} for the {@code BYTES} type. */
@@ -199,6 +250,45 @@ public interface SqlType<T> extends Serializable {
   }
 
   /**
+   * Returns a {@link SqlType} for a protobuf message.
+   *
+   * @param message an instance of the message. {@code MyMessage.getDefaultInstance()} can be used.
+   * @param <T> the message type
+   */
+  @BetaApi("This feature is currently experimental and can change in the future")
+  static <T extends AbstractMessage> SqlType.Proto<T> protoOf(T message) {
+    return Type.Proto.create(message);
+  }
+
+  /**
+   * Returns a {@link SqlType} for a protobuf enum.
+   *
+   * @param method a function to convert an integer to the enum value. This is usually {@code
+   *     MyEnum::forNumber}
+   * @param <T> the enum type
+   */
+  @BetaApi("This feature is currently experimental and can change in the future")
+  static <T extends ProtocolMessageEnum> SqlType.Enum<T> enumOf(Function<Integer, T> method) {
+    return Type.Enum.create(method);
+  }
+
+  /**
+   * Extracts the unqualified name from a fully qualified proto message or enum name. For example,
+   * "my.package.MyMessage" becomes "MyMessage".
+   *
+   * <p>This is considered an internal implementation detail and not meant to be used by
+   * applications.
+   */
+  @InternalApi
+  static String getUnqualifiedName(String fullName) {
+    if (fullName == null || fullName.isEmpty()) {
+      return "";
+    }
+    int lastDotIndex = fullName.lastIndexOf('.');
+    return (lastDotIndex == -1) ? fullName : fullName.substring(lastDotIndex + 1);
+  }
+
+  /**
    * Creates a {@link SqlType} from the protobuf representation of Types.
    *
    * <p>This is considered an internal implementation detail and not meant to be used by
@@ -230,6 +320,10 @@ public interface SqlType<T> extends Serializable {
       case MAP_TYPE:
         com.google.bigtable.v2.Type.Map mapType = proto.getMapType();
         return mapOf(fromProto(mapType.getKeyType()), fromProto(mapType.getValueType()));
+      case PROTO_TYPE:
+        return Type.SchemalessProto.fromProto(proto.getProtoType());
+      case ENUM_TYPE:
+        return Type.SchemalessEnum.fromProto(proto.getEnumType());
       case KIND_NOT_SET:
         throw new IllegalStateException("Unrecognized Type. You may need to update your client.");
       default:
@@ -259,6 +353,36 @@ public interface SqlType<T> extends Serializable {
       case TIMESTAMP:
       case DATE:
         return left.equals(right);
+      case PROTO:
+        {
+          if (!left.getCode().equals(right.getCode())) {
+            return false;
+          }
+          if (left instanceof Type.SchemalessProto && right instanceof Type.SchemalessProto) {
+            return left.equals(right);
+          }
+          if (left instanceof Type.Proto && right instanceof Type.Proto) {
+            return left.equals(right);
+          }
+          // Compares mixed SchemalessProto and Proto
+          return getUnqualifiedName(((SqlType.Proto) left).getMessageName())
+              .equals(getUnqualifiedName(((SqlType.Proto) right).getMessageName()));
+        }
+      case ENUM:
+        {
+          if (!left.getCode().equals(right.getCode())) {
+            return false;
+          }
+          if (left instanceof Type.SchemalessEnum && right instanceof Type.SchemalessEnum) {
+            return left.equals(right);
+          }
+          if (left instanceof Type.Enum && right instanceof Type.Enum) {
+            return left.equals(right);
+          }
+          // Compares mixed SchemalessEnum and Enum
+          return getUnqualifiedName(((SqlType.Enum) left).getEnumName())
+              .equals(getUnqualifiedName(((SqlType.Enum) right).getEnumName()));
+        }
       case STRUCT:
         // Don't validate fields since the field types will be validated on
         // accessor calls to struct
