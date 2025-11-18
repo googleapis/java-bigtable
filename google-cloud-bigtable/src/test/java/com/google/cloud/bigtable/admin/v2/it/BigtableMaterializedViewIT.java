@@ -24,12 +24,9 @@ import com.google.api.gax.rpc.FailedPreconditionException;
 import com.google.api.gax.rpc.NotFoundException;
 import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminClient;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
-import com.google.cloud.bigtable.admin.v2.models.CreateInstanceRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateMaterializedViewRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
-import com.google.cloud.bigtable.admin.v2.models.Instance;
 import com.google.cloud.bigtable.admin.v2.models.MaterializedView;
-import com.google.cloud.bigtable.admin.v2.models.StorageType;
 import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.admin.v2.models.UpdateMaterializedViewRequest;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
@@ -39,7 +36,6 @@ import io.grpc.StatusRuntimeException;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -55,10 +51,9 @@ public class BigtableMaterializedViewIT {
   private static final Logger LOGGER = Logger.getLogger(BigtableMaterializedViewIT.class.getName());
   private static final int[] BACKOFF_DURATION = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
 
-  private static BigtableInstanceAdminClient client;
-  private static BigtableTableAdminClient tableAdminClient;
-  private static Table testTable;
-  private static String instanceId = "";
+  private BigtableInstanceAdminClient client;
+  private Table testTable;
+  private String instanceId = testEnvRule.env().getInstanceId();
 
   // TODO: Update this test once emulator supports InstanceAdmin operation
   // https://github.com/googleapis/google-cloud-go/issues/1069
@@ -68,32 +63,12 @@ public class BigtableMaterializedViewIT {
         .withMessage("BigtableInstanceAdminClient doesn't support on Emulator")
         .that(testEnvRule.env())
         .isNotInstanceOf(EmulatorEnv.class);
-
-    createInstance();
-  }
-
-  public static void createInstance() throws IOException {
-    client = testEnvRule.env().getInstanceAdminClient();
-
-    Instance instance =
-        client.createInstance(
-            CreateInstanceRequest.of(new PrefixGenerator().newPrefix())
-                .addCluster("my-cluster", "us-east1-c", 3, StorageType.SSD));
-    instanceId = instance.getId();
-    tableAdminClient =
-        BigtableTableAdminClient.create(testEnvRule.env().getProjectId(), instanceId);
-  }
-
-  @AfterClass
-  public static void deleteInstance() {
-    if (!instanceId.isEmpty()) {
-      client.deleteInstance(instanceId);
-    }
   }
 
   @Before
-  public void setUp() throws InterruptedException {
-    testTable = createTestTable(tableAdminClient);
+  public void setUp() throws InterruptedException, IOException {
+    client = testEnvRule.env().getInstanceAdminClient();
+    testTable = createTestTable(testEnvRule.env().getTableAdminClient());
   }
 
   @Test
@@ -210,8 +185,7 @@ public class BigtableMaterializedViewIT {
         + "` GROUP BY _key";
   }
 
-  private static Table createTestTable(BigtableTableAdminClient tableAdmin)
-      throws InterruptedException {
+  private Table createTestTable(BigtableTableAdminClient tableAdmin) throws InterruptedException {
     String tableId = PrefixGenerator.newPrefix("BigtableMaterializedViewIT#createTestTable");
     Table testTable = tableAdmin.createTable(CreateTableRequest.of(tableId).addFamily("cf1"));
 

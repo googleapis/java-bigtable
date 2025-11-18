@@ -20,6 +20,7 @@ import static com.google.common.truth.TruthJUnit.assume;
 import static org.junit.Assert.assertThrows;
 
 import com.google.cloud.Date;
+import com.google.cloud.bigtable.admin.v2.models.CreateSchemaBundleRequest;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.TableId;
@@ -28,10 +29,14 @@ import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSet;
 import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 import com.google.cloud.bigtable.data.v2.models.sql.Struct;
+import com.google.cloud.bigtable.data.v2.test.AlbumProto.Album;
+import com.google.cloud.bigtable.data.v2.test.SingerProto.Genre;
+import com.google.cloud.bigtable.data.v2.test.SingerProto.Singer;
 import com.google.cloud.bigtable.test_helpers.env.AbstractTestEnv;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Arrays;
@@ -51,6 +56,7 @@ public class ExecuteQueryIT {
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
   private static BigtableDataClient dataClient;
   private static String tableId;
+  private static String schemaBundleId;
   private static String cf;
   private static String uniquePrefix;
 
@@ -71,6 +77,7 @@ public class ExecuteQueryIT {
     dataClient = testEnvRule.env().getDataClient();
     cf = testEnvRule.env().getFamilyId();
     uniquePrefix = UUID.randomUUID() + "-execute-query-it-";
+    schemaBundleId = UUID.randomUUID() + "-bundle";
 
     dataClient.mutateRow(
         RowMutation.create(TableId.of(tableId), uniquePrefix + "a")
@@ -152,8 +159,11 @@ public class ExecuteQueryIT {
     }
   }
 
+  @SuppressWarnings("DoubleBraceInitialization")
   @Test
-  public void allTypes() {
+  public void allTypes() throws Exception {
+    createTestSchemaBundle();
+    Album album = Album.newBuilder().setTitle("Lover").build();
     PreparedStatement preparedStatement =
         dataClient.prepareStatement(
             "SELECT 'stringVal' AS strCol, b'foo' as bytesCol, 1 AS intCol, CAST(1.2 AS FLOAT32) as"
@@ -161,7 +171,12 @@ public class ExecuteQueryIT {
                 + " TIMESTAMP_FROM_UNIX_MILLIS(1000) AS tsCol, DATE(2024, 06, 01) as dateCol,"
                 + " STRUCT(1 as a, \"foo\" as b) AS structCol, [1,2,3] AS arrCol, "
                 + cf
-                + " as mapCol FROM `"
+                + " as mapCol, "
+                + " CAST(b'\022\005Lover' AS `"
+                + schemaBundleId
+                + ".com.google.cloud.bigtable.data.v2.test.Album`) as protoCol, CAST('JAZZ' AS `"
+                + schemaBundleId
+                + ".com.google.cloud.bigtable.data.v2.test.Genre`) as enumCol FROM `"
                 + tableId
                 + "` WHERE _key='"
                 + uniquePrefix
@@ -212,8 +227,15 @@ public class ExecuteQueryIT {
                   put(ByteString.copyFromUtf8("qual3"), ByteString.copyFromUtf8("val3"));
                 }
               });
-
+      assertThat(rs.getProtoMessage("protoCol", Album.getDefaultInstance())).isEqualTo(album);
+      assertThat(rs.getProtoMessage(11, Album.getDefaultInstance())).isEqualTo(album);
+      assertThat(rs.getProtoEnum("enumCol", Genre::forNumber)).isEqualTo(Genre.JAZZ);
+      assertThat(rs.getProtoEnum(12, Genre::forNumber)).isEqualTo(Genre.JAZZ);
       assertThat(rs.next()).isFalse();
+    } catch (AssertionError e) {
+      throw e;
+    } finally {
+      deleteTestSchemaBundle();
     }
   }
 
@@ -378,5 +400,26 @@ public class ExecuteQueryIT {
       assertThrows(NullPointerException.class, () -> rs.getBytes(1));
       assertThat(rs.next()).isFalse();
     }
+  }
+
+  private static void deleteTestSchemaBundle() {
+    testEnvRule.env().getTableAdminClient().deleteSchemaBundle(tableId, schemaBundleId);
+  }
+
+  private static void createTestSchemaBundle() throws Exception {
+    FileDescriptorSet fileDescriptorSet =
+        FileDescriptorSet.newBuilder()
+            .addFile(Singer.getDescriptor().getFile().toProto())
+            .addFile(Album.getDescriptor().getFile().toProto())
+            .build();
+    CreateSchemaBundleRequest request =
+        CreateSchemaBundleRequest.of(tableId, schemaBundleId)
+            .setProtoSchema(fileDescriptorSet.toByteString());
+    testEnvRule.env().getTableAdminClient().createSchemaBundle(request);
+
+    // For some reason the ExecuteQuery data path sometimes cannot resolve a newly-created schema
+    // bundle immediately after its creation. Adding a manual sleep to avoid test flakiness until
+    // the underlying issue is resolved.
+    Thread.sleep(5000);
   }
 }

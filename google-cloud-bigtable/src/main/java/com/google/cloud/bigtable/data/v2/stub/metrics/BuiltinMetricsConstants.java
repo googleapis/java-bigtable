@@ -55,6 +55,30 @@ public class BuiltinMetricsConstants {
   static final AttributeKey<String> TRANSPORT_ZONE = AttributeKey.stringKey("transport_zone");
   static final AttributeKey<String> TRANSPORT_SUBZONE = AttributeKey.stringKey("transport_subzone");
 
+  // gRPC attribute keys
+  // Note that these attributes keys from transformed from
+  // A.B.C to A_B_C before exporting to Cloud Monitoring.
+  static final AttributeKey<String> GRPC_LB_BACKEND_SERVICE_KEY =
+      AttributeKey.stringKey("grpc.lb.backend_service");
+  static final AttributeKey<String> GRPC_DISCONNECT_ERROR_KEY =
+      AttributeKey.stringKey("grpc.disconnect_error");
+  static final AttributeKey<String> GRPC_LB_LOCALITY_KEY =
+      AttributeKey.stringKey("grpc.lb.locality");
+  static final AttributeKey<String> GRPC_TARGET_KEY = AttributeKey.stringKey("grpc.target");
+  static final AttributeKey<String> GRPC_SECURITY_LEVEL_KEY =
+      AttributeKey.stringKey("grpc.security_level");
+  static final AttributeKey<String> GRPC_METHOD_KEY = AttributeKey.stringKey("grpc.method");
+  static final AttributeKey<String> GRPC_STATUS_KEY = AttributeKey.stringKey("grpc.status");
+  static final AttributeKey<String> GRPC_LB_RLS_DATA_PLANE_TARGET_KEY =
+      AttributeKey.stringKey("grpc.lb.rls.data_plane_target");
+  static final AttributeKey<String> GRPC_LB_PICK_RESULT_KEY =
+      AttributeKey.stringKey("grpc.lb.pick_result");
+  static final AttributeKey<String> GRPC_LB_RLS_SERVER_TARGET_KEY =
+      AttributeKey.stringKey("grpc.lb.rls.server_target");
+  static final AttributeKey<String> GRPC_XDS_SERVER_KEY = AttributeKey.stringKey("grpc.xds.server");
+  static final AttributeKey<String> GRPC_XDS_RESOURCE_TYPE_KEY =
+      AttributeKey.stringKey("grpc.xds.resource_type");
+
   public static final String METER_NAME = "bigtable.googleapis.com/internal/client/";
 
   // Metric names
@@ -70,37 +94,75 @@ public class BuiltinMetricsConstants {
   static final String REMAINING_DEADLINE_NAME = "remaining_deadline";
   static final String CLIENT_BLOCKING_LATENCIES_NAME = "throttling_latencies";
   static final String PER_CONNECTION_ERROR_COUNT_NAME = "per_connection_error_count";
+  static final String OUTSTANDING_RPCS_PER_CHANNEL_NAME = "connection_pool/outstanding_rpcs";
 
   // Start allow list of metrics that will be exported as internal
   public static final Map<String, Set<String>> GRPC_METRICS =
       ImmutableMap.<String, Set<String>>builder()
           .put(
               "grpc.client.attempt.duration",
-              ImmutableSet.of("grpc.lb.locality", "grpc.method", "grpc.target", "grpc.status"))
+              ImmutableSet.of(
+                  GRPC_LB_LOCALITY_KEY.getKey(),
+                  GRPC_METHOD_KEY.getKey(),
+                  GRPC_TARGET_KEY.getKey(),
+                  GRPC_STATUS_KEY.getKey()))
           .put(
               "grpc.lb.rls.default_target_picks",
-              ImmutableSet.of("grpc.lb.rls.data_plane_target", "grpc.lb.pick_result"))
+              ImmutableSet.of(
+                  GRPC_LB_RLS_DATA_PLANE_TARGET_KEY.getKey(), GRPC_LB_PICK_RESULT_KEY.getKey()))
           .put(
               "grpc.lb.rls.target_picks",
               ImmutableSet.of(
-                  "grpc.target",
-                  "grpc.lb.rls.server_target",
-                  "grpc.lb.rls.data_plane_target",
-                  "grpc.lb.pick_result"))
+                  GRPC_TARGET_KEY.getKey(),
+                  GRPC_LB_RLS_SERVER_TARGET_KEY.getKey(),
+                  GRPC_LB_RLS_DATA_PLANE_TARGET_KEY.getKey(),
+                  GRPC_LB_PICK_RESULT_KEY.getKey()))
           .put(
               "grpc.lb.rls.failed_picks",
-              ImmutableSet.of("grpc.target", "grpc.lb.rls.server_target"))
+              ImmutableSet.of(GRPC_TARGET_KEY.getKey(), GRPC_LB_RLS_SERVER_TARGET_KEY.getKey()))
           // TODO: "grpc.xds_client.connected"
-          .put("grpc.xds_client.server_failure", ImmutableSet.of("grpc.target", "grpc.xds.server"))
+          .put(
+              "grpc.xds_client.server_failure",
+              ImmutableSet.of(GRPC_TARGET_KEY.getKey(), GRPC_XDS_SERVER_KEY.getKey()))
           // TODO: "grpc.xds_client.resource_updates_valid",
           .put(
               "grpc.xds_client.resource_updates_invalid",
-              ImmutableSet.of("grpc.target", "grpc.xds.server", "grpc.xds.resource_type"))
+              ImmutableSet.of(
+                  GRPC_TARGET_KEY.getKey(),
+                  GRPC_XDS_SERVER_KEY.getKey(),
+                  GRPC_XDS_RESOURCE_TYPE_KEY.getKey()))
           // TODO: "grpc.xds_client.resources"
+          //  gRPC subchannel metrics
+          .put(
+              "grpc.subchannel.disconnections",
+              ImmutableSet.of(
+                  GRPC_LB_BACKEND_SERVICE_KEY.getKey(),
+                  GRPC_DISCONNECT_ERROR_KEY.getKey(),
+                  GRPC_LB_LOCALITY_KEY.getKey(),
+                  GRPC_TARGET_KEY.getKey()))
+          .put(
+              "grpc.subchannel.connection_attempts_succeeded",
+              ImmutableSet.of(
+                  GRPC_LB_BACKEND_SERVICE_KEY.getKey(),
+                  GRPC_LB_LOCALITY_KEY.getKey(),
+                  GRPC_TARGET_KEY.getKey()))
+          .put(
+              "grpc.subchannel.connection_attempts_failed",
+              ImmutableSet.of(
+                  GRPC_LB_BACKEND_SERVICE_KEY.getKey(),
+                  GRPC_LB_LOCALITY_KEY.getKey(),
+                  GRPC_TARGET_KEY.getKey()))
+          .put(
+              "grpc.subchannel.open_connections",
+              ImmutableSet.of(
+                  GRPC_LB_BACKEND_SERVICE_KEY.getKey(),
+                  GRPC_LB_LOCALITY_KEY.getKey(),
+                  GRPC_SECURITY_LEVEL_KEY.getKey(),
+                  GRPC_TARGET_KEY.getKey()))
           .build();
 
   public static final Set<String> INTERNAL_METRICS =
-      ImmutableSet.of(PER_CONNECTION_ERROR_COUNT_NAME).stream()
+      ImmutableSet.of(PER_CONNECTION_ERROR_COUNT_NAME, OUTSTANDING_RPCS_PER_CHANNEL_NAME).stream()
           .map(m -> METER_NAME + m)
           .collect(ImmutableSet.toImmutableSet());
   // End allow list of metrics that will be exported
@@ -139,6 +201,15 @@ public class BuiltinMetricsConstants {
               250_000.0,
               500_000.0,
               1_000_000.0));
+
+  // Buckets for outstanding RPCs per channel, max ~100
+  private static final Aggregation AGGREGATION_OUTSTANDING_RPCS_HISTOGRAM =
+      Aggregation.explicitBucketHistogram(
+          ImmutableList.of(
+              0.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 65.0,
+              70.0, 75.0, 80.0, 85.0, 90.0, 95.0, 100.0, 105.0, 110.0, 115.0, 120.0, 125.0, 130.0,
+              135.0, 140.0, 145.0, 150.0, 155.0, 160.0, 165.0, 170.0, 175.0, 180.0, 185.0, 190.0,
+              195.0, 200.0));
 
   static final Set<AttributeKey> COMMON_ATTRIBUTES =
       ImmutableSet.of(
@@ -181,12 +252,22 @@ public class BuiltinMetricsConstants {
     viewMap.put(selector, view);
   }
 
+  // uses cloud.BigtableClient schema
   public static Map<InstrumentSelector, View> getInternalViews() {
     ImmutableMap.Builder<InstrumentSelector, View> views = ImmutableMap.builder();
     defineView(
         views,
         PER_CONNECTION_ERROR_COUNT_NAME,
         AGGREGATION_PER_CONNECTION_ERROR_COUNT_HISTOGRAM,
+        InstrumentType.HISTOGRAM,
+        "1",
+        ImmutableSet.<AttributeKey>builder()
+            .add(BIGTABLE_PROJECT_ID_KEY, INSTANCE_ID_KEY, APP_PROFILE_KEY, CLIENT_NAME_KEY)
+            .build());
+    defineView(
+        views,
+        OUTSTANDING_RPCS_PER_CHANNEL_NAME,
+        AGGREGATION_OUTSTANDING_RPCS_HISTOGRAM,
         InstrumentType.HISTOGRAM,
         "1",
         ImmutableSet.<AttributeKey>builder()

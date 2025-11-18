@@ -224,6 +224,19 @@ public class SqlProtoFactory {
         .build();
   }
 
+  public static Type protoType(String messageName, String schemaBundleId) {
+    return Type.newBuilder()
+        .setProtoType(
+            Type.Proto.newBuilder().setMessageName(messageName).setSchemaBundleId(schemaBundleId))
+        .build();
+  }
+
+  public static Type enumType(String enumName, String schemaBundleId) {
+    return Type.newBuilder()
+        .setEnumType(Type.Enum.newBuilder().setEnumName(enumName).setSchemaBundleId(schemaBundleId))
+        .build();
+  }
+
   public static Value nullValue() {
     return Value.newBuilder().build();
   }
@@ -234,6 +247,10 @@ public class SqlProtoFactory {
 
   public static Value bytesValue(String contents) {
     return Value.newBuilder().setBytesValue(ByteString.copyFromUtf8(contents)).build();
+  }
+
+  public static Value bytesValue(byte[] contents) {
+    return Value.newBuilder().setBytesValue(ByteString.copyFrom(contents)).build();
   }
 
   public static Value int64Value(long data) {

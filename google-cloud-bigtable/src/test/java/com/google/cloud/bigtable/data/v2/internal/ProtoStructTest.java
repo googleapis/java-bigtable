@@ -23,6 +23,7 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.bytesTy
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.bytesValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.dateType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.dateValue;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.enumType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.float32Type;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.float64Type;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.floatValue;
@@ -30,6 +31,7 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.int64Ty
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.int64Value;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.mapElement;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.mapType;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.protoType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.structField;
@@ -45,7 +47,11 @@ import com.google.bigtable.v2.Type;
 import com.google.bigtable.v2.Type.Struct;
 import com.google.bigtable.v2.Value;
 import com.google.cloud.Date;
+import com.google.cloud.bigtable.common.Type.SchemalessEnum;
+import com.google.cloud.bigtable.common.Type.SchemalessProto;
 import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
+import com.google.cloud.bigtable.data.v2.test.SingerProto.Genre;
+import com.google.cloud.bigtable.data.v2.test.SingerProto.Singer;
 import com.google.protobuf.ByteString;
 import java.time.Instant;
 import java.util.Arrays;
@@ -55,8 +61,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+@SuppressWarnings("DoubleBraceInitialization")
 @RunWith(JUnit4.class)
 public class ProtoStructTest {
+
+  static Singer singer = Singer.newBuilder().setName("Foo").setGenre(Genre.POP).build();
 
   static ProtoStruct struct =
       ProtoStruct.create(
@@ -74,7 +83,14 @@ public class ProtoStructTest {
                       structField(
                           "structField", structType(structField("stringField", stringType()))),
                       structField("listField", arrayType(stringType())),
-                      structField("mapField", mapType(stringType(), stringType())))),
+                      structField("mapField", mapType(stringType(), stringType())),
+                      structField(
+                          "protoField",
+                          protoType("com.google.cloud.bigtable.data.v2.test.Singer", "my_bundle")),
+                      structField(
+                          "enumField",
+                          enumType(
+                              "com.google.cloud.bigtable.data.v2.test.Genre", "other_bundle")))),
           arrayValue(
                   bytesValue("testBytes"),
                   stringValue("testString"),
@@ -88,7 +104,9 @@ public class ProtoStructTest {
                   arrayValue(stringValue("foo"), stringValue("bar")),
                   arrayValue(
                       mapElement(stringValue("foo"), stringValue("bar")),
-                      mapElement(stringValue("key"), stringValue("val"))))
+                      mapElement(stringValue("key"), stringValue("val"))),
+                  bytesValue(singer.toByteArray()),
+                  int64Value(0))
               .getArrayValue());
 
   // These are more extensively tested in AbstractProtoStructReaderTest since that is what
@@ -119,6 +137,8 @@ public class ProtoStructTest {
                 put("key", "val");
               }
             });
+    assertThat(struct.getProtoMessage(11, Singer.getDefaultInstance())).isEqualTo(singer);
+    assertThat(struct.getProtoEnum(12, Genre::forNumber)).isEqualTo(Genre.POP);
   }
 
   @Test
@@ -147,6 +167,8 @@ public class ProtoStructTest {
                 put("key", "val");
               }
             });
+    assertThat(struct.getProtoMessage("protoField", Singer.getDefaultInstance())).isEqualTo(singer);
+    assertThat(struct.getProtoEnum("enumField", Genre::forNumber)).isEqualTo(Genre.POP);
   }
 
   @Test
@@ -164,6 +186,12 @@ public class ProtoStructTest {
     assertThat(struct.getColumnType("listField")).isEqualTo(SqlType.arrayOf(SqlType.string()));
     assertThat(struct.getColumnType("mapField"))
         .isEqualTo(SqlType.mapOf(SqlType.string(), SqlType.string()));
+    assertThat(struct.getColumnType("protoField"))
+        .isEqualTo(
+            SchemalessProto.create("com.google.cloud.bigtable.data.v2.test.Singer", "my_bundle"));
+    assertThat(struct.getColumnType("enumField"))
+        .isEqualTo(
+            SchemalessEnum.create("com.google.cloud.bigtable.data.v2.test.Genre", "other_bundle"));
   }
 
   @Test
@@ -181,6 +209,12 @@ public class ProtoStructTest {
     assertThat(struct.getColumnType(9)).isEqualTo(SqlType.arrayOf(SqlType.string()));
     assertThat(struct.getColumnType(10))
         .isEqualTo(SqlType.mapOf(SqlType.string(), SqlType.string()));
+    assertThat(struct.getColumnType(11))
+        .isEqualTo(
+            SchemalessProto.create("com.google.cloud.bigtable.data.v2.test.Singer", "my_bundle"));
+    assertThat(struct.getColumnType(12))
+        .isEqualTo(
+            SchemalessEnum.create("com.google.cloud.bigtable.data.v2.test.Genre", "other_bundle"));
   }
 
   @Test
@@ -196,6 +230,8 @@ public class ProtoStructTest {
     assertThat(struct.getColumnIndex("structField")).isEqualTo(8);
     assertThat(struct.getColumnIndex("listField")).isEqualTo(9);
     assertThat(struct.getColumnIndex("mapField")).isEqualTo(10);
+    assertThat(struct.getColumnIndex("protoField")).isEqualTo(11);
+    assertThat(struct.getColumnIndex("enumField")).isEqualTo(12);
   }
 
   @Test

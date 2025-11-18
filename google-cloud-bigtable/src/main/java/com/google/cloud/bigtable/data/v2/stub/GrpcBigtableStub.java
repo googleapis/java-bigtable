@@ -67,6 +67,7 @@ public class GrpcBigtableStub extends BigtableStub {
               .setFullMethodName("google.bigtable.v2.Bigtable/ReadRows")
               .setRequestMarshaller(ProtoUtils.marshaller(ReadRowsRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(ReadRowsResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<SampleRowKeysRequest, SampleRowKeysResponse>
@@ -78,6 +79,7 @@ public class GrpcBigtableStub extends BigtableStub {
                   ProtoUtils.marshaller(SampleRowKeysRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(SampleRowKeysResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<MutateRowRequest, MutateRowResponse>
@@ -87,6 +89,7 @@ public class GrpcBigtableStub extends BigtableStub {
               .setFullMethodName("google.bigtable.v2.Bigtable/MutateRow")
               .setRequestMarshaller(ProtoUtils.marshaller(MutateRowRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(MutateRowResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<MutateRowsRequest, MutateRowsResponse>
@@ -96,6 +99,7 @@ public class GrpcBigtableStub extends BigtableStub {
               .setFullMethodName("google.bigtable.v2.Bigtable/MutateRows")
               .setRequestMarshaller(ProtoUtils.marshaller(MutateRowsRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(MutateRowsResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<CheckAndMutateRowRequest, CheckAndMutateRowResponse>
@@ -107,6 +111,7 @@ public class GrpcBigtableStub extends BigtableStub {
                   ProtoUtils.marshaller(CheckAndMutateRowRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(CheckAndMutateRowResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<PingAndWarmRequest, PingAndWarmResponse>
@@ -117,6 +122,7 @@ public class GrpcBigtableStub extends BigtableStub {
               .setRequestMarshaller(ProtoUtils.marshaller(PingAndWarmRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(PingAndWarmResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<ReadModifyWriteRowRequest, ReadModifyWriteRowResponse>
@@ -128,6 +134,7 @@ public class GrpcBigtableStub extends BigtableStub {
                   ProtoUtils.marshaller(ReadModifyWriteRowRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(ReadModifyWriteRowResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<
@@ -147,6 +154,7 @@ public class GrpcBigtableStub extends BigtableStub {
               .setResponseMarshaller(
                   ProtoUtils.marshaller(
                       GenerateInitialChangeStreamPartitionsResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<ReadChangeStreamRequest, ReadChangeStreamResponse>
@@ -158,6 +166,7 @@ public class GrpcBigtableStub extends BigtableStub {
                   ProtoUtils.marshaller(ReadChangeStreamRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(ReadChangeStreamResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<PrepareQueryRequest, PrepareQueryResponse>
@@ -168,6 +177,7 @@ public class GrpcBigtableStub extends BigtableStub {
               .setRequestMarshaller(ProtoUtils.marshaller(PrepareQueryRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(PrepareQueryResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<ExecuteQueryRequest, ExecuteQueryResponse>
@@ -178,6 +188,7 @@ public class GrpcBigtableStub extends BigtableStub {
               .setRequestMarshaller(ProtoUtils.marshaller(ExecuteQueryRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(ExecuteQueryResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private final ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> readRowsCallable;
@@ -209,36 +220,35 @@ public class GrpcBigtableStub extends BigtableStub {
   private static final PathTemplate READ_ROWS_1_PATH_TEMPLATE =
       PathTemplate.create("{app_profile_id=**}");
   private static final PathTemplate READ_ROWS_2_PATH_TEMPLATE =
-      PathTemplate.create(
-          "{authorized_view_name=projects/*/instances/*/tables/*/authorizedViews/*}");
+      PathTemplate.create("{table_name=projects/*/instances/*/tables/*}/**");
+  private static final PathTemplate READ_ROWS_3_PATH_TEMPLATE =
+      PathTemplate.create("{name=projects/*/instances/*}/**");
   private static final PathTemplate SAMPLE_ROW_KEYS_0_PATH_TEMPLATE =
       PathTemplate.create("{table_name=projects/*/instances/*/tables/*}");
   private static final PathTemplate SAMPLE_ROW_KEYS_1_PATH_TEMPLATE =
       PathTemplate.create("{app_profile_id=**}");
   private static final PathTemplate SAMPLE_ROW_KEYS_2_PATH_TEMPLATE =
-      PathTemplate.create(
-          "{authorized_view_name=projects/*/instances/*/tables/*/authorizedViews/*}");
+      PathTemplate.create("{table_name=projects/*/instances/*/tables/*}/**");
+  private static final PathTemplate SAMPLE_ROW_KEYS_3_PATH_TEMPLATE =
+      PathTemplate.create("{name=projects/*/instances/*}/**");
   private static final PathTemplate MUTATE_ROW_0_PATH_TEMPLATE =
       PathTemplate.create("{table_name=projects/*/instances/*/tables/*}");
   private static final PathTemplate MUTATE_ROW_1_PATH_TEMPLATE =
       PathTemplate.create("{app_profile_id=**}");
   private static final PathTemplate MUTATE_ROW_2_PATH_TEMPLATE =
-      PathTemplate.create(
-          "{authorized_view_name=projects/*/instances/*/tables/*/authorizedViews/*}");
+      PathTemplate.create("{table_name=projects/*/instances/*/tables/*}/**");
   private static final PathTemplate MUTATE_ROWS_0_PATH_TEMPLATE =
       PathTemplate.create("{table_name=projects/*/instances/*/tables/*}");
   private static final PathTemplate MUTATE_ROWS_1_PATH_TEMPLATE =
       PathTemplate.create("{app_profile_id=**}");
   private static final PathTemplate MUTATE_ROWS_2_PATH_TEMPLATE =
-      PathTemplate.create(
-          "{authorized_view_name=projects/*/instances/*/tables/*/authorizedViews/*}");
+      PathTemplate.create("{table_name=projects/*/instances/*/tables/*}/**");
   private static final PathTemplate CHECK_AND_MUTATE_ROW_0_PATH_TEMPLATE =
       PathTemplate.create("{table_name=projects/*/instances/*/tables/*}");
   private static final PathTemplate CHECK_AND_MUTATE_ROW_1_PATH_TEMPLATE =
       PathTemplate.create("{app_profile_id=**}");
   private static final PathTemplate CHECK_AND_MUTATE_ROW_2_PATH_TEMPLATE =
-      PathTemplate.create(
-          "{authorized_view_name=projects/*/instances/*/tables/*/authorizedViews/*}");
+      PathTemplate.create("{table_name=projects/*/instances/*/tables/*}/**");
   private static final PathTemplate PING_AND_WARM_0_PATH_TEMPLATE =
       PathTemplate.create("{name=projects/*/instances/*}");
   private static final PathTemplate PING_AND_WARM_1_PATH_TEMPLATE =
@@ -248,8 +258,7 @@ public class GrpcBigtableStub extends BigtableStub {
   private static final PathTemplate READ_MODIFY_WRITE_ROW_1_PATH_TEMPLATE =
       PathTemplate.create("{app_profile_id=**}");
   private static final PathTemplate READ_MODIFY_WRITE_ROW_2_PATH_TEMPLATE =
-      PathTemplate.create(
-          "{authorized_view_name=projects/*/instances/*/tables/*/authorizedViews/*}");
+      PathTemplate.create("{table_name=projects/*/instances/*/tables/*}/**");
   private static final PathTemplate PREPARE_QUERY_0_PATH_TEMPLATE =
       PathTemplate.create("{name=projects/*/instances/*}");
   private static final PathTemplate PREPARE_QUERY_1_PATH_TEMPLATE =
@@ -304,9 +313,8 @@ public class GrpcBigtableStub extends BigtableStub {
                   builder.add(
                       request.getAppProfileId(), "app_profile_id", READ_ROWS_1_PATH_TEMPLATE);
                   builder.add(
-                      request.getAuthorizedViewName(),
-                      "authorized_view_name",
-                      READ_ROWS_2_PATH_TEMPLATE);
+                      request.getAuthorizedViewName(), "table_name", READ_ROWS_2_PATH_TEMPLATE);
+                  builder.add(request.getMaterializedViewName(), "name", READ_ROWS_3_PATH_TEMPLATE);
                   return builder.build();
                 })
             .build();
@@ -322,8 +330,10 @@ public class GrpcBigtableStub extends BigtableStub {
                       request.getAppProfileId(), "app_profile_id", SAMPLE_ROW_KEYS_1_PATH_TEMPLATE);
                   builder.add(
                       request.getAuthorizedViewName(),
-                      "authorized_view_name",
+                      "table_name",
                       SAMPLE_ROW_KEYS_2_PATH_TEMPLATE);
+                  builder.add(
+                      request.getMaterializedViewName(), "name", SAMPLE_ROW_KEYS_3_PATH_TEMPLATE);
                   return builder.build();
                 })
             .build();
@@ -337,9 +347,7 @@ public class GrpcBigtableStub extends BigtableStub {
                   builder.add(
                       request.getAppProfileId(), "app_profile_id", MUTATE_ROW_1_PATH_TEMPLATE);
                   builder.add(
-                      request.getAuthorizedViewName(),
-                      "authorized_view_name",
-                      MUTATE_ROW_2_PATH_TEMPLATE);
+                      request.getAuthorizedViewName(), "table_name", MUTATE_ROW_2_PATH_TEMPLATE);
                   return builder.build();
                 })
             .build();
@@ -353,9 +361,7 @@ public class GrpcBigtableStub extends BigtableStub {
                   builder.add(
                       request.getAppProfileId(), "app_profile_id", MUTATE_ROWS_1_PATH_TEMPLATE);
                   builder.add(
-                      request.getAuthorizedViewName(),
-                      "authorized_view_name",
-                      MUTATE_ROWS_2_PATH_TEMPLATE);
+                      request.getAuthorizedViewName(), "table_name", MUTATE_ROWS_2_PATH_TEMPLATE);
                   return builder.build();
                 })
             .build();
@@ -376,7 +382,7 @@ public class GrpcBigtableStub extends BigtableStub {
                           CHECK_AND_MUTATE_ROW_1_PATH_TEMPLATE);
                       builder.add(
                           request.getAuthorizedViewName(),
-                          "authorized_view_name",
+                          "table_name",
                           CHECK_AND_MUTATE_ROW_2_PATH_TEMPLATE);
                       return builder.build();
                     })
@@ -410,7 +416,7 @@ public class GrpcBigtableStub extends BigtableStub {
                           READ_MODIFY_WRITE_ROW_1_PATH_TEMPLATE);
                       builder.add(
                           request.getAuthorizedViewName(),
-                          "authorized_view_name",
+                          "table_name",
                           READ_MODIFY_WRITE_ROW_2_PATH_TEMPLATE);
                       return builder.build();
                     })

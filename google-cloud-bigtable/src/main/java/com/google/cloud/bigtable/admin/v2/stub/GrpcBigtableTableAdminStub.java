@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.admin.v2.stub;
 
 import static com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListAuthorizedViewsPagedResponse;
 import static com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListBackupsPagedResponse;
+import static com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListSchemaBundlesPagedResponse;
 import static com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListSnapshotsPagedResponse;
 import static com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListTablesPagedResponse;
 
@@ -40,11 +41,14 @@ import com.google.bigtable.admin.v2.CreateAuthorizedViewMetadata;
 import com.google.bigtable.admin.v2.CreateAuthorizedViewRequest;
 import com.google.bigtable.admin.v2.CreateBackupMetadata;
 import com.google.bigtable.admin.v2.CreateBackupRequest;
+import com.google.bigtable.admin.v2.CreateSchemaBundleMetadata;
+import com.google.bigtable.admin.v2.CreateSchemaBundleRequest;
 import com.google.bigtable.admin.v2.CreateTableFromSnapshotMetadata;
 import com.google.bigtable.admin.v2.CreateTableFromSnapshotRequest;
 import com.google.bigtable.admin.v2.CreateTableRequest;
 import com.google.bigtable.admin.v2.DeleteAuthorizedViewRequest;
 import com.google.bigtable.admin.v2.DeleteBackupRequest;
+import com.google.bigtable.admin.v2.DeleteSchemaBundleRequest;
 import com.google.bigtable.admin.v2.DeleteSnapshotRequest;
 import com.google.bigtable.admin.v2.DeleteTableRequest;
 import com.google.bigtable.admin.v2.DropRowRangeRequest;
@@ -52,12 +56,15 @@ import com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest;
 import com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse;
 import com.google.bigtable.admin.v2.GetAuthorizedViewRequest;
 import com.google.bigtable.admin.v2.GetBackupRequest;
+import com.google.bigtable.admin.v2.GetSchemaBundleRequest;
 import com.google.bigtable.admin.v2.GetSnapshotRequest;
 import com.google.bigtable.admin.v2.GetTableRequest;
 import com.google.bigtable.admin.v2.ListAuthorizedViewsRequest;
 import com.google.bigtable.admin.v2.ListAuthorizedViewsResponse;
 import com.google.bigtable.admin.v2.ListBackupsRequest;
 import com.google.bigtable.admin.v2.ListBackupsResponse;
+import com.google.bigtable.admin.v2.ListSchemaBundlesRequest;
+import com.google.bigtable.admin.v2.ListSchemaBundlesResponse;
 import com.google.bigtable.admin.v2.ListSnapshotsRequest;
 import com.google.bigtable.admin.v2.ListSnapshotsResponse;
 import com.google.bigtable.admin.v2.ListTablesRequest;
@@ -65,6 +72,7 @@ import com.google.bigtable.admin.v2.ListTablesResponse;
 import com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest;
 import com.google.bigtable.admin.v2.RestoreTableMetadata;
 import com.google.bigtable.admin.v2.RestoreTableRequest;
+import com.google.bigtable.admin.v2.SchemaBundle;
 import com.google.bigtable.admin.v2.Snapshot;
 import com.google.bigtable.admin.v2.SnapshotTableMetadata;
 import com.google.bigtable.admin.v2.SnapshotTableRequest;
@@ -74,6 +82,8 @@ import com.google.bigtable.admin.v2.UndeleteTableRequest;
 import com.google.bigtable.admin.v2.UpdateAuthorizedViewMetadata;
 import com.google.bigtable.admin.v2.UpdateAuthorizedViewRequest;
 import com.google.bigtable.admin.v2.UpdateBackupRequest;
+import com.google.bigtable.admin.v2.UpdateSchemaBundleMetadata;
+import com.google.bigtable.admin.v2.UpdateSchemaBundleRequest;
 import com.google.bigtable.admin.v2.UpdateTableMetadata;
 import com.google.bigtable.admin.v2.UpdateTableRequest;
 import com.google.iam.v1.GetIamPolicyRequest;
@@ -101,6 +111,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
           .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/CreateTable")
           .setRequestMarshaller(ProtoUtils.marshaller(CreateTableRequest.getDefaultInstance()))
           .setResponseMarshaller(ProtoUtils.marshaller(Table.getDefaultInstance()))
+          .setSampledToLocalTracing(true)
           .build();
 
   private static final MethodDescriptor<CreateTableFromSnapshotRequest, Operation>
@@ -112,6 +123,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
               .setRequestMarshaller(
                   ProtoUtils.marshaller(CreateTableFromSnapshotRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<ListTablesRequest, ListTablesResponse>
@@ -121,6 +133,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
               .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/ListTables")
               .setRequestMarshaller(ProtoUtils.marshaller(ListTablesRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(ListTablesResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<GetTableRequest, Table> getTableMethodDescriptor =
@@ -129,6 +142,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
           .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/GetTable")
           .setRequestMarshaller(ProtoUtils.marshaller(GetTableRequest.getDefaultInstance()))
           .setResponseMarshaller(ProtoUtils.marshaller(Table.getDefaultInstance()))
+          .setSampledToLocalTracing(true)
           .build();
 
   private static final MethodDescriptor<UpdateTableRequest, Operation> updateTableMethodDescriptor =
@@ -137,6 +151,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
           .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/UpdateTable")
           .setRequestMarshaller(ProtoUtils.marshaller(UpdateTableRequest.getDefaultInstance()))
           .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
+          .setSampledToLocalTracing(true)
           .build();
 
   private static final MethodDescriptor<DeleteTableRequest, Empty> deleteTableMethodDescriptor =
@@ -145,6 +160,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
           .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/DeleteTable")
           .setRequestMarshaller(ProtoUtils.marshaller(DeleteTableRequest.getDefaultInstance()))
           .setResponseMarshaller(ProtoUtils.marshaller(Empty.getDefaultInstance()))
+          .setSampledToLocalTracing(true)
           .build();
 
   private static final MethodDescriptor<UndeleteTableRequest, Operation>
@@ -155,6 +171,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
               .setRequestMarshaller(
                   ProtoUtils.marshaller(UndeleteTableRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<CreateAuthorizedViewRequest, Operation>
@@ -165,6 +182,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
               .setRequestMarshaller(
                   ProtoUtils.marshaller(CreateAuthorizedViewRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<ListAuthorizedViewsRequest, ListAuthorizedViewsResponse>
@@ -176,6 +194,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
                   ProtoUtils.marshaller(ListAuthorizedViewsRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(ListAuthorizedViewsResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<GetAuthorizedViewRequest, AuthorizedView>
@@ -186,6 +205,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
               .setRequestMarshaller(
                   ProtoUtils.marshaller(GetAuthorizedViewRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(AuthorizedView.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<UpdateAuthorizedViewRequest, Operation>
@@ -196,6 +216,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
               .setRequestMarshaller(
                   ProtoUtils.marshaller(UpdateAuthorizedViewRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<DeleteAuthorizedViewRequest, Empty>
@@ -206,6 +227,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
               .setRequestMarshaller(
                   ProtoUtils.marshaller(DeleteAuthorizedViewRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(Empty.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<ModifyColumnFamiliesRequest, Table>
@@ -216,6 +238,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
               .setRequestMarshaller(
                   ProtoUtils.marshaller(ModifyColumnFamiliesRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(Table.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<DropRowRangeRequest, Empty> dropRowRangeMethodDescriptor =
@@ -224,6 +247,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
           .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/DropRowRange")
           .setRequestMarshaller(ProtoUtils.marshaller(DropRowRangeRequest.getDefaultInstance()))
           .setResponseMarshaller(ProtoUtils.marshaller(Empty.getDefaultInstance()))
+          .setSampledToLocalTracing(true)
           .build();
 
   private static final MethodDescriptor<
@@ -238,6 +262,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
                   ProtoUtils.marshaller(GenerateConsistencyTokenRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(GenerateConsistencyTokenResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<CheckConsistencyRequest, CheckConsistencyResponse>
@@ -249,6 +274,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
                   ProtoUtils.marshaller(CheckConsistencyRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(CheckConsistencyResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<SnapshotTableRequest, Operation>
@@ -259,6 +285,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
               .setRequestMarshaller(
                   ProtoUtils.marshaller(SnapshotTableRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<GetSnapshotRequest, Snapshot> getSnapshotMethodDescriptor =
@@ -267,6 +294,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
           .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/GetSnapshot")
           .setRequestMarshaller(ProtoUtils.marshaller(GetSnapshotRequest.getDefaultInstance()))
           .setResponseMarshaller(ProtoUtils.marshaller(Snapshot.getDefaultInstance()))
+          .setSampledToLocalTracing(true)
           .build();
 
   private static final MethodDescriptor<ListSnapshotsRequest, ListSnapshotsResponse>
@@ -278,6 +306,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
                   ProtoUtils.marshaller(ListSnapshotsRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(ListSnapshotsResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<DeleteSnapshotRequest, Empty>
@@ -288,6 +317,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
               .setRequestMarshaller(
                   ProtoUtils.marshaller(DeleteSnapshotRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(Empty.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<CreateBackupRequest, Operation>
@@ -297,6 +327,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
               .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/CreateBackup")
               .setRequestMarshaller(ProtoUtils.marshaller(CreateBackupRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<GetBackupRequest, Backup> getBackupMethodDescriptor =
@@ -305,6 +336,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
           .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/GetBackup")
           .setRequestMarshaller(ProtoUtils.marshaller(GetBackupRequest.getDefaultInstance()))
           .setResponseMarshaller(ProtoUtils.marshaller(Backup.getDefaultInstance()))
+          .setSampledToLocalTracing(true)
           .build();
 
   private static final MethodDescriptor<UpdateBackupRequest, Backup> updateBackupMethodDescriptor =
@@ -313,6 +345,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
           .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/UpdateBackup")
           .setRequestMarshaller(ProtoUtils.marshaller(UpdateBackupRequest.getDefaultInstance()))
           .setResponseMarshaller(ProtoUtils.marshaller(Backup.getDefaultInstance()))
+          .setSampledToLocalTracing(true)
           .build();
 
   private static final MethodDescriptor<DeleteBackupRequest, Empty> deleteBackupMethodDescriptor =
@@ -321,6 +354,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
           .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/DeleteBackup")
           .setRequestMarshaller(ProtoUtils.marshaller(DeleteBackupRequest.getDefaultInstance()))
           .setResponseMarshaller(ProtoUtils.marshaller(Empty.getDefaultInstance()))
+          .setSampledToLocalTracing(true)
           .build();
 
   private static final MethodDescriptor<ListBackupsRequest, ListBackupsResponse>
@@ -331,6 +365,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
               .setRequestMarshaller(ProtoUtils.marshaller(ListBackupsRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(ListBackupsResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<RestoreTableRequest, Operation>
@@ -340,6 +375,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
               .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/RestoreTable")
               .setRequestMarshaller(ProtoUtils.marshaller(RestoreTableRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<CopyBackupRequest, Operation> copyBackupMethodDescriptor =
@@ -348,6 +384,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
           .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/CopyBackup")
           .setRequestMarshaller(ProtoUtils.marshaller(CopyBackupRequest.getDefaultInstance()))
           .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
+          .setSampledToLocalTracing(true)
           .build();
 
   private static final MethodDescriptor<GetIamPolicyRequest, Policy> getIamPolicyMethodDescriptor =
@@ -356,6 +393,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
           .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/GetIamPolicy")
           .setRequestMarshaller(ProtoUtils.marshaller(GetIamPolicyRequest.getDefaultInstance()))
           .setResponseMarshaller(ProtoUtils.marshaller(Policy.getDefaultInstance()))
+          .setSampledToLocalTracing(true)
           .build();
 
   private static final MethodDescriptor<SetIamPolicyRequest, Policy> setIamPolicyMethodDescriptor =
@@ -364,6 +402,7 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
           .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/SetIamPolicy")
           .setRequestMarshaller(ProtoUtils.marshaller(SetIamPolicyRequest.getDefaultInstance()))
           .setResponseMarshaller(ProtoUtils.marshaller(Policy.getDefaultInstance()))
+          .setSampledToLocalTracing(true)
           .build();
 
   private static final MethodDescriptor<TestIamPermissionsRequest, TestIamPermissionsResponse>
@@ -375,6 +414,63 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
                   ProtoUtils.marshaller(TestIamPermissionsRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(TestIamPermissionsResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
+              .build();
+
+  private static final MethodDescriptor<CreateSchemaBundleRequest, Operation>
+      createSchemaBundleMethodDescriptor =
+          MethodDescriptor.<CreateSchemaBundleRequest, Operation>newBuilder()
+              .setType(MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/CreateSchemaBundle")
+              .setRequestMarshaller(
+                  ProtoUtils.marshaller(CreateSchemaBundleRequest.getDefaultInstance()))
+              .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
+              .build();
+
+  private static final MethodDescriptor<UpdateSchemaBundleRequest, Operation>
+      updateSchemaBundleMethodDescriptor =
+          MethodDescriptor.<UpdateSchemaBundleRequest, Operation>newBuilder()
+              .setType(MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/UpdateSchemaBundle")
+              .setRequestMarshaller(
+                  ProtoUtils.marshaller(UpdateSchemaBundleRequest.getDefaultInstance()))
+              .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
+              .build();
+
+  private static final MethodDescriptor<GetSchemaBundleRequest, SchemaBundle>
+      getSchemaBundleMethodDescriptor =
+          MethodDescriptor.<GetSchemaBundleRequest, SchemaBundle>newBuilder()
+              .setType(MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/GetSchemaBundle")
+              .setRequestMarshaller(
+                  ProtoUtils.marshaller(GetSchemaBundleRequest.getDefaultInstance()))
+              .setResponseMarshaller(ProtoUtils.marshaller(SchemaBundle.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
+              .build();
+
+  private static final MethodDescriptor<ListSchemaBundlesRequest, ListSchemaBundlesResponse>
+      listSchemaBundlesMethodDescriptor =
+          MethodDescriptor.<ListSchemaBundlesRequest, ListSchemaBundlesResponse>newBuilder()
+              .setType(MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/ListSchemaBundles")
+              .setRequestMarshaller(
+                  ProtoUtils.marshaller(ListSchemaBundlesRequest.getDefaultInstance()))
+              .setResponseMarshaller(
+                  ProtoUtils.marshaller(ListSchemaBundlesResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
+              .build();
+
+  private static final MethodDescriptor<DeleteSchemaBundleRequest, Empty>
+      deleteSchemaBundleMethodDescriptor =
+          MethodDescriptor.<DeleteSchemaBundleRequest, Empty>newBuilder()
+              .setType(MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/DeleteSchemaBundle")
+              .setRequestMarshaller(
+                  ProtoUtils.marshaller(DeleteSchemaBundleRequest.getDefaultInstance()))
+              .setResponseMarshaller(ProtoUtils.marshaller(Empty.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private final UnaryCallable<CreateTableRequest, Table> createTableCallable;
@@ -440,6 +536,20 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
   private final UnaryCallable<SetIamPolicyRequest, Policy> setIamPolicyCallable;
   private final UnaryCallable<TestIamPermissionsRequest, TestIamPermissionsResponse>
       testIamPermissionsCallable;
+  private final UnaryCallable<CreateSchemaBundleRequest, Operation> createSchemaBundleCallable;
+  private final OperationCallable<
+          CreateSchemaBundleRequest, SchemaBundle, CreateSchemaBundleMetadata>
+      createSchemaBundleOperationCallable;
+  private final UnaryCallable<UpdateSchemaBundleRequest, Operation> updateSchemaBundleCallable;
+  private final OperationCallable<
+          UpdateSchemaBundleRequest, SchemaBundle, UpdateSchemaBundleMetadata>
+      updateSchemaBundleOperationCallable;
+  private final UnaryCallable<GetSchemaBundleRequest, SchemaBundle> getSchemaBundleCallable;
+  private final UnaryCallable<ListSchemaBundlesRequest, ListSchemaBundlesResponse>
+      listSchemaBundlesCallable;
+  private final UnaryCallable<ListSchemaBundlesRequest, ListSchemaBundlesPagedResponse>
+      listSchemaBundlesPagedCallable;
+  private final UnaryCallable<DeleteSchemaBundleRequest, Empty> deleteSchemaBundleCallable;
 
   private final BackgroundResource backgroundResources;
   private final GrpcOperationsStub operationsStub;
@@ -793,6 +903,58 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
                       return builder.build();
                     })
                 .build();
+    GrpcCallSettings<CreateSchemaBundleRequest, Operation> createSchemaBundleTransportSettings =
+        GrpcCallSettings.<CreateSchemaBundleRequest, Operation>newBuilder()
+            .setMethodDescriptor(createSchemaBundleMethodDescriptor)
+            .setParamsExtractor(
+                request -> {
+                  RequestParamsBuilder builder = RequestParamsBuilder.create();
+                  builder.add("parent", String.valueOf(request.getParent()));
+                  return builder.build();
+                })
+            .build();
+    GrpcCallSettings<UpdateSchemaBundleRequest, Operation> updateSchemaBundleTransportSettings =
+        GrpcCallSettings.<UpdateSchemaBundleRequest, Operation>newBuilder()
+            .setMethodDescriptor(updateSchemaBundleMethodDescriptor)
+            .setParamsExtractor(
+                request -> {
+                  RequestParamsBuilder builder = RequestParamsBuilder.create();
+                  builder.add(
+                      "schema_bundle.name", String.valueOf(request.getSchemaBundle().getName()));
+                  return builder.build();
+                })
+            .build();
+    GrpcCallSettings<GetSchemaBundleRequest, SchemaBundle> getSchemaBundleTransportSettings =
+        GrpcCallSettings.<GetSchemaBundleRequest, SchemaBundle>newBuilder()
+            .setMethodDescriptor(getSchemaBundleMethodDescriptor)
+            .setParamsExtractor(
+                request -> {
+                  RequestParamsBuilder builder = RequestParamsBuilder.create();
+                  builder.add("name", String.valueOf(request.getName()));
+                  return builder.build();
+                })
+            .build();
+    GrpcCallSettings<ListSchemaBundlesRequest, ListSchemaBundlesResponse>
+        listSchemaBundlesTransportSettings =
+            GrpcCallSettings.<ListSchemaBundlesRequest, ListSchemaBundlesResponse>newBuilder()
+                .setMethodDescriptor(listSchemaBundlesMethodDescriptor)
+                .setParamsExtractor(
+                    request -> {
+                      RequestParamsBuilder builder = RequestParamsBuilder.create();
+                      builder.add("parent", String.valueOf(request.getParent()));
+                      return builder.build();
+                    })
+                .build();
+    GrpcCallSettings<DeleteSchemaBundleRequest, Empty> deleteSchemaBundleTransportSettings =
+        GrpcCallSettings.<DeleteSchemaBundleRequest, Empty>newBuilder()
+            .setMethodDescriptor(deleteSchemaBundleMethodDescriptor)
+            .setParamsExtractor(
+                request -> {
+                  RequestParamsBuilder builder = RequestParamsBuilder.create();
+                  builder.add("name", String.valueOf(request.getName()));
+                  return builder.build();
+                })
+            .build();
 
     this.createTableCallable =
         callableFactory.createUnaryCallable(
@@ -969,6 +1131,46 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
         callableFactory.createUnaryCallable(
             testIamPermissionsTransportSettings,
             settings.testIamPermissionsSettings(),
+            clientContext);
+    this.createSchemaBundleCallable =
+        callableFactory.createUnaryCallable(
+            createSchemaBundleTransportSettings,
+            settings.createSchemaBundleSettings(),
+            clientContext);
+    this.createSchemaBundleOperationCallable =
+        callableFactory.createOperationCallable(
+            createSchemaBundleTransportSettings,
+            settings.createSchemaBundleOperationSettings(),
+            clientContext,
+            operationsStub);
+    this.updateSchemaBundleCallable =
+        callableFactory.createUnaryCallable(
+            updateSchemaBundleTransportSettings,
+            settings.updateSchemaBundleSettings(),
+            clientContext);
+    this.updateSchemaBundleOperationCallable =
+        callableFactory.createOperationCallable(
+            updateSchemaBundleTransportSettings,
+            settings.updateSchemaBundleOperationSettings(),
+            clientContext,
+            operationsStub);
+    this.getSchemaBundleCallable =
+        callableFactory.createUnaryCallable(
+            getSchemaBundleTransportSettings, settings.getSchemaBundleSettings(), clientContext);
+    this.listSchemaBundlesCallable =
+        callableFactory.createUnaryCallable(
+            listSchemaBundlesTransportSettings,
+            settings.listSchemaBundlesSettings(),
+            clientContext);
+    this.listSchemaBundlesPagedCallable =
+        callableFactory.createPagedCallable(
+            listSchemaBundlesTransportSettings,
+            settings.listSchemaBundlesSettings(),
+            clientContext);
+    this.deleteSchemaBundleCallable =
+        callableFactory.createUnaryCallable(
+            deleteSchemaBundleTransportSettings,
+            settings.deleteSchemaBundleSettings(),
             clientContext);
 
     this.backgroundResources =
@@ -1210,6 +1412,50 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
   public UnaryCallable<TestIamPermissionsRequest, TestIamPermissionsResponse>
       testIamPermissionsCallable() {
     return testIamPermissionsCallable;
+  }
+
+  @Override
+  public UnaryCallable<CreateSchemaBundleRequest, Operation> createSchemaBundleCallable() {
+    return createSchemaBundleCallable;
+  }
+
+  @Override
+  public OperationCallable<CreateSchemaBundleRequest, SchemaBundle, CreateSchemaBundleMetadata>
+      createSchemaBundleOperationCallable() {
+    return createSchemaBundleOperationCallable;
+  }
+
+  @Override
+  public UnaryCallable<UpdateSchemaBundleRequest, Operation> updateSchemaBundleCallable() {
+    return updateSchemaBundleCallable;
+  }
+
+  @Override
+  public OperationCallable<UpdateSchemaBundleRequest, SchemaBundle, UpdateSchemaBundleMetadata>
+      updateSchemaBundleOperationCallable() {
+    return updateSchemaBundleOperationCallable;
+  }
+
+  @Override
+  public UnaryCallable<GetSchemaBundleRequest, SchemaBundle> getSchemaBundleCallable() {
+    return getSchemaBundleCallable;
+  }
+
+  @Override
+  public UnaryCallable<ListSchemaBundlesRequest, ListSchemaBundlesResponse>
+      listSchemaBundlesCallable() {
+    return listSchemaBundlesCallable;
+  }
+
+  @Override
+  public UnaryCallable<ListSchemaBundlesRequest, ListSchemaBundlesPagedResponse>
+      listSchemaBundlesPagedCallable() {
+    return listSchemaBundlesPagedCallable;
+  }
+
+  @Override
+  public UnaryCallable<DeleteSchemaBundleRequest, Empty> deleteSchemaBundleCallable() {
+    return deleteSchemaBundleCallable;
   }
 
   @Override

@@ -199,9 +199,11 @@ final class ProtoRowsMergingStateMachine {
         checkExpectedKind(value, Value.KindCase.STRING_VALUE, type);
         break;
       case BYTES:
+      case PROTO:
         checkExpectedKind(value, Value.KindCase.BYTES_VALUE, type);
         break;
       case INT64:
+      case ENUM:
         checkExpectedKind(value, Value.KindCase.INT_VALUE, type);
         break;
       case FLOAT64:
@@ -230,6 +232,12 @@ final class ProtoRowsMergingStateMachine {
         checkExpectedKind(value, Value.KindCase.ARRAY_VALUE, type);
         List<Value> fieldValues = value.getArrayValue().getValuesList();
         SqlType.Struct structType = (SqlType.Struct) type;
+        if (fieldValues.size() != structType.getFields().size()) {
+          throw new IllegalStateException(
+              String.format(
+                  "Unexpected malformed struct data. Expected %s fields, received: %s",
+                  structType.getFields().size(), fieldValues.size()));
+        }
         for (int i = 0; i < fieldValues.size(); i++) {
           validateValueAndType(structType.getType(i), fieldValues.get(i));
         }
