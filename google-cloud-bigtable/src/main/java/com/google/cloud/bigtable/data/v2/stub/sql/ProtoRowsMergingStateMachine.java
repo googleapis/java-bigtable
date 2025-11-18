@@ -199,9 +199,11 @@ final class ProtoRowsMergingStateMachine {
         checkExpectedKind(value, Value.KindCase.STRING_VALUE, type);
         break;
       case BYTES:
+      case PROTO:
         checkExpectedKind(value, Value.KindCase.BYTES_VALUE, type);
         break;
       case INT64:
+      case ENUM:
         checkExpectedKind(value, Value.KindCase.INT_VALUE, type);
         break;
       case FLOAT64:

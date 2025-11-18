@@ -27,12 +27,13 @@ import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants;
+import com.google.cloud.bigtable.data.v2.stub.metrics.ChannelPoolMetricsTracer;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
-import com.google.cloud.bigtable.data.v2.stub.metrics.ErrorCountPerConnectionMetricTracker;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableTransportChannelProvider;
+import com.google.cloud.bigtable.gaxx.grpc.ChannelPrimer;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.opentelemetry.GrpcOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
@@ -96,8 +97,7 @@ public class BigtableClientContext {
             : null;
 
     @Nullable OpenTelemetrySdk internalOtel = null;
-    @Nullable ErrorCountPerConnectionMetricTracker errorCountPerConnectionMetricTracker = null;
-
+    @Nullable ChannelPoolMetricsTracer channelPoolMetricsTracer = null;
     // Internal metrics are scoped to the connections, so we need a mutable transportProvider,
     // otherwise there is
     // no reason to build the internal OtelProvider
@@ -105,10 +105,9 @@ public class BigtableClientContext {
       internalOtel =
           settings.getInternalMetricsProvider().createOtelProvider(settings, credentials);
       if (internalOtel != null) {
-        // Set up per connection error count tracker if all dependencies are met:
-        // a configurable transport provider + otel
-        errorCountPerConnectionMetricTracker =
-            setupPerConnectionErrorTracer(builder, transportProvider, internalOtel);
+        channelPoolMetricsTracer =
+            new ChannelPoolMetricsTracer(
+                internalOtel, EnhancedBigtableStub.createBuiltinAttributes(builder.build()));
 
         // Configure grpc metrics
         configureGrpcOtel(transportProvider, internalOtel);
@@ -121,29 +120,31 @@ public class BigtableClientContext {
         setupCookieHolder(transportProvider);
       }
 
+      ChannelPrimer channelPrimer = NoOpChannelPrimer.create();
+
       // Inject channel priming if enabled
       if (builder.isRefreshingChannel()) {
-        transportProvider.setChannelPrimer(
+        channelPrimer =
             BigtableChannelPrimer.create(
                 builder.getProjectId(),
                 builder.getInstanceId(),
                 builder.getAppProfileId(),
                 credentials,
-                builder.getHeaderProvider().getHeaders()));
+                builder.getHeaderProvider().getHeaders());
       }
 
       BigtableTransportChannelProvider btTransportProvider =
           BigtableTransportChannelProvider.create(
-              (InstantiatingGrpcChannelProvider) transportProvider.build());
+              (InstantiatingGrpcChannelProvider) transportProvider.build(),
+              channelPrimer,
+              channelPoolMetricsTracer);
 
       builder.setTransportChannelProvider(btTransportProvider);
     }
 
     ClientContext clientContext = ClientContext.create(builder.build());
-
-    if (errorCountPerConnectionMetricTracker != null) {
-      errorCountPerConnectionMetricTracker.startConnectionErrorCountTracker(
-          clientContext.getExecutor());
+    if (channelPoolMetricsTracer != null) {
+      channelPoolMetricsTracer.start(clientContext.getExecutor());
     }
 
     return new BigtableClientContext(
@@ -259,27 +260,6 @@ public class BigtableClientContext {
     ServiceAccountJwtAccessCredentials jwtCreds = (ServiceAccountJwtAccessCredentials) credentials;
     JwtCredentialsWithAudience patchedCreds = new JwtCredentialsWithAudience(jwtCreds, audienceUri);
     settings.setCredentialsProvider(FixedCredentialsProvider.create(patchedCreds));
-  }
-
-  private static ErrorCountPerConnectionMetricTracker setupPerConnectionErrorTracer(
-      EnhancedBigtableStubSettings.Builder builder,
-      InstantiatingGrpcChannelProvider.Builder transportProvider,
-      OpenTelemetry openTelemetry) {
-    ErrorCountPerConnectionMetricTracker errorCountPerConnectionMetricTracker =
-        new ErrorCountPerConnectionMetricTracker(
-            openTelemetry, EnhancedBigtableStub.createBuiltinAttributes(builder.build()));
-    ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder> oldChannelConfigurator =
-        transportProvider.getChannelConfigurator();
-    transportProvider.setChannelConfigurator(
-        managedChannelBuilder -> {
-          managedChannelBuilder.intercept(errorCountPerConnectionMetricTracker.getInterceptor());
-
-          if (oldChannelConfigurator != null) {
-            managedChannelBuilder = oldChannelConfigurator.apply(managedChannelBuilder);
-          }
-          return managedChannelBuilder;
-        });
-    return errorCountPerConnectionMetricTracker;
   }
 
   private static void setupCookieHolder(

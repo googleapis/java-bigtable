@@ -1,5 +1,148 @@
 # Changelog
 
+## [2.69.0](https://github.com/googleapis/java-bigtable/compare/v2.68.0...v2.69.0) (2025-11-17)
+
+
+### Features
+
+* **bigtable:** Add internal grpc subconnections metric and add outstanding rpcs to INTERNAL_VIEW ([#2700](https://github.com/googleapis/java-bigtable/issues/2700)) ([e3e6e99](https://github.com/googleapis/java-bigtable/commit/e3e6e993ee197f897c166fb8959755db0cb9c3fc))
+* **bigtable:** Expose a metric to track the number of outstanding rpcs (unary , streaming) in channel pool ([#2696](https://github.com/googleapis/java-bigtable/issues/2696)) ([140a1ad](https://github.com/googleapis/java-bigtable/commit/140a1ad81947da26c1539632ff04748dc3498d69))
+* **bigtable:** Populate alts field in channel entry ([#2702](https://github.com/googleapis/java-bigtable/issues/2702)) ([1bfb763](https://github.com/googleapis/java-bigtable/commit/1bfb763e6e4fb6fe8c808abe5dbd4221d3a632c3))
+* Enable ALTS hard bound token in Bigtable w/ direct access ([#2695](https://github.com/googleapis/java-bigtable/issues/2695)) ([d12b37d](https://github.com/googleapis/java-bigtable/commit/d12b37dacf8712d30be05175828999af74159819))
+
+## [2.68.0](https://github.com/googleapis/java-bigtable/compare/v2.67.1...v2.68.0) (2025-10-22)
+
+
+### Features
+
+* Add Type API updates needed to support structured keys in materialized views ([469290e](https://github.com/googleapis/java-bigtable/commit/469290eb188ce7155abc81d4fec9dd8319851cd9))
+
+
+### Bug Fixes
+
+* Add ReadRows/SampleRowKeys bindings for materialized views ([469290e](https://github.com/googleapis/java-bigtable/commit/469290eb188ce7155abc81d4fec9dd8319851cd9))
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.62.3 ([469290e](https://github.com/googleapis/java-bigtable/commit/469290eb188ce7155abc81d4fec9dd8319851cd9))
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.63.0 ([ed6c03f](https://github.com/googleapis/java-bigtable/commit/ed6c03ff50f42a06472f5be781b68937f48228d1))
+* Don't use String.format in Preconditions messages ([#2691](https://github.com/googleapis/java-bigtable/issues/2691)) ([62a1812](https://github.com/googleapis/java-bigtable/commit/62a18128d8ec65484509dde6cd0c2b0322890cc9))
+* Fixed the bigtableadmin API name for snippet region tags and possibly other GAPIC attributes ([469290e](https://github.com/googleapis/java-bigtable/commit/469290eb188ce7155abc81d4fec9dd8319851cd9))
+
+
+### Dependencies
+
+* Update shared dependencies ([#2697](https://github.com/googleapis/java-bigtable/issues/2697)) ([611ad20](https://github.com/googleapis/java-bigtable/commit/611ad208359e3c1f2e675d5e4e8c8ade3616b02b))
+
+## [2.67.1](https://github.com/googleapis/java-bigtable/compare/v2.67.0...v2.67.1) (2025-10-08)
+
+
+### Dependencies
+
+* Update shared dependencies ([#2686](https://github.com/googleapis/java-bigtable/issues/2686)) ([d7eaa02](https://github.com/googleapis/java-bigtable/commit/d7eaa02d89a63d9f9197d26e430267eff200b126))
+
+## [2.67.0](https://github.com/googleapis/java-bigtable/compare/v2.66.0...v2.67.0) (2025-09-24)
+
+
+### Features
+
+* Idle channel eviction ([#2651](https://github.com/googleapis/java-bigtable/issues/2651)) ([70c05c9](https://github.com/googleapis/java-bigtable/commit/70c05c9c09a63c53818384d2a66c622c9b95e00e))
+* Load balancing options for BigtableChannelPool ([#2667](https://github.com/googleapis/java-bigtable/issues/2667)) ([5adaa84](https://github.com/googleapis/java-bigtable/commit/5adaa84d80df08779da7c36a50de4632049cfe96))
+
+
+### Bug Fixes
+
+* Add missing break; to PROTO and ENUM value type check ([#2672](https://github.com/googleapis/java-bigtable/issues/2672)) ([337e432](https://github.com/googleapis/java-bigtable/commit/337e4325f6cb5d11309ec5f33550d47d97cbe3c3))
+* Remove beta api annotation for query paginator ([#2660](https://github.com/googleapis/java-bigtable/issues/2660)) ([f68a1fa](https://github.com/googleapis/java-bigtable/commit/f68a1fae49b701d1fb9942e2af2fa84a1e5b508a))
+
+
+### Dependencies
+
+* Update shared dependencies ([#2679](https://github.com/googleapis/java-bigtable/issues/2679)) ([a5b8260](https://github.com/googleapis/java-bigtable/commit/a5b82609c365ae4792ed822e59039c1a046ef3ff))
+
+## [2.66.0](https://github.com/googleapis/java-bigtable/compare/v2.65.1...v2.66.0) (2025-09-10)
+
+
+### Features
+
+* Add support for Proto and Enum types ([#2662](https://github.com/googleapis/java-bigtable/issues/2662)) ([da3065d](https://github.com/googleapis/java-bigtable/commit/da3065db331be191fdf9e06be71e45c7832574ea))
+
+
+### Dependencies
+
+* Update dependency com.google.cloud:sdk-platform-java-config to v3.52.1 ([#2668](https://github.com/googleapis/java-bigtable/issues/2668)) ([06ac93e](https://github.com/googleapis/java-bigtable/commit/06ac93e810830f9c04920b488d9a10af8995a6f3))
+
+## [2.65.1](https://github.com/googleapis/java-bigtable/compare/v2.65.0...v2.65.1) (2025-08-27)
+
+
+### Dependencies
+
+* Update shared dependencies ([#2664](https://github.com/googleapis/java-bigtable/issues/2664)) ([841318b](https://github.com/googleapis/java-bigtable/commit/841318b2248dcda89d8482bc2e84c838bd8be8d0))
+
+## [2.65.0](https://github.com/googleapis/java-bigtable/compare/v2.64.0...v2.65.0) (2025-08-12)
+
+
+### Features
+
+* **bigtable:** Lower the value for max rpc channels as channel resize is slow (1m, 2 channel) ([#2656](https://github.com/googleapis/java-bigtable/issues/2656)) ([d8055c1](https://github.com/googleapis/java-bigtable/commit/d8055c1fb75a616cda1503b92d7cddb9da47d42b))
+
+## [2.64.0](https://github.com/googleapis/java-bigtable/compare/v2.63.0...v2.64.0) (2025-08-08)
+
+
+### Features
+
+* Add tags field to Instance proto (stable branch) ([089d527](https://github.com/googleapis/java-bigtable/commit/089d52700c225015fabfaa763163c5874b96d830))
+
+
+### Bug Fixes
+
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.61.0 ([089d527](https://github.com/googleapis/java-bigtable/commit/089d52700c225015fabfaa763163c5874b96d830))
+
+
+### Dependencies
+
+* Update shared dependencies ([#2654](https://github.com/googleapis/java-bigtable/issues/2654)) ([4b706f4](https://github.com/googleapis/java-bigtable/commit/4b706f4f76a8152556aa99656b440adb30f37a4c))
+
+## [2.63.0](https://github.com/googleapis/java-bigtable/compare/v2.62.0...v2.63.0) (2025-07-30)
+
+
+### Features
+
+* Add Idempotency to Cloud Bigtable MutateRowsRequest API ([bc58b4f](https://github.com/googleapis/java-bigtable/commit/bc58b4f31ef457bd322f270b044735e4b62d298f))
+* Add port as a parameter for the bigtable emulator ([#2645](https://github.com/googleapis/java-bigtable/issues/2645)) ([5acd3dc](https://github.com/googleapis/java-bigtable/commit/5acd3dc01c36072bd28248d560c5d923c34b1817))
+* Add type support for Proto and Enum ([bc58b4f](https://github.com/googleapis/java-bigtable/commit/bc58b4f31ef457bd322f270b044735e4b62d298f))
+* Publish Proto and Enum types to CBT data API ([ace12d5](https://github.com/googleapis/java-bigtable/commit/ace12d53fe9f4d3779b2b1a2aed69ceeedd11600))
+* Selective GAPIC autogeneration for Python Bigtable Admin ([e219c38](https://github.com/googleapis/java-bigtable/commit/e219c387487673869fb8bb55a5060bdc9d37bbcb))
+
+
+### Bug Fixes
+
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.60.2 ([e219c38](https://github.com/googleapis/java-bigtable/commit/e219c387487673869fb8bb55a5060bdc9d37bbcb))
+* Update routing_parameters.path_template ([e219c38](https://github.com/googleapis/java-bigtable/commit/e219c387487673869fb8bb55a5060bdc9d37bbcb))
+
+
+### Dependencies
+
+* Update sdk-platorm-java-config to 3.50.2 ([#2646](https://github.com/googleapis/java-bigtable/issues/2646)) ([03e6961](https://github.com/googleapis/java-bigtable/commit/03e6961e758a9a0c39cb168c73c853328c14bfd1))
+
+
+### Documentation
+
+* Sync generated comments from the API Protos ([bc58b4f](https://github.com/googleapis/java-bigtable/commit/bc58b4f31ef457bd322f270b044735e4b62d298f))
+
+## [2.62.0](https://github.com/googleapis/java-bigtable/compare/v2.61.0...v2.62.0) (2025-07-15)
+
+
+### Features
+
+* Add Idempotency to Cloud Bigtable MutateRowRequest API ([b5acca6](https://github.com/googleapis/java-bigtable/commit/b5acca6ac4f1eec420adb27bc77aa1bda0ec2dca))
+* Add SchemaBundles API ([b5acca6](https://github.com/googleapis/java-bigtable/commit/b5acca6ac4f1eec420adb27bc77aa1bda0ec2dca))
+* **bigtable:** Add schema bundle support ([#2619](https://github.com/googleapis/java-bigtable/issues/2619)) ([7d7b9a9](https://github.com/googleapis/java-bigtable/commit/7d7b9a966d3ef7b7a0ef3f82038ab73f4d791427))
+* Next release from main branch is 2.62.0 ([#2621](https://github.com/googleapis/java-bigtable/issues/2621)) ([202b211](https://github.com/googleapis/java-bigtable/commit/202b21102e71da71ff56f19a12d8a00a59cd8107))
+
+
+### Dependencies
+
+* Minor cleanup ([#2623](https://github.com/googleapis/java-bigtable/issues/2623)) ([7b230e8](https://github.com/googleapis/java-bigtable/commit/7b230e86902b5733c06e45fad90da76653ee1096))
+* Update shared dependencies ([#2616](https://github.com/googleapis/java-bigtable/issues/2616)) ([eb7cfd5](https://github.com/googleapis/java-bigtable/commit/eb7cfd526aa999c614b7b8285d32759e2739ff9a))
+
 ## [2.61.0](https://github.com/googleapis/java-bigtable/compare/v2.60.0...v2.61.0) (2025-06-27)
 
 
