@@ -1385,18 +1385,22 @@ public class EnhancedBigtableStub implements AutoCloseable {
       ServerStreamingCallable<RequestT, ResponseT> innerCallable,
       ServerStreamingCallSettings<RequestT, ResponseT> serverStreamingCallSettings) {
 
-    ServerStreamingCallable<RequestT, ResponseT> retrying;
-    if (settings.getEnableRetryInfo()) {
-      retrying =
-          com.google.cloud.bigtable.gaxx.retrying.Callables.retrying(
-              innerCallable, serverStreamingCallSettings, clientContext);
-    } else {
-      retrying = Callables.retrying(innerCallable, serverStreamingCallSettings, clientContext);
-    }
-    if (settings.getEnableRoutingCookie()) {
-      return new CookiesServerStreamingCallable<>(retrying);
-    }
-    return retrying;
+//    ServerStreamingCallable<RequestT, ResponseT> retrying;
+//    if (settings.getEnableRetryInfo()) {
+//      retrying =
+//          com.google.cloud.bigtable.gaxx.retrying.Callables.retrying(
+//              innerCallable, serverStreamingCallSettings, clientContext);
+//    } else {
+//      retrying = Callables.retrying(innerCallable, serverStreamingCallSettings, clientContext);
+//    }
+//    if (settings.getEnableRoutingCookie()) {
+//      return new CookiesServerStreamingCallable<>(retrying);
+//    }
+//    return retrying;
+
+    Callable2<RequestT, ResponseT> toNewCallable = new ToNewCallableAdapter(innerCallable);
+    Callable2<RequestT, ResponseT> retryCallable = new RetryCallable<>(toNewCallable, serverStreamingCallSettings.getResumptionStrategy(), clientContext.getExecutor(), serverStreamingCallSettings.getRetrySettings());
+    return new ToOldCallableAdapter<>(retryCallable);
   }
 
   private <RequestT, ResponseT> ServerStreamingCallable<RequestT, ResponseT> largeRowWithRetries(
