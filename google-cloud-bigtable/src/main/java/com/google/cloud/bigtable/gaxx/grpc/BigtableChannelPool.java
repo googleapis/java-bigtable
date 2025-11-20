@@ -565,7 +565,8 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
 
     void checkAndSetIsAlts(ClientCall<?, ?> call) {
       // TODO(populate ALTS holder)
-      isAltsHolder.compareAndSet(null, false);
+      boolean result = false;
+      isAltsHolder.compareAndSet(null, result);
     }
 
     ManagedChannel getManagedChannel() {
@@ -727,7 +728,7 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
         throw new IllegalStateException("Call is already cancelled", cancellationException);
       }
       try {
-
+        entry.checkAndSetIsAlts(delegate());
         super.start(
             new SimpleForwardingClientCallListener<RespT>(responseListener) {
               @Override
