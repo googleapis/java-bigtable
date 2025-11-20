@@ -108,7 +108,6 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
     this.channelPoolHealthChecker.start();
 
     ImmutableList.Builder<Entry> initialListBuilder = ImmutableList.builder();
-    System.out.println("Bigtable channel pool initialized");
     for (int i = 0; i < settings.getInitialChannelCount(); i++) {
       ManagedChannel newChannel = channelFactory.createSingleChannel();
       channelPrimer.primeChannel(newChannel);
@@ -731,10 +730,6 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
 
         super.start(
             new SimpleForwardingClientCallListener<RespT>(responseListener) {
-              @Override
-              public void onHeaders(Metadata headers) {}
-
-
               @Override
               public void onClose(Status status, Metadata trailers) {
                 if (!wasClosed.compareAndSet(false, true)) {
