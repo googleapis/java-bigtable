@@ -28,6 +28,7 @@ import io.grpc.ForwardingClientCall.SimpleForwardingClientCall;
 import io.grpc.ForwardingClientCallListener.SimpleForwardingClientCallListener;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
+import io.grpc.alts.AltsContextUtil;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
 import java.io.IOException;
@@ -108,7 +109,7 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
     this.channelPoolHealthChecker.start();
 
     ImmutableList.Builder<Entry> initialListBuilder = ImmutableList.builder();
-
+    System.out.println("Bigtable channel pool initialized");
     for (int i = 0; i < settings.getInitialChannelCount(); i++) {
       ManagedChannel newChannel = channelFactory.createSingleChannel();
       channelPrimer.primeChannel(newChannel);
@@ -566,8 +567,8 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
 
     void checkAndSetIsAlts(ClientCall<?, ?> call) {
       // TODO(populate ALTS holder)
-      boolean result = false;
-      isAltsHolder.compareAndSet(null, result);
+      boolean currentIsAlts = AltsContextUtil.check(call);
+      isAltsHolder.compareAndSet(null, currentIsAlts);
     }
 
     ManagedChannel getManagedChannel() {
@@ -733,6 +734,10 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
 
         super.start(
             new SimpleForwardingClientCallListener<RespT>(responseListener) {
+              @Override
+              public void onHeaders(Metadata headers) {}
+
+
               @Override
               public void onClose(Status status, Metadata trailers) {
                 if (!wasClosed.compareAndSet(false, true)) {
