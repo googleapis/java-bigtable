@@ -38,7 +38,7 @@ import javax.annotation.Nullable;
 public class ChannelPoolMetricsTracer implements Runnable {
   private static final Logger logger = Logger.getLogger(ChannelPoolMetricsTracer.class.getName());
 
-  private static final int SAMPLING_PERIOD_SECONDS = 10;
+  private static final int SAMPLING_PERIOD_SECONDS = 60;
   private final LongHistogram outstandingRpcsHistogram;
   private final LongHistogram perConnectionErrorCountHistogram;
 
@@ -110,8 +110,6 @@ public class ChannelPoolMetricsTracer implements Runnable {
     List<? extends BigtableChannelObserver> channelInsights =
         channelInsightsProvider.getChannelInfos();
     if (channelInsights == null || channelInsights.isEmpty()) {
-      System.out.println("ChannelPoolMetricsTracer: channelInsights are null");
-
       return;
     }
     for (BigtableChannelObserver info : channelInsights) {

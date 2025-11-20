@@ -184,11 +184,9 @@ class BigtableExporterUtils {
   static MonitoredResource createInternalMonitoredResource(EnhancedBigtableStubSettings settings) {
     try {
       MonitoredResource monitoredResource = detectResource(settings);
-      System.out.println("monitoredResource: " + monitoredResource);
       logger.log(Level.FINE, "Internal metrics monitored resource: %s", monitoredResource);
       return monitoredResource;
     } catch (Exception e) {
-      System.out.println("skipping internal metrics monitored resource: " + e);
       logger.log(
           Level.WARNING,
           "Failed to detect resource, will skip exporting application level metrics ",
