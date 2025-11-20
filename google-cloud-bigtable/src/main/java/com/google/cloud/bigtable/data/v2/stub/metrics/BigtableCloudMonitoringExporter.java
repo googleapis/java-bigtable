@@ -203,7 +203,6 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
                                   + " to set up permissions.",
                               projectName.getProject());
                     }
-                   System.out.println("Error" + msg);
                   }
                   exportCode.fail();
                 }
@@ -227,9 +226,6 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     List<ApiFuture<Empty>> batchResults = new ArrayList<>();
 
     for (List<TimeSeries> batch : Iterables.partition(timeSeries, EXPORT_BATCH_SIZE_LIMIT)) {
-      for (TimeSeries ts : batch) {
-        System.out.println(ts.getMetric().toString());
-      }
       CreateTimeSeriesRequest req =
           CreateTimeSeriesRequest.newBuilder()
               .setName(projectName.toString())
