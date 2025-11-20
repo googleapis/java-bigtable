@@ -292,7 +292,6 @@ public class Util {
 
     for (Map.Entry<InstrumentSelector, View> e :
         BuiltinMetricsConstants.getInternalViews().entrySet()) {
-      System.out.println("InstrumentSelector: " + e.getKey());
       meterProviderBuilder.registerView(e.getKey(), e.getValue());
     }
 

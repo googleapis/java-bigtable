@@ -203,7 +203,6 @@ class BigtableExporterUtils {
     @Nullable
     String cloud_platform = SUPPORTED_PLATFORM_MAP.get(detectedPlatform.getSupportedPlatform());
     if (cloud_platform == null) {
-      System.out.println("Cloud platform not supported: " + detectedPlatform);
       return null;
     }
 
