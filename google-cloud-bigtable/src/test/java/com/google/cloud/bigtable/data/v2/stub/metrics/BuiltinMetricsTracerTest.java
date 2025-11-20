@@ -602,7 +602,6 @@ public class BuiltinMetricsTracerTest {
         .call(RowMutation.create(TABLE, "random-row").setCell("cf", "q", "value"));
 
     MetricData metricData = getMetricData(metricReader, ATTEMPT_LATENCIES_NAME);
-    MetricData metricData2 = getMetricData(metricReader, ATTEMPT_LATENCIES2_NAME);
 
     Attributes expected1 =
         baseAttributes.toBuilder()
