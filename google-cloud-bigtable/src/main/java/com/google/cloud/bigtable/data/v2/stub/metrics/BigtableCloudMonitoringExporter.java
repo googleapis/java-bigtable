@@ -203,6 +203,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
                                   + " to set up permissions.",
                               projectName.getProject());
                     }
+                    logger.log(Level.WARNING, msg, throwable);
                   }
                   exportCode.fail();
                 }
