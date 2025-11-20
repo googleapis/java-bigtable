@@ -52,7 +52,6 @@ public class ChannelPoolMetricsTracer implements Runnable {
   @Nullable private Attributes streamingAttributes;
 
   public ChannelPoolMetricsTracer(OpenTelemetry openTelemetry, Attributes commonAttrs) {
-    System.out.println("ChannelPoolMetricsTracer");
     Meter meter = openTelemetry.getMeter(METER_NAME);
     this.commonAttrs = commonAttrs;
     this.outstandingRpcsHistogram =
@@ -97,7 +96,6 @@ public class ChannelPoolMetricsTracer implements Runnable {
   public void run() {
     BigtableChannelPoolObserver channelInsightsProvider = bigtableChannelInsightsProviderRef.get();
     if (channelInsightsProvider == null) {
-      System.out.println("ChannelPoolMetricsTracer: channelInsightsProvider is null");
       logger.warning("No Bigtable ChannelPoolObserver available");
       return; // Not registered yet
     }
@@ -105,7 +103,6 @@ public class ChannelPoolMetricsTracer implements Runnable {
 
     // Build attributes if they haven't been built yet.
     if (unaryAttributes == null || streamingAttributes == null) {
-      System.out.println("ChannelPoolMetricsTracer: attributes are null");
       Attributes baseAttrs = commonAttrs.toBuilder().put("lb_policy", lbPolicy).build();
       this.unaryAttributes = baseAttrs.toBuilder().put("streaming", false).build();
       this.streamingAttributes = baseAttrs.toBuilder().put("streaming", true).build();
@@ -118,7 +115,6 @@ public class ChannelPoolMetricsTracer implements Runnable {
       return;
     }
     for (BigtableChannelObserver info : channelInsights) {
-      System.out.println("ChannelPoolMetricsTracer: channelInsights " + info.getOutstandingUnaryRpcs() + " " +  info.getOutstandingStreamingRpcs());
       String transportTypeValue = info.isAltsChannel() ? "DIRECTPATH" : "CLOUDPATH";
       this.unaryAttributes =
           this.unaryAttributes.toBuilder().put("transport_type", transportTypeValue).build();

@@ -745,6 +745,12 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
                   return;
                 }
                 try {
+                  // status for increment success and error count
+                  if (status.isOk()) {
+                    entry.incrementSuccessCount();
+                  } else {
+                    entry.incrementErrorCount();
+                  }
                   super.onClose(status, trailers);
                 } finally {
                   if (wasReleased.compareAndSet(false, true)) {

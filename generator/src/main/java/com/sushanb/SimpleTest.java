@@ -47,23 +47,28 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class SimpleTest {
+  private static final String TABLE_NAME = "sushanb";
 
   private static final Logger logger = Logger.getLogger(SimpleTest.class.getName());
 
   public static BigtableDataClient createClient() throws IOException {
-    BigtableDataSettings settings =
-        BigtableDataSettings.newBuilder().setProjectId("autonomous-mote-782").setInstanceId("sushanb-prober").build();
+    BigtableDataSettings.Builder settingsBuilder =
+        BigtableDataSettings.newBuilder().setProjectId("autonomous-mote-782").setInstanceId("test-sushanb");
 
-    EnhancedBigtableStub.createBigtableClientContext(settings.getStubSettings());
 
+    settingsBuilder
+            .stubSettings()
+            .setEndpoint("test-bigtable.sandbox.googleapis.com:443").build();
+
+    BigtableDataSettings settings = settingsBuilder.build();
     BigtableDataClient client = BigtableDataClient.create(settings);
     logger.info("BigtableDataClient created successfully.");
-
     return client;
   }
 
   public static void performMutations(BigtableDataClient client) {
-    ExecutorService executorService = Executors.newFixedThreadPool(10);
+    int threadCount = 100;
+    ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
     AtomicInteger successCount = new AtomicInteger(0);
     AtomicInteger failureCount = new AtomicInteger(0);
 
@@ -71,14 +76,14 @@ public class SimpleTest {
             String.format(
                     "Submitting %d mutations to a thread pool of size %d", 10000, 10));
 
-    for (int i = 0; i < 100000; i++) {
+    for (int i = 0; i < 10; i++) {
       final int index = i;
       executorService.submit(
               () -> {
                 try {
                   String rowKey = "myrow-" + index;
                   RowMutation rowMutation =
-                          RowMutation.create("repro", rowKey).setCell("size", "colq1", "val" + index);
+                          RowMutation.create(TABLE_NAME, rowKey).setCell("cf12", "colq1", "val" + index);
                   client.mutateRow(rowMutation);
                   successCount.incrementAndGet();
                   if (index % 100 == 0) {
