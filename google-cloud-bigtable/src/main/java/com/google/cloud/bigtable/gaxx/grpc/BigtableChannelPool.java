@@ -28,7 +28,6 @@ import io.grpc.ForwardingClientCall.SimpleForwardingClientCall;
 import io.grpc.ForwardingClientCallListener.SimpleForwardingClientCallListener;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
-import io.grpc.alts.AltsContextUtil;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
 import java.io.IOException;
@@ -567,8 +566,7 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
 
     void checkAndSetIsAlts(ClientCall<?, ?> call) {
       // TODO(populate ALTS holder)
-      boolean currentIsAlts = AltsContextUtil.check(call);
-      isAltsHolder.compareAndSet(null, currentIsAlts);
+      isAltsHolder.compareAndSet(null, false);
     }
 
     ManagedChannel getManagedChannel() {
@@ -730,7 +728,6 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
         throw new IllegalStateException("Call is already cancelled", cancellationException);
       }
       try {
-        entry.checkAndSetIsAlts(delegate());
 
         super.start(
             new SimpleForwardingClientCallListener<RespT>(responseListener) {
