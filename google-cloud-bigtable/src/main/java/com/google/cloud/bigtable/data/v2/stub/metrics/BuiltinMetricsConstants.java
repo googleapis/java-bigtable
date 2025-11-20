@@ -135,32 +135,32 @@ public class BuiltinMetricsConstants {
                   GRPC_XDS_RESOURCE_TYPE_KEY.getKey()))
           // TODO: "grpc.xds_client.resources"
           //  gRPC subchannel metrics
-          .put(
-              "grpc.subchannel.disconnections",
-              ImmutableSet.of(
-                  GRPC_LB_BACKEND_SERVICE_KEY.getKey(),
-                  GRPC_DISCONNECT_ERROR_KEY.getKey(),
-                  GRPC_LB_LOCALITY_KEY.getKey(),
-                  GRPC_TARGET_KEY.getKey()))
-          .put(
-              "grpc.subchannel.connection_attempts_succeeded",
-              ImmutableSet.of(
-                  GRPC_LB_BACKEND_SERVICE_KEY.getKey(),
-                  GRPC_LB_LOCALITY_KEY.getKey(),
-                  GRPC_TARGET_KEY.getKey()))
-          .put(
-              "grpc.subchannel.connection_attempts_failed",
-              ImmutableSet.of(
-                  GRPC_LB_BACKEND_SERVICE_KEY.getKey(),
-                  GRPC_LB_LOCALITY_KEY.getKey(),
-                  GRPC_TARGET_KEY.getKey()))
-          .put(
-              "grpc.subchannel.open_connections",
-              ImmutableSet.of(
-                  GRPC_LB_BACKEND_SERVICE_KEY.getKey(),
-                  GRPC_LB_LOCALITY_KEY.getKey(),
-                  GRPC_SECURITY_LEVEL_KEY.getKey(),
-                  GRPC_TARGET_KEY.getKey()))
+//          .put(
+//              "grpc.subchannel.disconnections",
+//              ImmutableSet.of(
+//                  GRPC_LB_BACKEND_SERVICE_KEY.getKey(),
+//                  GRPC_DISCONNECT_ERROR_KEY.getKey(),
+//                  GRPC_LB_LOCALITY_KEY.getKey(),
+//                  GRPC_TARGET_KEY.getKey()))
+//          .put(
+//              "grpc.subchannel.connection_attempts_succeeded",
+//              ImmutableSet.of(
+//                  GRPC_LB_BACKEND_SERVICE_KEY.getKey(),
+//                  GRPC_LB_LOCALITY_KEY.getKey(),
+//                  GRPC_TARGET_KEY.getKey()))
+//          .put(
+//              "grpc.subchannel.connection_attempts_failed",
+//              ImmutableSet.of(
+//                  GRPC_LB_BACKEND_SERVICE_KEY.getKey(),
+//                  GRPC_LB_LOCALITY_KEY.getKey(),
+//                  GRPC_TARGET_KEY.getKey()))
+//          .put(
+//              "grpc.subchannel.open_connections",
+//              ImmutableSet.of(
+//                  GRPC_LB_BACKEND_SERVICE_KEY.getKey(),
+//                  GRPC_LB_LOCALITY_KEY.getKey(),
+//                  GRPC_SECURITY_LEVEL_KEY.getKey(),
+//                  GRPC_TARGET_KEY.getKey()))
           .build();
 
   public static final Set<String> INTERNAL_METRICS =
