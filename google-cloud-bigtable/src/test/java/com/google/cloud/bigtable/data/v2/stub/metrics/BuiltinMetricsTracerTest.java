@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APPLICATION_BLOCKING_LATENCIES_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ATTEMPT_LATENCIES2_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ATTEMPT_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_BLOCKING_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_NAME_KEY;
@@ -30,6 +31,9 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STATUS_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STREAMING_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TRANSPORT_SUBZONE_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TRANSPORT_TYPE_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TRANSPORT_ZONE_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTestUtils.getAggregatedValue;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTestUtils.getMetricData;
@@ -55,6 +59,7 @@ import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
+import com.google.bigtable.v2.PeerInfo;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.ResponseParams;
@@ -104,6 +109,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -134,6 +140,10 @@ public class BuiltinMetricsTracerTest {
   private static final String FIRST_RESPONSE_TABLE_ID = "first-response";
   private static final String ZONE = "us-west-1";
   private static final String CLUSTER = "cluster-0";
+  private static final String TRANSPORT_ZONE = "us-west-1-a";
+  private static final String TRANSPORT_SUBZONE = "xy";
+  private static final PeerInfo.TransportType TRANSPORT_TYPE =
+      PeerInfo.TransportType.TRANSPORT_TYPE_CLOUD_PATH;
   private static final long FAKE_SERVER_TIMING = 50;
   private static final long SERVER_LATENCY = 100;
   private static final long APPLICATION_LATENCY = 200;
@@ -200,6 +210,15 @@ public class BuiltinMetricsTracerTest {
                     byte[] byteArray = params.toByteArray();
                     headers.put(Util.LOCATION_METADATA_KEY, byteArray);
 
+                    PeerInfo peerInfo =
+                        PeerInfo.newBuilder()
+                            .setTransportType(TRANSPORT_TYPE)
+                            .setApplicationFrontendZone(TRANSPORT_ZONE)
+                            .setApplicationFrontendSubzone(TRANSPORT_SUBZONE)
+                            .build();
+
+                    String encoded = Base64.getUrlEncoder().encodeToString(peerInfo.toByteArray());
+                    headers.put(Util.BIGTABLE_PEER_INFO_KEY, encoded);
                     super.sendHeaders(headers);
                   }
                 },
@@ -301,6 +320,48 @@ public class BuiltinMetricsTracerTest {
 
     long value = getAggregatedValue(metricData, expectedAttributes);
     assertThat(value).isIn(Range.closed(SERVER_LATENCY, elapsed));
+  }
+
+  @Test
+  public void testReadRowsAttemptLatencies2() {
+    Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE)).iterator());
+
+    // Common attributes expected for ATTEMPT_LATENCIES2_NAME, assuming it
+    // does not get zone/cluster from response headers.
+    Attributes expectedAttributes1 =
+        baseAttributes.toBuilder()
+            .put(TABLE_ID_KEY, TABLE)
+            .put(ZONE_ID_KEY, "global") // Default value
+            .put(CLUSTER_ID_KEY, "<unspecified>") // Default value
+            .put(METHOD_KEY, "Bigtable.ReadRows")
+            .put(STREAMING_KEY, true)
+            .put(STATUS_KEY, "UNAVAILABLE")
+            .put(TRANSPORT_SUBZONE_KEY, "global")
+            .put(TRANSPORT_ZONE_KEY, "global")
+            .put(TRANSPORT_TYPE_KEY, "")
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
+            .build();
+
+    Attributes expectedAttributes2 =
+        baseAttributes.toBuilder()
+            .put(TABLE_ID_KEY, TABLE)
+            .put(ZONE_ID_KEY, ZONE) // Default value
+            .put(CLUSTER_ID_KEY, CLUSTER) // Default value
+            .put(METHOD_KEY, "Bigtable.ReadRows")
+            .put(STREAMING_KEY, true)
+            .put(STATUS_KEY, "OK")
+            .put(TRANSPORT_SUBZONE_KEY, TRANSPORT_SUBZONE)
+            .put(TRANSPORT_ZONE_KEY, TRANSPORT_ZONE)
+            .put(TRANSPORT_TYPE_KEY, TRANSPORT_TYPE.toString())
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
+            .build();
+
+    MetricData metricData = getMetricData(metricReader, ATTEMPT_LATENCIES2_NAME);
+
+    // Verify that metric data exists for both the UNAVAILABLE and OK attempts
+    // with the default zone and cluster.
+    verifyAttributes(metricData, expectedAttributes1);
+    verifyAttributes(metricData, expectedAttributes2);
   }
 
   @Test
@@ -541,6 +602,7 @@ public class BuiltinMetricsTracerTest {
         .call(RowMutation.create(TABLE, "random-row").setCell("cf", "q", "value"));
 
     MetricData metricData = getMetricData(metricReader, ATTEMPT_LATENCIES_NAME);
+    MetricData metricData2 = getMetricData(metricReader, ATTEMPT_LATENCIES2_NAME);
 
     Attributes expected1 =
         baseAttributes.toBuilder()

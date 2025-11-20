@@ -50,10 +50,12 @@ public class BuiltinMetricsConstants {
   static final AttributeKey<String> STATUS_KEY = AttributeKey.stringKey("status");
   static final AttributeKey<String> CLIENT_UID_KEY = AttributeKey.stringKey("client_uid");
 
-  static final AttributeKey<String> TRANSPORT_TYPE = AttributeKey.stringKey("transport_type");
-  static final AttributeKey<String> TRANSPORT_REGION = AttributeKey.stringKey("transport_region");
-  static final AttributeKey<String> TRANSPORT_ZONE = AttributeKey.stringKey("transport_zone");
-  static final AttributeKey<String> TRANSPORT_SUBZONE = AttributeKey.stringKey("transport_subzone");
+  static final AttributeKey<String> TRANSPORT_TYPE_KEY = AttributeKey.stringKey("transport_type");
+  static final AttributeKey<String> TRANSPORT_REGION_KEY =
+      AttributeKey.stringKey("transport_region");
+  static final AttributeKey<String> TRANSPORT_ZONE_KEY = AttributeKey.stringKey("transport_zone");
+  static final AttributeKey<String> TRANSPORT_SUBZONE_KEY =
+      AttributeKey.stringKey("transport_subzone");
 
   // gRPC attribute keys
   // Note that these attributes keys from transformed from
@@ -310,10 +312,10 @@ public class BuiltinMetricsConstants {
             .add(
                 STREAMING_KEY,
                 STATUS_KEY,
-                TRANSPORT_TYPE,
-                TRANSPORT_REGION,
-                TRANSPORT_ZONE,
-                TRANSPORT_SUBZONE)
+                TRANSPORT_TYPE_KEY,
+                TRANSPORT_REGION_KEY,
+                TRANSPORT_ZONE_KEY,
+                TRANSPORT_SUBZONE_KEY)
             .build());
     defineView(
         views,

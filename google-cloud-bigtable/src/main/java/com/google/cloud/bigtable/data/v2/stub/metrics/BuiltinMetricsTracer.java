@@ -23,10 +23,9 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STATUS_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STREAMING_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID_KEY;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TRANSPORT_REGION;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TRANSPORT_SUBZONE;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TRANSPORT_TYPE;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TRANSPORT_ZONE;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TRANSPORT_SUBZONE_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TRANSPORT_TYPE_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TRANSPORT_ZONE_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID_KEY;
 
 import com.google.api.core.ObsoleteApi;
@@ -35,9 +34,7 @@ import com.google.api.gax.tracing.SpanName;
 import com.google.auto.value.AutoValue;
 import com.google.cloud.bigtable.Version;
 import com.google.common.base.Stopwatch;
-import com.google.common.base.Strings;
 import com.google.common.math.IntMath;
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import io.grpc.Deadline;
 import io.opentelemetry.api.common.Attributes;
@@ -50,7 +47,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
@@ -73,7 +69,6 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   private static final Logger logger = Logger.getLogger(BuiltinMetricsTracer.class.getName());
-  private static final Gson GSON = new Gson();
   private static final TypeToken<Map<String, String>> LOCALITY_TYPE =
       new TypeToken<Map<String, String>>() {};
 
@@ -109,6 +104,11 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private String tableId = "<unspecified>";
   private String zone = "global";
   private String cluster = "<unspecified>";
+
+  // peer info fields
+  private String transportZone = "global";
+  private String transportSubzone = "global";
+  private String transportType = "";
 
   private final AtomicLong totalClientBlockingTime = new AtomicLong(0);
 
@@ -332,6 +332,13 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   @Override
+  public void setPeerInfo(String transportZone, String transportSubZone, String transportType) {
+    this.transportZone = transportZone;
+    this.transportType = transportType;
+    this.transportSubzone = transportSubZone;
+  }
+
+  @Override
   public void setTransportAttrs(TransportAttrs attrs) {
     this.transportAttrs = attrs;
   }
@@ -449,33 +456,13 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
     attemptLatenciesHistogram.record(
         convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)), attributes);
-
-    String transportType = "cloudpath";
-    String transportRegion = "";
-    String transportZone = "";
-    String transportSubzone = "";
-
-    try {
-      if (transportAttrs != null && !Strings.isNullOrEmpty(transportAttrs.getLocality())) {
-        // only directpath has locality
-        transportType = "directpath";
-        Map<String, String> localityMap =
-            GSON.fromJson(transportAttrs.getLocality(), LOCALITY_TYPE);
-        transportRegion = localityMap.getOrDefault("region", "");
-        transportZone = localityMap.getOrDefault("zone", "");
-        transportSubzone = localityMap.getOrDefault("sub_zone", "");
-      }
-    } catch (RuntimeException e) {
-      logger.log(
-          Level.WARNING, "Failed to parse transport locality: " + transportAttrs.getLocality(), e);
-    }
+    // TODO: move this to attemptLatencies
     attemptLatencies2Histogram.record(
         convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)),
         attributes.toBuilder()
-            .put(TRANSPORT_TYPE, transportType)
-            .put(TRANSPORT_REGION, transportRegion)
-            .put(TRANSPORT_ZONE, transportZone)
-            .put(TRANSPORT_SUBZONE, transportSubzone)
+            .put(TRANSPORT_TYPE_KEY, transportType)
+            .put(TRANSPORT_ZONE_KEY, transportZone)
+            .put(TRANSPORT_SUBZONE_KEY, transportSubzone)
             .build());
 
     // When operationDeadline is set, it's possible that the deadline is passed by the time we send

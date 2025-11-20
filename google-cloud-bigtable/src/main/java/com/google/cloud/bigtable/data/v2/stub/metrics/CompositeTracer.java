@@ -226,6 +226,13 @@ class CompositeTracer extends BigtableTracer {
   }
 
   @Override
+  public void setPeerInfo(String transportZone, String transportSubZone, String transportType) {
+    for (BigtableTracer tracer : bigtableTracers) {
+      tracer.setPeerInfo(transportZone, transportSubZone, transportType);
+    }
+  }
+
+  @Override
   public void onRequest(int requestCount) {
     for (BigtableTracer tracer : bigtableTracers) {
       tracer.onRequest(requestCount);

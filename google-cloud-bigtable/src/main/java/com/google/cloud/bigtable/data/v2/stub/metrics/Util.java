@@ -29,6 +29,7 @@ import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest;
 import com.google.bigtable.v2.MaterializedViewName;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowsRequest;
+import com.google.bigtable.v2.PeerInfo;
 import com.google.bigtable.v2.ReadChangeStreamRequest;
 import com.google.bigtable.v2.ReadModifyWriteRowRequest;
 import com.google.bigtable.v2.ReadRowsRequest;
@@ -55,6 +56,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
@@ -77,6 +79,9 @@ public class Util {
   private static final Pattern SERVER_TIMING_HEADER_PATTERN = Pattern.compile(".*dur=(?<dur>\\d+)");
   static final Metadata.Key<byte[]> LOCATION_METADATA_KEY =
       Metadata.Key.of("x-goog-ext-425905942-bin", Metadata.BINARY_BYTE_MARSHALLER);
+
+  static final Metadata.Key<String> BIGTABLE_PEER_INFO_KEY =
+      Metadata.Key.of("bigtable-peer-info", Metadata.ASCII_STRING_MARSHALLER);
 
   /** Convert an exception into a value that can be used to create an OpenCensus tag value. */
   static String extractStatus(@Nullable Throwable error) {
@@ -208,13 +213,29 @@ public class Util {
     return null;
   }
 
+  // fetch the PeerInfo from grpc initial metadata
+  private static PeerInfo getPeerInfo(@Nullable Metadata metadata) {
+    if (metadata == null) {
+      return null;
+    }
+    String encodedStr = metadata.get(Util.BIGTABLE_PEER_INFO_KEY);
+    if (encodedStr != null) {
+      try {
+        byte[] decoded = Base64.getUrlDecoder().decode(encodedStr);
+        return PeerInfo.parseFrom(decoded);
+      } catch (InvalidProtocolBufferException e) {
+      }
+    }
+    return null;
+  }
+
   static void recordMetricsFromMetadata(
       GrpcResponseMetadata responseMetadata, BigtableTracer tracer, Throwable throwable) {
-    Metadata metadata = responseMetadata.getMetadata();
+    Metadata initialMetadata = responseMetadata.getMetadata();
 
-    // Get the response params from the metadata. Check both headers and trailers
+    // Get the response params from the initial metadata. Check both headers and trailers
     // because in different environments the metadata could be returned in headers or trailers
-    @Nullable ResponseParams responseParams = getResponseParams(responseMetadata.getMetadata());
+    @Nullable ResponseParams responseParams = getResponseParams(initialMetadata);
     if (responseParams == null) {
       responseParams = getResponseParams(responseMetadata.getTrailingMetadata());
     }
@@ -223,9 +244,19 @@ public class Util {
       tracer.setLocations(responseParams.getZoneId(), responseParams.getClusterId());
     }
 
+    @Nullable PeerInfo peerInfo = getPeerInfo(initialMetadata);
+
+    // only fetch from grpc_initial_metadata
+    if (peerInfo != null) {
+      tracer.setPeerInfo(
+          peerInfo.getApplicationFrontendZone(),
+          peerInfo.getApplicationFrontendSubzone(),
+          peerInfo.getTransportType().toString());
+    }
+
     // server-timing metric will be added through GrpcResponseMetadata#onHeaders(Metadata),
     // so it's not checking trailing metadata here.
-    @Nullable Long latency = getGfeLatency(metadata);
+    @Nullable Long latency = getGfeLatency(initialMetadata);
     // For direct path, we won't see GFE server-timing header. However, if we received the
     // location info, we know that there isn't a connectivity issue. Set the latency to
     // 0 so gfe missing header won't get incremented.

@@ -91,6 +91,14 @@ public class BigtableTracer extends BaseApiTracer {
     // noop
   }
 
+  /**
+   * Set the Bigtable transport zone, subzone and transport type so metrics can be tagged with
+   * location information. This will be called in BuiltinMetricsTracer.
+   */
+  public void setPeerInfo(String transportZone, String transportSubZone, String transportType) {
+    // noop
+  }
+
   /** Set the underlying transport used to process the attempt */
   public void setTransportAttrs(BuiltinMetricsTracer.TransportAttrs attrs) {}
 
