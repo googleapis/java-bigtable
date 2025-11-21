@@ -67,7 +67,7 @@ public class SimpleTest {
   }
 
   public static void performMutations(BigtableDataClient client) {
-    int threadCount = 100;
+    int threadCount = 10;
     ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
     AtomicInteger successCount = new AtomicInteger(0);
     AtomicInteger failureCount = new AtomicInteger(0);
@@ -76,7 +76,7 @@ public class SimpleTest {
             String.format(
                     "Submitting %d mutations to a thread pool of size %d", 10000, 10));
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 100000; i++) {
       final int index = i;
       executorService.submit(
               () -> {
