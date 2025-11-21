@@ -76,7 +76,7 @@ public class SimpleTest {
             String.format(
                     "Submitting %d mutations to a thread pool of size %d", 10000, 10));
 
-    for (int i = 0; i < 100000; i++) {
+    for (int i = 0; i < 100; i++) {
       final int index = i;
       executorService.submit(
               () -> {
