@@ -303,9 +303,10 @@ class BigtableExporterUtils {
 
   private static Optional<TimeSeries> createInternalMetricsTimeSeries(
       MetricData metricData, PointData pointData, MonitoredResource applicationResource) {
+    MetricKind kind = convertMetricKind(metricData);
     TimeSeries.Builder builder =
         TimeSeries.newBuilder()
-            .setMetricKind(convertMetricKind(metricData))
+            .setMetricKind(kind)
             .setValueType(convertValueType(metricData.getType()))
             .setResource(applicationResource);
 
@@ -327,11 +328,15 @@ class BigtableExporterUtils {
 
     builder.setMetric(metricBuilder.build());
 
+    Timestamp endTimestamp = Timestamps.fromNanos(pointData.getEpochNanos());
+    Timestamp startTimestamp;
+    if (kind == GAUGE) {
+      startTimestamp = endTimestamp;
+    } else {
+      startTimestamp = Timestamps.fromNanos(pointData.getStartEpochNanos());
+    }
     TimeInterval timeInterval =
-        TimeInterval.newBuilder()
-            .setStartTime(Timestamps.fromNanos(pointData.getStartEpochNanos()))
-            .setEndTime(Timestamps.fromNanos(pointData.getEpochNanos()))
-            .build();
+        TimeInterval.newBuilder().setStartTime(startTimestamp).setEndTime(endTimestamp).build();
 
     builder.addPoints(createPoint(metricData.getType(), pointData, timeInterval));
     return Optional.of(builder.build());
