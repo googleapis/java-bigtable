@@ -48,9 +48,9 @@ public class TdDirectPath {
   private static final Key<String> FEATURE_FLAGS_KEY =
       Key.of("bigtable-features", Metadata.ASCII_STRING_MARSHALLER);
 
-  private static final String PROJECT_ID = "google.com:cloud-bigtable-dev";
-  private static final String INSTANCE_ID = "igorbernstein-dev";
-  private static final String TABLE_ID = "table2";
+  private static final String PROJECT_ID = "autonomous-mote-782";
+  private static final String INSTANCE_ID = "sushanb-prober";
+  private static final String TABLE_ID = "repro";
   private static final String TABLE_NAME = String.format("projects/%s/instances/%s/tables/%s",
       PROJECT_ID, INSTANCE_ID, TABLE_ID);
 
