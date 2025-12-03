@@ -155,7 +155,7 @@ public class ReadRowsMergingAcceptanceTest {
         response.add(result);
       }
     }
-    
+
     return response;
   }
 }

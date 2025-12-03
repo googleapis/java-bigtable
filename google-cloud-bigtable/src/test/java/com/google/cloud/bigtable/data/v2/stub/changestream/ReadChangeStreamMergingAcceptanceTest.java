@@ -298,7 +298,7 @@ public class ReadChangeStreamMergingAcceptanceTest {
         response.add(result);
       }
     }
-    
+
     return response;
   }
 }
