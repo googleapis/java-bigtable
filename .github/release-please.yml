@@ -95,3 +95,4 @@ branches:
       - >-
         google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/Version.java
     branch: protobuf-4.x-rc
+    manifest: true
