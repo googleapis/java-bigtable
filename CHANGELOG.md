@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.71.0-rc1](https://github.com/googleapis/java-bigtable/compare/v2.70.0...v2.71.0-rc1) (2025-12-05)
+
+
+### Features
+
+* configure rc releases to be on prerelease mode ([23d0b0a](https://github.com/googleapis/java-bigtable/commit/23d0b0a28a15212a9c6ec212b2ec162ae3f15f19))
+
+
+### Bug Fixes
+
+* next release candidate ([798193f](https://github.com/googleapis/java-bigtable/commit/798193fc3e443abc44690c59c19b843801777d62))
+
 ## [2.70.0](https://github.com/googleapis/java-bigtable/compare/v2.69.0...v2.70.0) (2025-11-18)
 
 
