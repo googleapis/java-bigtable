@@ -152,7 +152,13 @@
     <dependencyManagement>
         <dependencies>
             <!-- Production Deps have been moved to google-cloud-bigtable-deps-bom -->
-
+            <dependency>
+              <groupId>com.google.protobuf</groupId>
+              <artifactId>protobuf-bom</artifactId>
+              <version>${protobuf.version}</version>
+              <type>pom</type>
+              <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>com.google.api.grpc</groupId>
                 <artifactId>proto-google-cloud-bigtable-v2</artifactId>
