@@ -64,6 +64,13 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-bom</artifactId>
+        <version>4.33.0</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <!-- google cloud boms -->
       <dependency>
         <groupId>com.google.cloud</groupId>
