@@ -147,7 +147,6 @@
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-alts</artifactId>
-      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.checkerframework</groupId>

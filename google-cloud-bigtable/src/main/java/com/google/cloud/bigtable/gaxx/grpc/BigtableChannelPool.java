@@ -21,6 +21,7 @@ import com.google.cloud.bigtable.gaxx.grpc.ChannelPoolHealthChecker.ProbeResult;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import io.grpc.alts.AltsContextUtil;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
@@ -565,9 +566,13 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
     }
 
     void checkAndSetIsAlts(ClientCall<?, ?> call) {
-      // TODO(populate ALTS holder)
-      boolean result = false;
-      isAltsHolder.compareAndSet(null, result);
+      if (call == null) {
+        LOG.log(
+                Level.WARNING,
+                "ClientCall is null in onHeaders, skipping ALTS check.");
+      }
+      boolean currentIsAlts = AltsContextUtil.check(call);
+      isAltsHolder.set(currentIsAlts);
     }
 
     ManagedChannel getManagedChannel() {
@@ -729,10 +734,14 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
         throw new IllegalStateException("Call is already cancelled", cancellationException);
       }
       try {
-        entry.checkAndSetIsAlts(delegate());
-
         super.start(
             new SimpleForwardingClientCallListener<RespT>(responseListener) {
+              @Override
+              public void onHeaders(Metadata headers) {
+                // transport is established and attributes should be populated.
+                entry.checkAndSetIsAlts(ReleasingClientCall.this.delegate());
+                super.onHeaders(headers);
+              }
               @Override
               public void onClose(Status status, Metadata trailers) {
                 if (!wasClosed.compareAndSet(false, true)) {
