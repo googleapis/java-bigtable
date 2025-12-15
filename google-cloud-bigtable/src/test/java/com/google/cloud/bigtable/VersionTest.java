@@ -26,7 +26,7 @@ import org.junit.runners.JUnit4;
 public class VersionTest {
   @Test
   public void testVersion() {
-    assertThat(Version.VERSION).matches("\\d+\\.\\d+\\.\\d.\\(?:-rc\\d)?(?:-SNAPSHOT)?");
+    assertThat(Version.VERSION).matches("\\d+\\.\\d+\\.\\d.(?:-rc\\d)?(?:-SNAPSHOT)?");
 
     assertThat(Version.VERSION).isGreaterThan("1.22.0");
   }
