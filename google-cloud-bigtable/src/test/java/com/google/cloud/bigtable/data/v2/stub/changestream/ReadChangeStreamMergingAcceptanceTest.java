@@ -285,7 +285,7 @@ public class ReadChangeStreamMergingAcceptanceTest {
 
   private static boolean expectsError(ReadChangeStreamTest testCase) {
     List<ReadChangeStreamTest.Result> results = testCase.getResultsList();
-    return !results.isEmpty() && results.get(results.size() - 1).getError();
+    return !results.isEmpty() && !results.isEmpty() && results.get(results.size() - 1).getError();
   }
 
   private static List<ReadChangeStreamTest.Result> getNonExceptionResults(
