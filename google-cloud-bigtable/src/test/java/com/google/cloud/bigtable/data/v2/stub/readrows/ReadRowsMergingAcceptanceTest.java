@@ -142,14 +142,14 @@ public class ReadRowsMergingAcceptanceTest {
 
   private static boolean expectsError(ReadRowsTest rrt) {
     List<ReadRowsTest.Result> results = rrt.getResultsList();
-    return !results.isEmpty() && !results.isEmpty() && results.get(results.size() - 1).getError();
+    return results != null && !results.isEmpty() && results.get(results.size() - 1).getError();
   }
 
   private static List<ReadRowsTest.Result> getNonExceptionResults(ReadRowsTest rrt) {
     List<ReadRowsTest.Result> results = rrt.getResultsList();
 
     List<ReadRowsTest.Result> response = new ArrayList<>();
-    if (!results.isEmpty()) {
+    if (results != null) {
       for (ReadRowsTest.Result result : results) {
         if (!result.getError()) {
           response.add(result);
