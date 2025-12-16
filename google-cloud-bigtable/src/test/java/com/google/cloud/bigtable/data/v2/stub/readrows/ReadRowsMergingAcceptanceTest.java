@@ -142,7 +142,7 @@ public class ReadRowsMergingAcceptanceTest {
 
   private static boolean expectsError(ReadRowsTest rrt) {
     List<ReadRowsTest.Result> results = rrt.getResultsList();
-    return !results.isEmpty() && !results.isEmpty() && results.get(results.size() - 1).getError();
+    return !results.isEmpty() && results.get(results.size() - 1).getError();
   }
 
   private static List<ReadRowsTest.Result> getNonExceptionResults(ReadRowsTest rrt) {
