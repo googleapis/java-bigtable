@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.71.0-rc1](https://github.com/googleapis/java-bigtable/compare/v2.70.1...v2.71.0-rc1) (2025-12-19)
+
+
+### Features
+
+* update with latest from main ([#2740](https://github.com/googleapis/java-bigtable/issues/2740)) ([90e1a02](https://github.com/googleapis/java-bigtable/commit/90e1a02c46830751a0f158b3a337eb2f926b0ee0))
+* feat: Upgrade protobuf gen code to 4.33 ([#2741](https://github.com/googleapis/java-bigtable/issues/2741)) ([2b1d201](https://github.com/googleapis/java-bigtable/commit/2b1d201d56540cdb45b65b4ed2a1c786a519d3a0))
+
+
+### Dependencies
+
+* update sdk-platform-java-config to 3.55.0-rc1 ([#2738](https://github.com/googleapis/java-bigtable/issues/2738)) ([136f164](https://github.com/googleapis/java-bigtable/commit/136f16474e7ff147c68e976894070727dfc9add8))
+
 ## [2.70.0](https://github.com/googleapis/java-bigtable/compare/v2.69.0...v2.70.0) (2025-11-18)
 
 
