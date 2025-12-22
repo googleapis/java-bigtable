@@ -46,7 +46,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
-import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.Message;
 import com.google.protobuf.StringValue;
 import io.grpc.BindableService;
 import io.grpc.MethodDescriptor;
@@ -252,14 +252,14 @@ public class SkipTrailersTest {
                   BigtableGrpc.getReadRowsMethod(),
                   ServerCalls.asyncServerStreamingCall(
                       (req, observer) -> rpcs.add(ServerRpc.create(req, observer))));
-      ImmutableList<MethodDescriptor<? extends GeneratedMessageV3, ? extends GeneratedMessageV3>>
+      ImmutableList<MethodDescriptor<? extends Message, ? extends Message>>
           unaryDescriptors =
               ImmutableList.of(
                   BigtableGrpc.getMutateRowMethod(),
                   BigtableGrpc.getCheckAndMutateRowMethod(),
                   BigtableGrpc.getReadModifyWriteRowMethod());
 
-      for (MethodDescriptor<? extends GeneratedMessageV3, ? extends GeneratedMessageV3> desc :
+      for (MethodDescriptor<? extends Message, ? extends Message> desc :
           unaryDescriptors) {
         builder.addMethod(
             desc.toBuilder().setType(MethodDescriptor.MethodType.SERVER_STREAMING).build(),
