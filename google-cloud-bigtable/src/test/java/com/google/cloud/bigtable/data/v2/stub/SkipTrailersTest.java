@@ -252,15 +252,13 @@ public class SkipTrailersTest {
                   BigtableGrpc.getReadRowsMethod(),
                   ServerCalls.asyncServerStreamingCall(
                       (req, observer) -> rpcs.add(ServerRpc.create(req, observer))));
-      ImmutableList<MethodDescriptor<? extends Message, ? extends Message>>
-          unaryDescriptors =
-              ImmutableList.of(
-                  BigtableGrpc.getMutateRowMethod(),
-                  BigtableGrpc.getCheckAndMutateRowMethod(),
-                  BigtableGrpc.getReadModifyWriteRowMethod());
+      ImmutableList<MethodDescriptor<? extends Message, ? extends Message>> unaryDescriptors =
+          ImmutableList.of(
+              BigtableGrpc.getMutateRowMethod(),
+              BigtableGrpc.getCheckAndMutateRowMethod(),
+              BigtableGrpc.getReadModifyWriteRowMethod());
 
-      for (MethodDescriptor<? extends Message, ? extends Message> desc :
-          unaryDescriptors) {
+      for (MethodDescriptor<? extends Message, ? extends Message> desc : unaryDescriptors) {
         builder.addMethod(
             desc.toBuilder().setType(MethodDescriptor.MethodType.SERVER_STREAMING).build(),
             ServerCalls.asyncServerStreamingCall(
