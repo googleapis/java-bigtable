@@ -23,7 +23,9 @@ import io.opentelemetry.sdk.metrics.View;
 import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
 import javax.annotation.Nullable;
 
 /**
@@ -100,14 +102,25 @@ public class BuiltinMetricsView {
       @Nullable Credentials credentials, SdkMeterProviderBuilder builder, @Nullable String endpoint)
       throws IOException {
     registerBuiltinMetricsWithUniverseDomain(
-        credentials, builder, endpoint, Credentials.GOOGLE_DEFAULT_UNIVERSE);
+        credentials, builder, endpoint, Credentials.GOOGLE_DEFAULT_UNIVERSE, null);
+  }
+
+  public static void registerBuiltinMetrics(
+      @Nullable Credentials credentials,
+      SdkMeterProviderBuilder builder,
+      @Nullable String endpoint,
+      @Nullable ScheduledExecutorService executorService)
+      throws IOException {
+    registerBuiltinMetricsWithUniverseDomain(
+        credentials, builder, endpoint, Credentials.GOOGLE_DEFAULT_UNIVERSE, executorService);
   }
 
   static void registerBuiltinMetricsWithUniverseDomain(
       @Nullable Credentials credentials,
       SdkMeterProviderBuilder builder,
       @Nullable String endpoint,
-      String universeDomain)
+      String universeDomain,
+      @Nullable ScheduledExecutorService executorService)
       throws IOException {
     MetricExporter publicExporter =
         BigtableCloudMonitoringExporter.create(
@@ -115,12 +128,17 @@ public class BuiltinMetricsView {
             credentials,
             endpoint,
             universeDomain,
-            new BigtableCloudMonitoringExporter.PublicTimeSeriesConverter());
+            new BigtableCloudMonitoringExporter.PublicTimeSeriesConverter(),
+            executorService);
 
     for (Map.Entry<InstrumentSelector, View> entry :
         BuiltinMetricsConstants.getAllViews().entrySet()) {
       builder.registerView(entry.getKey(), entry.getValue());
     }
-    builder.registerMetricReader(PeriodicMetricReader.create(publicExporter));
+    builder.registerMetricReader(
+        PeriodicMetricReader.builder(publicExporter)
+            .setExecutor(executorService)
+            .setInterval(Duration.ofMinutes(1))
+            .build());
   }
 }

@@ -20,6 +20,7 @@ import com.google.common.base.MoreObjects;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
 import java.io.IOException;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Set a custom OpenTelemetry instance.
@@ -90,6 +91,15 @@ public final class CustomOpenTelemetryMetricsProvider implements MetricsProvider
       SdkMeterProviderBuilder builder, Credentials credentials, String endpoint)
       throws IOException {
     BuiltinMetricsView.registerBuiltinMetrics(credentials, builder, endpoint);
+  }
+
+  public static void setupSdkMeterProvider(
+      SdkMeterProviderBuilder builder,
+      Credentials credentials,
+      String endpoint,
+      ScheduledExecutorService executor)
+      throws IOException {
+    BuiltinMetricsView.registerBuiltinMetrics(credentials, builder, endpoint, executor);
   }
 
   @Override

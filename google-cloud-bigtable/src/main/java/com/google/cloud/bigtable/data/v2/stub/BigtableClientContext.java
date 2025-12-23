@@ -41,6 +41,7 @@ import io.opentelemetry.sdk.OpenTelemetrySdk;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
@@ -75,6 +76,9 @@ public class BigtableClientContext {
 
     String universeDomain = settings.getUniverseDomain();
 
+    ScheduledExecutorService backgroundExecutor =
+        settings.getBackgroundExecutorProvider().getExecutor();
+
     // Set up OpenTelemetry
     OpenTelemetry openTelemetry = null;
     try {
@@ -85,7 +89,8 @@ public class BigtableClientContext {
               settings.getMetricsProvider(),
               credentials,
               settings.getMetricsEndpoint(),
-              universeDomain);
+              universeDomain,
+              backgroundExecutor);
     } catch (Throwable t) {
       logger.log(Level.WARNING, "Failed to get OTEL, will skip exporting client side metrics", t);
     }
@@ -103,7 +108,9 @@ public class BigtableClientContext {
     // no reason to build the internal OtelProvider
     if (transportProvider != null) {
       internalOtel =
-          settings.getInternalMetricsProvider().createOtelProvider(settings, credentials);
+          settings
+              .getInternalMetricsProvider()
+              .createOtelProvider(settings, credentials, backgroundExecutor);
       if (internalOtel != null) {
         channelPoolMetricsTracer =
             new ChannelPoolMetricsTracer(
@@ -213,7 +220,8 @@ public class BigtableClientContext {
       MetricsProvider metricsProvider,
       @Nullable Credentials defaultCredentials,
       @Nullable String metricsEndpoint,
-      String universeDomain)
+      String universeDomain,
+      ScheduledExecutorService executor)
       throws IOException {
     if (metricsProvider instanceof CustomOpenTelemetryMetricsProvider) {
       CustomOpenTelemetryMetricsProvider customMetricsProvider =
@@ -225,7 +233,8 @@ public class BigtableClientContext {
               ? BigtableDataSettings.getMetricsCredentials()
               : defaultCredentials;
       DefaultMetricsProvider defaultMetricsProvider = (DefaultMetricsProvider) metricsProvider;
-      return defaultMetricsProvider.getOpenTelemetry(metricsEndpoint, universeDomain, credentials);
+      return defaultMetricsProvider.getOpenTelemetry(
+          metricsEndpoint, universeDomain, credentials, executor);
     } else if (metricsProvider instanceof NoopMetricsProvider) {
       return null;
     }
