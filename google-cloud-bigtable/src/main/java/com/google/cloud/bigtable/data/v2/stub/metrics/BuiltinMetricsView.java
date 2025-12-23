@@ -105,6 +105,10 @@ public class BuiltinMetricsView {
         credentials, builder, endpoint, Credentials.GOOGLE_DEFAULT_UNIVERSE, null);
   }
 
+  /**
+   * Register built-in metrics on the {@link SdkMeterProviderBuilder} with custom credentials,
+   * endpoint and executor service.
+   */
   public static void registerBuiltinMetrics(
       @Nullable Credentials credentials,
       SdkMeterProviderBuilder builder,

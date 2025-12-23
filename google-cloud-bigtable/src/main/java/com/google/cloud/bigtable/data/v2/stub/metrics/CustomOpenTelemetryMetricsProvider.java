@@ -86,13 +86,17 @@ public final class CustomOpenTelemetryMetricsProvider implements MetricsProvider
     setupSdkMeterProvider(builder, null, endpoint);
   }
 
-  /** Convenient method to set up SdkMeterProviderBuilder with a custom credentials and endpoint. */
+  /** Convenient method to set up SdkMeterProviderBuilder with custom credentials and endpoint. */
   public static void setupSdkMeterProvider(
       SdkMeterProviderBuilder builder, Credentials credentials, String endpoint)
       throws IOException {
     BuiltinMetricsView.registerBuiltinMetrics(credentials, builder, endpoint);
   }
 
+  /**
+   * Convenient method to set up SdkMeterProviderBuilder with custom credentials, endpoint and
+   * executor service.
+   */
   public static void setupSdkMeterProvider(
       SdkMeterProviderBuilder builder,
       Credentials credentials,
