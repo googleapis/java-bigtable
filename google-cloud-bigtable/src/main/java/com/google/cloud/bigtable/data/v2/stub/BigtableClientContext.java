@@ -20,6 +20,7 @@ import com.google.api.core.InternalApi;
 import com.google.api.gax.core.BackgroundResource;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
+import com.google.api.gax.core.FixedExecutorProvider;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.auth.Credentials;
@@ -78,6 +79,9 @@ public class BigtableClientContext {
 
     ScheduledExecutorService backgroundExecutor =
         settings.getBackgroundExecutorProvider().getExecutor();
+
+    FixedExecutorProvider executorProvider = FixedExecutorProvider.create(backgroundExecutor);
+    builder.setBackgroundExecutorProvider(executorProvider);
 
     // Set up OpenTelemetry
     OpenTelemetry openTelemetry = null;
