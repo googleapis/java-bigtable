@@ -35,6 +35,7 @@ import com.google.api.core.ApiFutures;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
+import com.google.api.gax.core.FixedExecutorProvider;
 import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.rpc.PermissionDeniedException;
 import com.google.auth.Credentials;
@@ -65,6 +66,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
@@ -115,7 +117,8 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
       @Nullable Credentials credentials,
       @Nullable String endpoint,
       String universeDomain,
-      TimeSeriesConverter converter)
+      TimeSeriesConverter converter,
+      @Nullable ScheduledExecutorService executorService)
       throws IOException {
     Preconditions.checkNotNull(universeDomain);
     MetricServiceSettings.Builder settingsBuilder = MetricServiceSettings.newBuilder();
@@ -126,6 +129,10 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     settingsBuilder.setCredentialsProvider(credentialsProvider);
 
     settingsBuilder.setUniverseDomain(universeDomain);
+
+    if (executorService != null) {
+      settingsBuilder.setBackgroundExecutorProvider(FixedExecutorProvider.create(executorService));
+    }
 
     if (MONITORING_ENDPOINT_OVERRIDE_SYS_PROP != null) {
       logger.warning(
