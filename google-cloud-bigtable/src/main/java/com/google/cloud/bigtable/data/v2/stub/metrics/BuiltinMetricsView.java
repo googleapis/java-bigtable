@@ -22,8 +22,8 @@ import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
 import io.opentelemetry.sdk.metrics.View;
 import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
+import io.opentelemetry.sdk.metrics.export.PeriodicMetricReaderBuilder;
 import java.io.IOException;
-import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.annotation.Nullable;
@@ -139,10 +139,10 @@ public class BuiltinMetricsView {
         BuiltinMetricsConstants.getAllViews().entrySet()) {
       builder.registerView(entry.getKey(), entry.getValue());
     }
-    builder.registerMetricReader(
-        PeriodicMetricReader.builder(publicExporter)
-            .setExecutor(executorService)
-            .setInterval(Duration.ofMinutes(1))
-            .build());
+    PeriodicMetricReaderBuilder readerBuilder = PeriodicMetricReader.builder(publicExporter);
+    if (executorService != null) {
+      readerBuilder.setExecutor(executorService);
+    }
+    builder.registerMetricReader(readerBuilder.build());
   }
 }
