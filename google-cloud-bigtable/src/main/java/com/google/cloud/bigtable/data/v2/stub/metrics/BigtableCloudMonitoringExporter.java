@@ -130,6 +130,9 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
     settingsBuilder.setUniverseDomain(universeDomain);
 
+    // If background executor is not null, use it for the monitoring client. This allows us to
+    // share the same background executor with the data client. When it's null, the monitoring
+    // client will create a new executor service from InstantiatingExecutorProvider.
     if (executorService != null) {
       settingsBuilder.setBackgroundExecutorProvider(FixedExecutorProvider.create(executorService));
     }

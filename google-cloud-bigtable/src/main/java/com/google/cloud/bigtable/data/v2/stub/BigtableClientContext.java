@@ -19,6 +19,7 @@ import com.google.api.core.ApiFunction;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.core.BackgroundResource;
 import com.google.api.gax.core.CredentialsProvider;
+import com.google.api.gax.core.ExecutorAsBackgroundResource;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.core.FixedExecutorProvider;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
@@ -35,6 +36,7 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableTransportChannelProvider;
 import com.google.cloud.bigtable.gaxx.grpc.ChannelPrimer;
+import com.google.common.collect.ImmutableList;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.opentelemetry.GrpcOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
@@ -77,9 +79,15 @@ public class BigtableClientContext {
 
     String universeDomain = settings.getUniverseDomain();
 
+    boolean canAutoCloseExecutor = true;
     ScheduledExecutorService backgroundExecutor =
         settings.getBackgroundExecutorProvider().getExecutor();
-
+    if (settings.getBackgroundExecutorProvider() instanceof FixedExecutorProvider) {
+      // if the background executor in the settings is already a FixedExecutorProvider,
+      // we can't assume that we can autoclose it and the life cycle should be managed
+      // by the application
+      canAutoCloseExecutor = false;
+    }
     FixedExecutorProvider executorProvider = FixedExecutorProvider.create(backgroundExecutor);
     builder.setBackgroundExecutorProvider(executorProvider);
 
@@ -154,6 +162,17 @@ public class BigtableClientContext {
     }
 
     ClientContext clientContext = ClientContext.create(builder.build());
+    if (canAutoCloseExecutor) {
+      // Since we converted background executor to a FixedExecutorProvider, we need
+      // to add it back to the background resources, so it will be closed when we close the
+      // client context.
+      ImmutableList<BackgroundResource> backgroundResources =
+          ImmutableList.<BackgroundResource>builder()
+              .addAll(clientContext.getBackgroundResources())
+              .add(new ExecutorAsBackgroundResource(backgroundExecutor))
+              .build();
+      clientContext = clientContext.toBuilder().setBackgroundResources(backgroundResources).build();
+    }
     if (channelPoolMetricsTracer != null) {
       channelPoolMetricsTracer.start(clientContext.getExecutor());
     }
@@ -206,6 +225,11 @@ public class BigtableClientContext {
 
   public ClientContext getClientContext() {
     return this.clientContext;
+  }
+
+  public BigtableClientContext setClientContext(ClientContext clientContext) {
+    return new BigtableClientContext(
+        clientContext, this.openTelemetry, this.internalOpenTelemetry, this.metricsProvider);
   }
 
   public void close() throws Exception {
