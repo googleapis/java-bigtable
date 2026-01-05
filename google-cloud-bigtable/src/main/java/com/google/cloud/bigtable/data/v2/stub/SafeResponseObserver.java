@@ -98,6 +98,7 @@ public abstract class SafeResponseObserver<ResponseT> implements ResponseObserve
   @Override
   public final void onComplete() {
     if (!isClosed.compareAndSet(false, true)) {
+      System.out.println("OuterObserver is " + outerObserver.getClass().getName());
       logException("Tried to double close the stream");
       return;
     }
