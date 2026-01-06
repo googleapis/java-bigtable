@@ -141,7 +141,7 @@ public class BigtableTracerCallableTest {
     attempts = settings.getStubSettings().readRowsSettings().getRetrySettings().getMaxAttempts();
     stub =
         new EnhancedBigtableStub(
-            settings.getStubSettings(), bigtableClientContext.setClientContext(clientContext));
+            settings.getStubSettings(), bigtableClientContext.withClientContext(clientContext));
 
     // Create another server without injecting the server-timing header and another stub that
     // connects to it.
@@ -168,7 +168,7 @@ public class BigtableTracerCallableTest {
     noHeaderStub =
         new EnhancedBigtableStub(
             noHeaderSettings.getStubSettings(),
-            noHeaderBigtableClientContext.setClientContext(noHeaderClientContext));
+            noHeaderBigtableClientContext.withClientContext(noHeaderClientContext));
   }
 
   @After
