@@ -179,6 +179,11 @@ public class BuiltinMetricsTracerTest {
       meterProvider.registerView(entry.getKey(), entry.getValue());
     }
 
+    for (Map.Entry<InstrumentSelector, View> entry :
+        BuiltinMetricsConstants.getInternalViews().entrySet()) {
+      meterProvider.registerView(entry.getKey(), entry.getValue());
+    }
+
     OpenTelemetrySdk otel =
         OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
     BuiltinMetricsTracerFactory facotry = BuiltinMetricsTracerFactory.create(otel, baseAttributes);
