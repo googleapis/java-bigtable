@@ -279,6 +279,23 @@ public class BuiltinMetricsConstants {
         ImmutableSet.<AttributeKey>builder()
             .add(BIGTABLE_PROJECT_ID_KEY, INSTANCE_ID_KEY, APP_PROFILE_KEY, CLIENT_NAME_KEY)
             .build());
+    defineView(
+        views,
+        BATCH_WRITE_FLOW_CONTROL_TARGET_QPS_NAME,
+        null,
+        InstrumentType.GAUGE,
+        "1",
+        ImmutableSet.<AttributeKey>builder().addAll(COMMON_ATTRIBUTES).build());
+    defineView(
+        views,
+        BATCH_WRITE_FLOW_CONTROL_FACTOR_NAME,
+        AGGREGATION_BATCH_WRITE_FLOW_CONTROL_FACTOR_HISTOGRAM,
+        InstrumentType.HISTOGRAM,
+        "1",
+        ImmutableSet.<AttributeKey>builder()
+            .addAll(COMMON_ATTRIBUTES)
+            .add(STATUS_KEY, APPLIED_KEY)
+            .build());
     return views.build();
   }
 
@@ -372,23 +389,6 @@ public class BuiltinMetricsConstants {
         ImmutableSet.<AttributeKey>builder()
             .addAll(COMMON_ATTRIBUTES)
             .add(STREAMING_KEY, STATUS_KEY)
-            .build());
-    defineView(
-        views,
-        BATCH_WRITE_FLOW_CONTROL_TARGET_QPS_NAME,
-        null,
-        InstrumentType.GAUGE,
-        "1",
-        ImmutableSet.<AttributeKey>builder().addAll(COMMON_ATTRIBUTES).build());
-    defineView(
-        views,
-        BATCH_WRITE_FLOW_CONTROL_FACTOR_NAME,
-        AGGREGATION_BATCH_WRITE_FLOW_CONTROL_FACTOR_HISTOGRAM,
-        InstrumentType.HISTOGRAM,
-        "1",
-        ImmutableSet.<AttributeKey>builder()
-            .addAll(COMMON_ATTRIBUTES)
-            .add(STATUS_KEY, APPLIED_KEY)
             .build());
     return views.build();
   }
