@@ -19,9 +19,8 @@ import com.google.api.core.ApiFunction;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.core.BackgroundResource;
 import com.google.api.gax.core.CredentialsProvider;
-import com.google.api.gax.core.ExecutorAsBackgroundResource;
+import com.google.api.gax.core.ExecutorProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
-import com.google.api.gax.core.FixedExecutorProvider;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.auth.Credentials;
@@ -36,7 +35,6 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableTransportChannelProvider;
 import com.google.cloud.bigtable.gaxx.grpc.ChannelPrimer;
-import com.google.common.collect.ImmutableList;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.opentelemetry.GrpcOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
@@ -62,6 +60,9 @@ public class BigtableClientContext {
   @Nullable private final OpenTelemetrySdk internalOpenTelemetry;
   private final MetricsProvider metricsProvider;
   private final ClientContext clientContext;
+  // the background executor shared for OTEL instances and monitoring client and all other
+  // background tasks
+  private final ExecutorProvider backgroundExecutorProvider;
 
   public static BigtableClientContext create(EnhancedBigtableStubSettings settings)
       throws IOException {
@@ -79,16 +80,12 @@ public class BigtableClientContext {
 
     String universeDomain = settings.getUniverseDomain();
 
-    boolean canAutoCloseExecutor = true;
+    boolean shouldAutoClose = settings.getBackgroundExecutorProvider().shouldAutoClose();
     ScheduledExecutorService backgroundExecutor =
         settings.getBackgroundExecutorProvider().getExecutor();
-    if (settings.getBackgroundExecutorProvider() instanceof FixedExecutorProvider) {
-      // if the background executor in the settings is already a FixedExecutorProvider,
-      // we can't assume that we can autoclose it and the life cycle should be managed
-      // by the application
-      canAutoCloseExecutor = false;
-    }
-    FixedExecutorProvider executorProvider = FixedExecutorProvider.create(backgroundExecutor);
+    // TODO: after gax change is merged, migrate to use gax's FixedExecutorProvider
+    BigtableExecutorProvider executorProvider =
+        BigtableExecutorProvider.create(backgroundExecutor, shouldAutoClose);
     builder.setBackgroundExecutorProvider(executorProvider);
 
     // Set up OpenTelemetry
@@ -162,23 +159,16 @@ public class BigtableClientContext {
     }
 
     ClientContext clientContext = ClientContext.create(builder.build());
-    if (canAutoCloseExecutor) {
-      // Since we converted background executor to a FixedExecutorProvider, we need
-      // to add it back to the background resources, so it will be closed when we close the
-      // client context.
-      ImmutableList<BackgroundResource> backgroundResources =
-          ImmutableList.<BackgroundResource>builder()
-              .addAll(clientContext.getBackgroundResources())
-              .add(new ExecutorAsBackgroundResource(backgroundExecutor))
-              .build();
-      clientContext = clientContext.toBuilder().setBackgroundResources(backgroundResources).build();
-    }
     if (channelPoolMetricsTracer != null) {
       channelPoolMetricsTracer.start(clientContext.getExecutor());
     }
 
     return new BigtableClientContext(
-        clientContext, openTelemetry, internalOtel, settings.getMetricsProvider());
+        clientContext,
+        openTelemetry,
+        internalOtel,
+        settings.getMetricsProvider(),
+        executorProvider);
   }
 
   private static void configureGrpcOtel(
@@ -212,11 +202,13 @@ public class BigtableClientContext {
       ClientContext clientContext,
       @Nullable OpenTelemetry openTelemetry,
       @Nullable OpenTelemetrySdk internalOtel,
-      MetricsProvider metricsProvider) {
+      MetricsProvider metricsProvider,
+      ExecutorProvider backgroundExecutorProvider) {
     this.clientContext = clientContext;
     this.openTelemetry = openTelemetry;
     this.internalOpenTelemetry = internalOtel;
     this.metricsProvider = metricsProvider;
+    this.backgroundExecutorProvider = backgroundExecutorProvider;
   }
 
   public OpenTelemetry getOpenTelemetry() {
@@ -229,7 +221,11 @@ public class BigtableClientContext {
 
   public BigtableClientContext withClientContext(ClientContext clientContext) {
     return new BigtableClientContext(
-        clientContext, openTelemetry, internalOpenTelemetry, metricsProvider);
+        clientContext,
+        openTelemetry,
+        internalOpenTelemetry,
+        metricsProvider,
+        backgroundExecutorProvider);
   }
 
   public void close() throws Exception {
@@ -241,6 +237,9 @@ public class BigtableClientContext {
     }
     if (metricsProvider instanceof DefaultMetricsProvider && openTelemetry != null) {
       ((OpenTelemetrySdk) openTelemetry).close();
+    }
+    if (backgroundExecutorProvider.shouldAutoClose()) {
+      backgroundExecutorProvider.getExecutor().shutdownNow();
     }
   }
 

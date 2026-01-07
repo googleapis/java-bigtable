@@ -132,7 +132,9 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
     // If background executor is not null, use it for the monitoring client. This allows us to
     // share the same background executor with the data client. When it's null, the monitoring
-    // client will create a new executor service from InstantiatingExecutorProvider.
+    // client will create a new executor service from InstantiatingExecutorProvider. It could be
+    // null if someone uses a CustomOpenTelemetryMetricsProvider#setupSdkMeterProvider without
+    // the executor.
     if (executorService != null) {
       settingsBuilder.setBackgroundExecutorProvider(FixedExecutorProvider.create(executorService));
     }
