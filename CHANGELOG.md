@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.71.0](https://github.com/googleapis/java-bigtable/compare/v2.70.1...v2.71.0) (2026-01-07)
+
+
+### Features
+
+* Add CSM for batch write flow control ([#2685](https://github.com/googleapis/java-bigtable/issues/2685)) ([62ffd1b](https://github.com/googleapis/java-bigtable/commit/62ffd1babb910bc9ef2e83482de9500e3e1a1b4f))
+
+
+### Bug Fixes
+
+* **bigtable:** Add handling for gauge metrics ([#2719](https://github.com/googleapis/java-bigtable/issues/2719)) ([87aa4d5](https://github.com/googleapis/java-bigtable/commit/87aa4d54c047d2de1e92d75a4ff69e6d02689bdb))
+* Create stub with BigtableClientContext so otels are closed ([#2747](https://github.com/googleapis/java-bigtable/issues/2747)) ([3d0a6d9](https://github.com/googleapis/java-bigtable/commit/3d0a6d9d52bd8a97adafe04ac7d6142b42139e51))
+* Use the same background executor in otel reader and monitoring c… ([#2746](https://github.com/googleapis/java-bigtable/issues/2746)) ([3a58f9b](https://github.com/googleapis/java-bigtable/commit/3a58f9bebe416186aa8bffee8e024aef135f52c6))
+
 ## [2.70.1](https://github.com/googleapis/java-bigtable/compare/v2.70.0...v2.70.1) (2025-12-12)
 
 
