@@ -227,9 +227,9 @@ public class BigtableClientContext {
     return this.clientContext;
   }
 
-  public BigtableClientContext setClientContext(ClientContext clientContext) {
+  public BigtableClientContext withClientContext(ClientContext clientContext) {
     return new BigtableClientContext(
-        clientContext, this.openTelemetry, this.internalOpenTelemetry, this.metricsProvider);
+        clientContext, openTelemetry, internalOpenTelemetry, metricsProvider);
   }
 
   public void close() throws Exception {
