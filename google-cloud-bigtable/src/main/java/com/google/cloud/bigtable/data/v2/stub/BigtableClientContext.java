@@ -239,7 +239,7 @@ public class BigtableClientContext {
       ((OpenTelemetrySdk) openTelemetry).close();
     }
     if (backgroundExecutorProvider.shouldAutoClose()) {
-      backgroundExecutorProvider.getExecutor().shutdownNow();
+      backgroundExecutorProvider.getExecutor().shutdown();
     }
   }
 
