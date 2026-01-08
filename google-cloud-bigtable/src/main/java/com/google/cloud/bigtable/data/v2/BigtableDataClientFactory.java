@@ -116,7 +116,8 @@ public final class BigtableDataClientFactory implements AutoCloseable {
                       sharedClientContext.getInternalOpenTelemtry()))
               .build();
 
-      return BigtableDataClient.createWithClientContext(defaultSettings, clientContext);
+      return BigtableDataClient.createWithClientContext(
+          defaultSettings, sharedClientContext.withClientContext(clientContext));
     } catch (IOException e) {
       // Should never happen because the connection has been established already
       throw new RuntimeException(
@@ -145,7 +146,8 @@ public final class BigtableDataClientFactory implements AutoCloseable {
                     sharedClientContext.getOpenTelemetry(),
                     sharedClientContext.getInternalOpenTelemtry()))
             .build();
-    return BigtableDataClient.createWithClientContext(settings, clientContext);
+    return BigtableDataClient.createWithClientContext(
+        settings, sharedClientContext.withClientContext(clientContext));
   }
 
   /**
@@ -175,7 +177,8 @@ public final class BigtableDataClientFactory implements AutoCloseable {
                     sharedClientContext.getInternalOpenTelemtry()))
             .build();
 
-    return BigtableDataClient.createWithClientContext(settings, clientContext);
+    return BigtableDataClient.createWithClientContext(
+        settings, sharedClientContext.withClientContext(clientContext));
   }
 
   /**
@@ -204,6 +207,7 @@ public final class BigtableDataClientFactory implements AutoCloseable {
                     sharedClientContext.getOpenTelemetry(),
                     sharedClientContext.getInternalOpenTelemtry()))
             .build();
-    return BigtableDataClient.createWithClientContext(settings, clientContext);
+    return BigtableDataClient.createWithClientContext(
+        settings, sharedClientContext.withClientContext(clientContext));
   }
 }
