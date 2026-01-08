@@ -25,12 +25,12 @@ import static com.google.api.MetricDescriptor.ValueType;
 import static com.google.api.MetricDescriptor.ValueType.DISTRIBUTION;
 import static com.google.api.MetricDescriptor.ValueType.DOUBLE;
 import static com.google.api.MetricDescriptor.ValueType.INT64;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.BIGTABLE_CLIENT_METRICS;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.BIGTABLE_PROJECT_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_UID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLUSTER_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.GRPC_METRICS;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID_KEY;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INTERNAL_METRICS;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METER_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID_KEY;
@@ -171,6 +171,7 @@ class BigtableExporterUtils {
         "convert application metrics is called when the supported resource is not detected");
     List<TimeSeries> allTimeSeries = new ArrayList<>();
     for (MetricData metricData : collection) {
+      System.out.println("====== metric data: " + metricData.getName() + " data: " + metricData);
       metricData.getData().getPoints().stream()
           .map(
               pointData ->
@@ -186,6 +187,7 @@ class BigtableExporterUtils {
     try {
       MonitoredResource monitoredResource = detectResource(settings);
       logger.log(Level.FINE, "Internal metrics monitored resource: %s", monitoredResource);
+      System.out.println("detected resource: " + monitoredResource);
       return monitoredResource;
     } catch (Exception e) {
       logger.log(
@@ -317,7 +319,7 @@ class BigtableExporterUtils {
     // To unify these:
     // - the useless views should be removed
     // - internal metrics should use relative metric names w/o the prefix
-    if (INTERNAL_METRICS.contains(metricData.getName())) {
+    if (BIGTABLE_CLIENT_METRICS.contains(metricData.getName())) {
       metricBuilder = newApplicationMetricBuilder(metricData.getName(), pointData.getAttributes());
     } else if (GRPC_METRICS.containsKey(metricData.getName())) {
       metricBuilder = newGrpcMetricBuilder(metricData.getName(), pointData.getAttributes());

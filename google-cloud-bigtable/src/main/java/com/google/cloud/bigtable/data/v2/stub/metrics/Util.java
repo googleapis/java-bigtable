@@ -259,11 +259,6 @@ public class Util {
       EnhancedBigtableStubSettings settings, Credentials credentials) throws IOException {
     SdkMeterProviderBuilder meterProviderBuilder = SdkMeterProvider.builder();
 
-    for (Map.Entry<InstrumentSelector, View> e :
-        BuiltinMetricsConstants.getInternalViews().entrySet()) {
-      meterProviderBuilder.registerView(e.getKey(), e.getValue());
-    }
-
     meterProviderBuilder.registerMetricReader(
         PeriodicMetricReader.create(
             BigtableCloudMonitoringExporter.create(
@@ -274,6 +269,13 @@ public class Util {
                 new BigtableCloudMonitoringExporter.InternalTimeSeriesConverter(
                     Suppliers.memoize(
                         () -> BigtableExporterUtils.createInternalMonitoredResource(settings))))));
+
+    for (Map.Entry<InstrumentSelector, View> e :
+        BuiltinMetricsConstants.getInternalViews().entrySet()) {
+      System.out.println("register internal view " + e.getKey().getInstrumentName());
+      meterProviderBuilder.registerView(e.getKey(), e.getValue());
+    }
+
     return OpenTelemetrySdk.builder().setMeterProvider(meterProviderBuilder.build()).build();
   }
 }

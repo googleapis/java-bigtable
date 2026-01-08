@@ -205,9 +205,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
       throws IOException {
     BigtableClientContext bigtableClientContext = createBigtableClientContext(settings);
     OpenTelemetry openTelemetry = bigtableClientContext.getOpenTelemetry();
+    OpenTelemetry internalOtel = bigtableClientContext.getInternalOpenTelemtry();
     ClientContext contextWithTracer =
         bigtableClientContext.getClientContext().toBuilder()
-            .setTracerFactory(createBigtableTracerFactory(settings, openTelemetry))
+            .setTracerFactory(createBigtableTracerFactory(settings, openTelemetry, internalOtel))
             .build();
     return new EnhancedBigtableStub(settings, contextWithTracer);
   }
@@ -224,10 +225,12 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   public static ApiTracerFactory createBigtableTracerFactory(
-      EnhancedBigtableStubSettings settings, @Nullable OpenTelemetry openTelemetry)
+      EnhancedBigtableStubSettings settings,
+      @Nullable OpenTelemetry openTelemetry,
+      @Nullable OpenTelemetry internalOtel)
       throws IOException {
     return createBigtableTracerFactory(
-        settings, Tags.getTagger(), Stats.getStatsRecorder(), openTelemetry);
+        settings, Tags.getTagger(), Stats.getStatsRecorder(), openTelemetry, internalOtel);
   }
 
   @VisibleForTesting
@@ -235,7 +238,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
       EnhancedBigtableStubSettings settings,
       Tagger tagger,
       StatsRecorder stats,
-      @Nullable OpenTelemetry openTelemetry)
+      @Nullable OpenTelemetry openTelemetry,
+      @Nullable OpenTelemetry internalOtel)
       throws IOException {
     String projectId = settings.getProjectId();
     String instanceId = settings.getInstanceId();
@@ -267,12 +271,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
         .add(MetricsTracerFactory.create(tagger, stats, attributes))
         // Add user configured tracer
         .add(settings.getTracerFactory());
-    BuiltinMetricsTracerFactory builtinMetricsTracerFactory =
-        openTelemetry != null
-            ? BuiltinMetricsTracerFactory.create(openTelemetry, createBuiltinAttributes(settings))
-            : null;
-    if (builtinMetricsTracerFactory != null) {
-      tracerFactories.add(builtinMetricsTracerFactory);
+    if (openTelemetry != null) {
+      tracerFactories.add(
+          BuiltinMetricsTracerFactory.create(openTelemetry, createBuiltinAttributes(settings)));
+    }
+    if (internalOtel != null) {
+      tracerFactories.add(
+          BuiltinMetricsTracerFactory.create(internalOtel, createBuiltinAttributes(settings)));
     }
     return new CompositeTracerFactory(tracerFactories.build());
   }

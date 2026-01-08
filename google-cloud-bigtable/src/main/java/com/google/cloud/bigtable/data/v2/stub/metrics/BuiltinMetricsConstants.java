@@ -167,8 +167,13 @@ public class BuiltinMetricsConstants {
                   GRPC_TARGET_KEY.getKey()))
           .build();
 
-  public static final Set<String> INTERNAL_METRICS =
-      ImmutableSet.of(PER_CONNECTION_ERROR_COUNT_NAME, OUTSTANDING_RPCS_PER_CHANNEL_NAME).stream()
+  public static final Set<String> BIGTABLE_CLIENT_METRICS =
+      ImmutableSet.of(
+              PER_CONNECTION_ERROR_COUNT_NAME,
+              OUTSTANDING_RPCS_PER_CHANNEL_NAME,
+              BATCH_WRITE_FLOW_CONTROL_FACTOR_NAME,
+              BATCH_WRITE_FLOW_CONTROL_TARGET_QPS_NAME)
+          .stream()
           .map(m -> METER_NAME + m)
           .collect(ImmutableSet.toImmutableSet());
   // End allow list of metrics that will be exported
@@ -246,8 +251,6 @@ public class BuiltinMetricsConstants {
             .build();
     Set<String> attributesFilter =
         ImmutableSet.<String>builder()
-            .addAll(
-                COMMON_ATTRIBUTES.stream().map(AttributeKey::getKey).collect(Collectors.toSet()))
             .addAll(attributes.stream().map(AttributeKey::getKey).collect(Collectors.toSet()))
             .build();
     ViewBuilder viewBuilder =
@@ -285,20 +288,18 @@ public class BuiltinMetricsConstants {
         null,
         InstrumentType.GAUGE,
         "1",
-        ImmutableSet.<AttributeKey>builder().addAll(COMMON_ATTRIBUTES).build());
+        ImmutableSet.<AttributeKey>builder().add(METHOD_KEY).build());
     defineView(
         views,
         BATCH_WRITE_FLOW_CONTROL_FACTOR_NAME,
         AGGREGATION_BATCH_WRITE_FLOW_CONTROL_FACTOR_HISTOGRAM,
         InstrumentType.HISTOGRAM,
         "1",
-        ImmutableSet.<AttributeKey>builder()
-            .addAll(COMMON_ATTRIBUTES)
-            .add(STATUS_KEY, APPLIED_KEY)
-            .build());
+        ImmutableSet.<AttributeKey>builder().add(STATUS_KEY, APPLIED_KEY, METHOD_KEY).build());
     return views.build();
   }
 
+  // uses cloud.BigtableTable schema
   public static Map<InstrumentSelector, View> getAllViews() {
     ImmutableMap.Builder<InstrumentSelector, View> views = ImmutableMap.builder();
 

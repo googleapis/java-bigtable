@@ -111,7 +111,9 @@ public final class BigtableDataClientFactory implements AutoCloseable {
           sharedClientContext.getClientContext().toBuilder()
               .setTracerFactory(
                   EnhancedBigtableStub.createBigtableTracerFactory(
-                      defaultSettings.getStubSettings(), sharedClientContext.getOpenTelemetry()))
+                      defaultSettings.getStubSettings(),
+                      sharedClientContext.getOpenTelemetry(),
+                      sharedClientContext.getInternalOpenTelemtry()))
               .build();
 
       return BigtableDataClient.createWithClientContext(defaultSettings, clientContext);
@@ -139,7 +141,9 @@ public final class BigtableDataClientFactory implements AutoCloseable {
         sharedClientContext.getClientContext().toBuilder()
             .setTracerFactory(
                 EnhancedBigtableStub.createBigtableTracerFactory(
-                    settings.getStubSettings(), sharedClientContext.getOpenTelemetry()))
+                    settings.getStubSettings(),
+                    sharedClientContext.getOpenTelemetry(),
+                    sharedClientContext.getInternalOpenTelemtry()))
             .build();
     return BigtableDataClient.createWithClientContext(settings, clientContext);
   }
@@ -166,7 +170,9 @@ public final class BigtableDataClientFactory implements AutoCloseable {
         sharedClientContext.getClientContext().toBuilder()
             .setTracerFactory(
                 EnhancedBigtableStub.createBigtableTracerFactory(
-                    settings.getStubSettings(), sharedClientContext.getOpenTelemetry()))
+                    settings.getStubSettings(),
+                    sharedClientContext.getOpenTelemetry(),
+                    sharedClientContext.getInternalOpenTelemtry()))
             .build();
 
     return BigtableDataClient.createWithClientContext(settings, clientContext);
@@ -194,7 +200,9 @@ public final class BigtableDataClientFactory implements AutoCloseable {
         sharedClientContext.getClientContext().toBuilder()
             .setTracerFactory(
                 EnhancedBigtableStub.createBigtableTracerFactory(
-                    settings.getStubSettings(), sharedClientContext.getOpenTelemetry()))
+                    settings.getStubSettings(),
+                    sharedClientContext.getOpenTelemetry(),
+                    sharedClientContext.getInternalOpenTelemtry()))
             .build();
     return BigtableDataClient.createWithClientContext(settings, clientContext);
   }
