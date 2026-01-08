@@ -57,6 +57,7 @@ public class BuiltinMetricsConstants {
   static final AttributeKey<String> TRANSPORT_REGION = AttributeKey.stringKey("transport_region");
   static final AttributeKey<String> TRANSPORT_ZONE = AttributeKey.stringKey("transport_zone");
   static final AttributeKey<String> TRANSPORT_SUBZONE = AttributeKey.stringKey("transport_subzone");
+  static final AttributeKey<String> LB_POLICY_KEY = AttributeKey.stringKey("lb_policy");
 
   // gRPC attribute keys
   // Note that these attributes keys from transformed from
@@ -280,7 +281,13 @@ public class BuiltinMetricsConstants {
         InstrumentType.HISTOGRAM,
         "1",
         ImmutableSet.<AttributeKey>builder()
-            .add(BIGTABLE_PROJECT_ID_KEY, INSTANCE_ID_KEY, APP_PROFILE_KEY, CLIENT_NAME_KEY)
+            .add(
+                BIGTABLE_PROJECT_ID_KEY,
+                INSTANCE_ID_KEY,
+                APP_PROFILE_KEY,
+                TRANSPORT_TYPE,
+                STREAMING_KEY,
+                LB_POLICY_KEY)
             .build());
     defineView(
         views,
@@ -288,14 +295,24 @@ public class BuiltinMetricsConstants {
         null,
         InstrumentType.GAUGE,
         "1",
-        ImmutableSet.<AttributeKey>builder().add(METHOD_KEY).build());
+        ImmutableSet.<AttributeKey>builder()
+            .add(BIGTABLE_PROJECT_ID_KEY, INSTANCE_ID_KEY, APP_PROFILE_KEY, METHOD_KEY)
+            .build());
     defineView(
         views,
         BATCH_WRITE_FLOW_CONTROL_FACTOR_NAME,
         AGGREGATION_BATCH_WRITE_FLOW_CONTROL_FACTOR_HISTOGRAM,
         InstrumentType.HISTOGRAM,
         "1",
-        ImmutableSet.<AttributeKey>builder().add(STATUS_KEY, APPLIED_KEY, METHOD_KEY).build());
+        ImmutableSet.<AttributeKey>builder()
+            .add(
+                BIGTABLE_PROJECT_ID_KEY,
+                INSTANCE_ID_KEY,
+                APP_PROFILE_KEY,
+                STATUS_KEY,
+                APPLIED_KEY,
+                METHOD_KEY)
+            .build());
     return views.build();
   }
 

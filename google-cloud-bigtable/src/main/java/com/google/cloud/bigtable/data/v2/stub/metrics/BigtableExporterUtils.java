@@ -25,6 +25,7 @@ import static com.google.api.MetricDescriptor.ValueType;
 import static com.google.api.MetricDescriptor.ValueType.DISTRIBUTION;
 import static com.google.api.MetricDescriptor.ValueType.DOUBLE;
 import static com.google.api.MetricDescriptor.ValueType.INT64;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APP_PROFILE_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.BIGTABLE_CLIENT_METRICS;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.BIGTABLE_PROJECT_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_UID_KEY;
@@ -98,6 +99,14 @@ class BigtableExporterUtils {
   private static final Set<AttributeKey<String>> BIGTABLE_PROMOTED_RESOURCE_LABELS =
       ImmutableSet.of(
           BIGTABLE_PROJECT_ID_KEY, INSTANCE_ID_KEY, TABLE_ID_KEY, CLUSTER_ID_KEY, ZONE_ID_KEY);
+
+  // These labels are defined on the Bigtable client resource. It's hard coded when we create the
+  // internal exporter for connection level metrics. For request level metrics, these attributes
+  // are updated with the actual value from the request and we use them to update the monitored
+  // schema. This is needed for BigtableDataClientFactory, when the otel instance is created with
+  // one instance / app profile but the actual call is on a different instance / app profile.
+  private static final Set<AttributeKey<String>> BIGTABLE_CLIENT_RESOURCE_LABEL =
+      ImmutableSet.of(BIGTABLE_PROJECT_ID_KEY, INSTANCE_ID_KEY, APP_PROFILE_KEY);
 
   private static final Map<GCPPlatformDetector.SupportedPlatform, String> SUPPORTED_PLATFORM_MAP =
       ImmutableMap.of(
@@ -318,7 +327,9 @@ class BigtableExporterUtils {
     // - the useless views should be removed
     // - internal metrics should use relative metric names w/o the prefix
     if (BIGTABLE_CLIENT_METRICS.contains(metricData.getName())) {
-      metricBuilder = newApplicationMetricBuilder(metricData.getName(), pointData.getAttributes());
+      metricBuilder =
+          newApplicationMetricBuilder(
+              metricData.getName(), pointData.getAttributes(), applicationResource);
     } else if (GRPC_METRICS.containsKey(metricData.getName())) {
       metricBuilder = newGrpcMetricBuilder(metricData.getName(), pointData.getAttributes());
     } else {
@@ -343,11 +354,17 @@ class BigtableExporterUtils {
   }
 
   private static Metric.Builder newApplicationMetricBuilder(
-      String metricName, Attributes attributes) {
+      String metricName, Attributes attributes, MonitoredResource applicationResource) {
+    MonitoredResource.Builder updatedResource = applicationResource.toBuilder();
     // TODO: unify handling of metric prefixes
     Metric.Builder metricBuilder = Metric.newBuilder().setType(metricName);
     for (Map.Entry<AttributeKey<?>, Object> e : attributes.asMap().entrySet()) {
-      metricBuilder.putLabels(e.getKey().getKey(), String.valueOf(e.getValue()));
+      AttributeKey<?> key = e.getKey();
+      if (BIGTABLE_CLIENT_RESOURCE_LABEL.contains(key)) {
+        updatedResource.putLabels(key.getKey(), String.valueOf(e.getValue()));
+      } else {
+        metricBuilder.putLabels(e.getKey().getKey(), String.valueOf(e.getValue()));
+      }
     }
     return metricBuilder;
   }
