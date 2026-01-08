@@ -498,4 +498,10 @@
         <className>com/google/cloud/bigtable/data/v2/stub/metrics/BuiltinMetricsConstants</className>
         <field>*</field>
     </difference>
+    <difference>
+        <!-- InternalApi was udpated -->
+        <differenceType>7002</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/stub/metrics/BuiltinMetricsConstants</className>
+        <method>*</method>
+    </difference>
 </differences>

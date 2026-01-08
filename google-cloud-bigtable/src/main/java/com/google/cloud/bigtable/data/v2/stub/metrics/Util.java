@@ -260,7 +260,7 @@ public class Util {
     SdkMeterProviderBuilder meterProviderBuilder = SdkMeterProvider.builder();
 
     for (Map.Entry<InstrumentSelector, View> e :
-        BuiltinMetricsConstants.getInternalViews().entrySet()) {
+        BuiltinMetricsConstants.getBigtableClientViews().entrySet()) {
       meterProviderBuilder.registerView(e.getKey(), e.getValue());
     }
 

@@ -175,12 +175,12 @@ public class BuiltinMetricsTracerTest {
         SdkMeterProvider.builder().registerMetricReader(metricReader);
 
     for (Map.Entry<InstrumentSelector, View> entry :
-        BuiltinMetricsConstants.getAllViews().entrySet()) {
+        BuiltinMetricsConstants.getBigtableTableViews().entrySet()) {
       meterProvider.registerView(entry.getKey(), entry.getValue());
     }
 
     for (Map.Entry<InstrumentSelector, View> entry :
-        BuiltinMetricsConstants.getInternalViews().entrySet()) {
+        BuiltinMetricsConstants.getBigtableClientViews().entrySet()) {
       meterProvider.registerView(entry.getKey(), entry.getValue());
     }
 

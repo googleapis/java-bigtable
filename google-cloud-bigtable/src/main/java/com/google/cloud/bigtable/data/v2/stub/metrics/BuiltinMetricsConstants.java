@@ -262,7 +262,7 @@ public class BuiltinMetricsConstants {
   }
 
   // uses cloud.BigtableClient schema
-  public static Map<InstrumentSelector, View> getInternalViews() {
+  public static Map<InstrumentSelector, View> getBigtableClientViews() {
     ImmutableMap.Builder<InstrumentSelector, View> views = ImmutableMap.builder();
     defineView(
         views,
@@ -300,7 +300,7 @@ public class BuiltinMetricsConstants {
   }
 
   // uses cloud.BigtableTable schema
-  public static Map<InstrumentSelector, View> getAllViews() {
+  public static Map<InstrumentSelector, View> getBigtableTableViews() {
     ImmutableMap.Builder<InstrumentSelector, View> views = ImmutableMap.builder();
 
     defineView(

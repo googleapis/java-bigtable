@@ -118,7 +118,7 @@ public class BuiltinMetricsView {
             new BigtableCloudMonitoringExporter.PublicTimeSeriesConverter());
 
     for (Map.Entry<InstrumentSelector, View> entry :
-        BuiltinMetricsConstants.getAllViews().entrySet()) {
+        BuiltinMetricsConstants.getBigtableTableViews().entrySet()) {
       builder.registerView(entry.getKey(), entry.getValue());
     }
     builder.registerMetricReader(PeriodicMetricReader.create(publicExporter));
