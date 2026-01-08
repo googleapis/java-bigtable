@@ -171,7 +171,6 @@ class BigtableExporterUtils {
         "convert application metrics is called when the supported resource is not detected");
     List<TimeSeries> allTimeSeries = new ArrayList<>();
     for (MetricData metricData : collection) {
-      System.out.println("====== metric data: " + metricData.getName() + " data: " + metricData);
       metricData.getData().getPoints().stream()
           .map(
               pointData ->
@@ -187,7 +186,6 @@ class BigtableExporterUtils {
     try {
       MonitoredResource monitoredResource = detectResource(settings);
       logger.log(Level.FINE, "Internal metrics monitored resource: %s", monitoredResource);
-      System.out.println("detected resource: " + monitoredResource);
       return monitoredResource;
     } catch (Exception e) {
       logger.log(
