@@ -100,11 +100,11 @@ class BigtableExporterUtils {
       ImmutableSet.of(
           BIGTABLE_PROJECT_ID_KEY, INSTANCE_ID_KEY, TABLE_ID_KEY, CLUSTER_ID_KEY, ZONE_ID_KEY);
 
-  // These labels are defined on the Bigtable client resource. It's hard coded when we create the
-  // internal exporter for connection level metrics. For request level metrics, these attributes
-  // are updated with the actual value from the request and we use them to update the monitored
-  // schema. This is needed for BigtableDataClientFactory, when the otel instance is created with
-  // one instance / app profile but the actual call is on a different instance / app profile.
+  // These labels are defined on the bigtable_client monitored resource. For connection level
+  // metrics, they are hard coded from the settings when we create the internal otel. For per
+  // request metrics, we update the values of these fields with the values from metrics label.
+  // This is needed for BigtableDataClientFactory when the otel instance is created with the
+  // shared settings and the clients are created with different instances / app profile ids.
   private static final Set<AttributeKey<String>> BIGTABLE_CLIENT_RESOURCE_LABEL =
       ImmutableSet.of(BIGTABLE_PROJECT_ID_KEY, INSTANCE_ID_KEY, APP_PROFILE_KEY);
 
