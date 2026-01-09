@@ -362,9 +362,9 @@ class BigtableExporterUtils {
       AttributeKey<?> key = e.getKey();
       if (BIGTABLE_CLIENT_RESOURCE_LABEL.contains(key)) {
         updatedResource.putLabels(key.getKey(), String.valueOf(e.getValue()));
-      } else {
-        metricBuilder.putLabels(e.getKey().getKey(), String.valueOf(e.getValue()));
       }
+
+      metricBuilder.putLabels(e.getKey().getKey(), String.valueOf(e.getValue()));
     }
     return metricBuilder;
   }
