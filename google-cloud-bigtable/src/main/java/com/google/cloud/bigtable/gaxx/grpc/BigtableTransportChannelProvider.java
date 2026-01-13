@@ -42,7 +42,6 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
@@ -210,8 +209,8 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
               .setPeriod(Duration.ofMinutes(1))
               .setErroneousStates(
                   new HashSet<>(
-                    Arrays.asList(UNAVAILABLE, UNAUTHENTICATED, DEADLINE_EXCEEDED, UNKNOWN, UNIMPLEMENTED))
-                  )
+                      Arrays.asList(
+                          UNAVAILABLE, UNAUTHENTICATED, DEADLINE_EXCEEDED, UNKNOWN, UNIMPLEMENTED)))
               .setFallbackProbingInterval(Duration.ofMinutes(15))
               .setPrimaryProbingInterval(Duration.ofMinutes(1))
               .setMinFailedCalls(3)
