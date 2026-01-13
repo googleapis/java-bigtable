@@ -84,7 +84,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.NotThreadSafe;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,6 +92,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import net.jcip.annotations.NotThreadSafe;
 
 @NotThreadSafe
 @RunWith(MockitoJUnitRunner.class)
