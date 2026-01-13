@@ -69,6 +69,7 @@ import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
@@ -103,10 +104,20 @@ public class GcpFallbackChannelTest {
     @Override
     public Object parse(InputStream stream) {
       try {
-        return stream.readAllBytes().toString();
+        return readAllBytesFromStream(stream).toString();
       } catch (IOException e) {
         return new Object();
       }
+    }
+
+    static byte[] readAllBytesFromStream(InputStream is) throws IOException {
+      ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+      int bytesRead;
+      byte[] data = new byte[4096];
+      while ((bytesRead = is.read(data, 0, data.length)) != -1) {
+          buffer.write(data, 0, bytesRead);
+      }
+      return buffer.toByteArray();
     }
   }
 
