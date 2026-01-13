@@ -153,7 +153,8 @@ public class BigtableClientContext {
           BigtableTransportChannelProvider.create(
               (InstantiatingGrpcChannelProvider) transportProvider.build(),
               channelPrimer,
-              channelPoolMetricsTracer);
+              channelPoolMetricsTracer,
+              settings);
 
       builder.setTransportChannelProvider(btTransportProvider);
     }
