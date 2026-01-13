@@ -72,6 +72,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -104,7 +105,7 @@ public class GcpFallbackChannelTest {
     @Override
     public Object parse(InputStream stream) {
       try {
-        return readAllBytesFromStream(stream).toString();
+        return new String(readAllBytesFromStream(stream), StandardCharsets.UTF_8);
       } catch (IOException e) {
         return new Object();
       }
