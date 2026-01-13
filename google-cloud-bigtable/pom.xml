@@ -807,7 +807,7 @@
           <skipTests>${skipUnitTests}</skipTests>
 
           <!-- Enable concurrent test execution by default -->
-          <parallel>methods</parallel>
+          <parallel>classes</parallel>
           <threadCount>10</threadCount>
 
           <trimStackTrace>false</trimStackTrace>

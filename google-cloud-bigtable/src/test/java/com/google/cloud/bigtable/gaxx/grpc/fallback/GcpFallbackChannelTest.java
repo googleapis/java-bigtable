@@ -84,6 +84,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.NotThreadSafe;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,6 +95,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+@NotThreadSafe
 @RunWith(MockitoJUnitRunner.class)
 public class GcpFallbackChannelTest {
 
