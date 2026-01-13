@@ -382,7 +382,7 @@ public class GcpFallbackChannel extends ManagedChannel implements BigtableChanne
 
   @Override
   public List<? extends BigtableChannelObserver> getChannelInfos() {
-    List<? extends BigtableChannelObserver> channelInfos = new ArrayList<>();
+    List<BigtableChannelObserver> channelInfos = new ArrayList<>();
     if (primaryDelegateChannel != null
         && primaryDelegateChannel instanceof BigtableChannelPoolObserver) {
       channelInfos.addAll(((BigtableChannelPoolObserver) primaryDelegateChannel).getChannelInfos());
