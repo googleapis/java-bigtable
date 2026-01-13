@@ -115,6 +115,9 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private static final boolean DIRECT_PATH_ENABLED =
       Boolean.parseBoolean(System.getenv("CBT_ENABLE_DIRECTPATH"));
 
+  private static final boolean FALLBACK_ENABLED =
+      Boolean.parseBoolean(System.getenv("CBT_ENABLE_FALLBACK"));
+
   // If true, disable the bound-token-by-default feature for DirectPath.
   private static final boolean DIRECT_PATH_BOUND_TOKEN_DISABLED =
       Boolean.parseBoolean(System.getenv("CBT_DISABLE_DIRECTPATH_BOUND_TOKEN"));
@@ -360,6 +363,16 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   /** Returns the configured AppProfile to use */
   public String getAppProfileId() {
     return appProfileId;
+  }
+
+  /** Returns if Direct Access is enabled. */
+  public boolean isDirectpathEnabled() {
+    return DIRECT_PATH_ENABLED;
+  }
+
+  /** Returns if fallback to cloudpath is enabled. */
+  public boolean isFallbackEnabled() {
+    return FALLBACK_ENABLED;
   }
 
   /**
