@@ -87,16 +87,21 @@ import javax.annotation.Nonnull;
 import net.jcip.annotations.NotThreadSafe;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
+import org.mockito.quality.Strictness;
 
 @NotThreadSafe
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(JUnit4.class)
 public class GcpFallbackChannelTest {
+  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule().strictness(Strictness.WARN);
 
   static class DummyMarshaller<T> implements Marshaller<Object> {
     @Override
