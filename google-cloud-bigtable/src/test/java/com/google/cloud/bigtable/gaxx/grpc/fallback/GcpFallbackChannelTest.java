@@ -115,7 +115,7 @@ public class GcpFallbackChannelTest {
       int bytesRead;
       byte[] data = new byte[4096];
       while ((bytesRead = is.read(data, 0, data.length)) != -1) {
-          buffer.write(data, 0, bytesRead);
+        buffer.write(data, 0, bytesRead);
       }
       return buffer.toByteArray();
     }
