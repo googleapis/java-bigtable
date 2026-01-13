@@ -15,6 +15,12 @@
  */
 package com.google.cloud.bigtable.gaxx.grpc;
 
+import static io.grpc.Status.Code.DEADLINE_EXCEEDED;
+import static io.grpc.Status.Code.UNAUTHENTICATED;
+import static io.grpc.Status.Code.UNAVAILABLE;
+import static io.grpc.Status.Code.UNIMPLEMENTED;
+import static io.grpc.Status.Code.UNKNOWN;
+
 import com.google.api.core.InternalApi;
 import com.google.api.gax.grpc.ChannelFactory;
 import com.google.api.gax.grpc.ChannelPoolSettings;
@@ -28,17 +34,9 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.ChannelPoolMetricsTracer;
 import com.google.cloud.bigtable.gaxx.grpc.fallback.GcpFallbackChannel;
 import com.google.cloud.bigtable.gaxx.grpc.fallback.GcpFallbackChannelOptions;
 import com.google.common.base.Preconditions;
-
 import io.grpc.Channel;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
-
-import static io.grpc.Status.Code.DEADLINE_EXCEEDED;
-import static io.grpc.Status.Code.UNAUTHENTICATED;
-import static io.grpc.Status.Code.UNAVAILABLE;
-import static io.grpc.Status.Code.UNIMPLEMENTED;
-import static io.grpc.Status.Code.UNKNOWN;
-
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
@@ -46,7 +44,6 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
-
 import javax.annotation.Nullable;
 
 /**
@@ -164,30 +161,30 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
 
     BigtableChannelPool btChannelPool =
         BigtableChannelPool.create(btPoolSettings, channelFactory, channelPrimer);
-    
+
     ManagedChannel resultingChannel = btChannelPool;
 
     // TODO: Also check if directpath is possible.
     if (settings != null && settings.isFallbackEnabled() && settings.isDirectpathEnabled()) {
       InstantiatingGrpcChannelProvider cloudpathChannelProvider =
           delegate.toBuilder()
-            .setAttemptDirectPath(false)
-            .setChannelPoolSettings(ChannelPoolSettings.staticallySized(1))
-            .build();
+              .setAttemptDirectPath(false)
+              .setChannelPoolSettings(ChannelPoolSettings.staticallySized(1))
+              .build();
 
       ChannelFactory cloudpathFactory =
-        () -> {
-          try {
-            GrpcTransportChannel channel =
-                (GrpcTransportChannel) cloudpathChannelProvider.getTransportChannel();
-            return (ManagedChannel) channel.getChannel();
-          } catch (IOException e) {
-            throw new java.io.UncheckedIOException(e);
-          }
-        };
+          () -> {
+            try {
+              GrpcTransportChannel channel =
+                  (GrpcTransportChannel) cloudpathChannelProvider.getTransportChannel();
+              return (ManagedChannel) channel.getChannel();
+            } catch (IOException e) {
+              throw new java.io.UncheckedIOException(e);
+            }
+          };
 
       BigtableChannelPool btCloupathPool =
-        BigtableChannelPool.create(btPoolSettings, cloudpathFactory, channelPrimer);
+          BigtableChannelPool.create(btPoolSettings, cloudpathFactory, channelPrimer);
 
       Function<Channel, String> probingFn =
           (channel) -> {
@@ -203,26 +200,30 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
 
       // Default options for now, but with probing.
       // TODO: enable oTel metrics if needed.
-      GcpFallbackChannelOptions fallbackOptions = GcpFallbackChannelOptions.newBuilder()
-        .setPrimaryChannelName("DIRECTPATH")
-        .setFallbackChannelName("CLOUDPATH")
-        .setEnableFallback(true)
-        .setPeriod(Duration.ofMinutes(1))
-        .setErroneousStates(Set.of(UNAVAILABLE, UNAUTHENTICATED, DEADLINE_EXCEEDED, UNKNOWN, UNIMPLEMENTED))
-        .setFallbackProbingInterval(Duration.ofMinutes(15))
-        .setPrimaryProbingInterval(Duration.ofMinutes(1))
-        .setMinFailedCalls(3)
-        .setErrorRateThreshold(1f)
-        .setFallbackProbingFunction(probingFn)
-        .setPrimaryProbingFunction(probingFn)
-        .build();
+      GcpFallbackChannelOptions fallbackOptions =
+          GcpFallbackChannelOptions.newBuilder()
+              .setPrimaryChannelName("DIRECTPATH")
+              .setFallbackChannelName("CLOUDPATH")
+              .setEnableFallback(true)
+              .setPeriod(Duration.ofMinutes(1))
+              .setErroneousStates(
+                  Set.of(UNAVAILABLE, UNAUTHENTICATED, DEADLINE_EXCEEDED, UNKNOWN, UNIMPLEMENTED))
+              .setFallbackProbingInterval(Duration.ofMinutes(15))
+              .setPrimaryProbingInterval(Duration.ofMinutes(1))
+              .setMinFailedCalls(3)
+              .setErrorRateThreshold(1f)
+              .setFallbackProbingFunction(probingFn)
+              .setPrimaryProbingFunction(probingFn)
+              .build();
 
       resultingChannel = new GcpFallbackChannel(fallbackOptions, btChannelPool, btCloupathPool);
     }
 
     if (channelPoolMetricsTracer != null) {
-      // resultingChannel is either BigtableChannelPool or GcpFallbackChannel here and both implement BigtableChannelPoolObserver.
-      channelPoolMetricsTracer.registerChannelInsightsProvider(((BigtableChannelPoolObserver) resultingChannel)::getChannelInfos);
+      // resultingChannel is either BigtableChannelPool or GcpFallbackChannel here and both
+      // implement BigtableChannelPoolObserver.
+      channelPoolMetricsTracer.registerChannelInsightsProvider(
+          ((BigtableChannelPoolObserver) resultingChannel)::getChannelInfos);
       channelPoolMetricsTracer.registerLoadBalancingStrategy(
           btPoolSettings.getLoadBalancingStrategy().name());
     }

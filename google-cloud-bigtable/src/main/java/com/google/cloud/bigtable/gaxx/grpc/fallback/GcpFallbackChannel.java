@@ -19,9 +19,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelObserver;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPoolObserver;
 import com.google.common.annotations.VisibleForTesting;
@@ -34,6 +31,8 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -384,11 +383,14 @@ public class GcpFallbackChannel extends ManagedChannel implements BigtableChanne
   @Override
   public List<? extends BigtableChannelObserver> getChannelInfos() {
     List<? extends BigtableChannelObserver> channelInfos = new ArrayList<>();
-    if (primaryDelegateChannel != null && primaryDelegateChannel instanceof BigtableChannelPoolObserver) {
+    if (primaryDelegateChannel != null
+        && primaryDelegateChannel instanceof BigtableChannelPoolObserver) {
       channelInfos.addAll(((BigtableChannelPoolObserver) primaryDelegateChannel).getChannelInfos());
     }
-    if (fallbackDelegateChannel != null && fallbackDelegateChannel instanceof BigtableChannelPoolObserver) {
-      channelInfos.addAll(((BigtableChannelPoolObserver) fallbackDelegateChannel).getChannelInfos());
+    if (fallbackDelegateChannel != null
+        && fallbackDelegateChannel instanceof BigtableChannelPoolObserver) {
+      channelInfos.addAll(
+          ((BigtableChannelPoolObserver) fallbackDelegateChannel).getChannelInfos());
     }
     return channelInfos;
   }
