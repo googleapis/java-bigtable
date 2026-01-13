@@ -39,6 +39,8 @@ import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -207,7 +209,9 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
               .setEnableFallback(true)
               .setPeriod(Duration.ofMinutes(1))
               .setErroneousStates(
-                  Set.of(UNAVAILABLE, UNAUTHENTICATED, DEADLINE_EXCEEDED, UNKNOWN, UNIMPLEMENTED))
+                  new HashSet<>(
+                    Arrays.asList(UNAVAILABLE, UNAUTHENTICATED, DEADLINE_EXCEEDED, UNKNOWN, UNIMPLEMENTED))
+                  )
               .setFallbackProbingInterval(Duration.ofMinutes(15))
               .setPrimaryProbingInterval(Duration.ofMinutes(1))
               .setMinFailedCalls(3)
