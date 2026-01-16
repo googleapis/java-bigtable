@@ -43,8 +43,8 @@ public class EmulatorController {
   private static final Logger LOGGER = Logger.getLogger(EmulatorController.class.getName());
 
   private final Path executable;
-  private volatile Process process;
-  private volatile boolean isStopped = true;
+  private Process process;
+  private boolean isStopped = true;
   private Thread shutdownHook;
 
   private int port;
@@ -137,9 +137,9 @@ public class EmulatorController {
               synchronized (EmulatorController.this) {
                 if (!isStopped) {
                   isStopped = true;
-                  process.destroy();
                 }
               }
+              process.destroy();
             });
 
     Runtime.getRuntime().addShutdownHook(shutdownHook);
