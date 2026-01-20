@@ -23,8 +23,8 @@ import org.threeten.bp.Duration;
 /**
  * Factory for creating safe GcRule protos.
  *
- * <p>Use this class to construct GcRules instead of the raw proto builder to avoid
- * common pitfalls with "oneof" fields (e.g. accidentally overwriting max age with max versions).
+ * <p>Use this class to construct GcRules instead of the raw proto builder to avoid common pitfalls
+ * with "oneof" fields (e.g. accidentally overwriting max age with max versions).
  */
 public final class GcRuleBuilder {
   private GcRuleBuilder() {} // Static utility

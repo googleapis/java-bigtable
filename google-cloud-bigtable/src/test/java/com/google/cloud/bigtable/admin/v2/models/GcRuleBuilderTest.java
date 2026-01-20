@@ -31,7 +31,7 @@ public class GcRuleBuilderTest {
   @Test
   public void maxAge_createsCorrectProto() {
     GcRule rule = GcRuleBuilder.maxAge(Duration.ofHours(1));
-    
+
     assertThat(rule.hasMaxAge()).isTrue();
     assertThat(rule.getMaxAge()).isEqualTo(Durations.fromHours(1));
   }
@@ -39,7 +39,7 @@ public class GcRuleBuilderTest {
   @Test
   public void maxVersions_createsCorrectProto() {
     GcRule rule = GcRuleBuilder.maxVersions(5);
-    
+
     assertThat(rule.hasMaxNumVersions()).isTrue();
     assertThat(rule.getMaxNumVersions()).isEqualTo(5);
   }
@@ -47,17 +47,20 @@ public class GcRuleBuilderTest {
   @Test
   public void intersection_buildsNestedRules() {
     // Expected Proto structure
-    GcRule expected = GcRule.newBuilder()
-        .setIntersection(GcRule.Intersection.newBuilder()
-            .addRules(GcRule.newBuilder().setMaxNumVersions(1).build())
-            .addRules(GcRule.newBuilder().setMaxAge(Durations.fromHours(2)).build()))
-        .build();
+    GcRule expected =
+        GcRule.newBuilder()
+            .setIntersection(
+                GcRule.Intersection.newBuilder()
+                    .addRules(GcRule.newBuilder().setMaxNumVersions(1).build())
+                    .addRules(GcRule.newBuilder().setMaxAge(Durations.fromHours(2)).build()))
+            .build();
 
     // Using the new Builder
-    GcRule actual = GcRuleBuilder.intersection()
-        .add(GcRuleBuilder.maxVersions(1))
-        .add(GcRuleBuilder.maxAge(Duration.ofHours(2)))
-        .build();
+    GcRule actual =
+        GcRuleBuilder.intersection()
+            .add(GcRuleBuilder.maxVersions(1))
+            .add(GcRuleBuilder.maxAge(Duration.ofHours(2)))
+            .build();
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -65,31 +68,36 @@ public class GcRuleBuilderTest {
   @Test
   public void union_buildsNestedRules() {
     // Expected Proto structure
-    GcRule expected = GcRule.newBuilder()
-        .setUnion(GcRule.Union.newBuilder()
-            .addRules(GcRule.newBuilder().setMaxNumVersions(10).build())
-            .addRules(GcRule.newBuilder().setMaxAge(Durations.fromDays(5)).build()))
-        .build();
+    GcRule expected =
+        GcRule.newBuilder()
+            .setUnion(
+                GcRule.Union.newBuilder()
+                    .addRules(GcRule.newBuilder().setMaxNumVersions(10).build())
+                    .addRules(GcRule.newBuilder().setMaxAge(Durations.fromDays(5)).build()))
+            .build();
 
     // Using the new Builder
-    GcRule actual = GcRuleBuilder.union()
-        .add(GcRuleBuilder.maxVersions(10))
-        .add(GcRuleBuilder.maxAge(Duration.ofDays(5)))
-        .build();
+    GcRule actual =
+        GcRuleBuilder.union()
+            .add(GcRuleBuilder.maxVersions(10))
+            .add(GcRuleBuilder.maxAge(Duration.ofDays(5)))
+            .build();
 
     assertThat(actual).isEqualTo(expected);
   }
-  
+
   @Test
   public void nestedComplexRules_workCorrectly() {
     // Union of (Version(1) OR Intersection(Age(1h) AND Version(5)))
-    GcRule actual = GcRuleBuilder.union()
-        .add(GcRuleBuilder.maxVersions(1))
-        .add(GcRuleBuilder.intersection()
-            .add(GcRuleBuilder.maxAge(Duration.ofHours(1)))
-            .add(GcRuleBuilder.maxVersions(5))
-            .build())
-        .build();
+    GcRule actual =
+        GcRuleBuilder.union()
+            .add(GcRuleBuilder.maxVersions(1))
+            .add(
+                GcRuleBuilder.intersection()
+                    .add(GcRuleBuilder.maxAge(Duration.ofHours(1)))
+                    .add(GcRuleBuilder.maxVersions(5))
+                    .build())
+            .build();
 
     assertThat(actual.getUnion().getRulesCount()).isEqualTo(2);
     assertThat(actual.getUnion().getRules(1).getIntersection().getRulesCount()).isEqualTo(2);

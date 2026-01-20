@@ -22,8 +22,8 @@ import com.google.bigtable.admin.v2.GcRule.Intersection;
 /**
  * Builder for creating an Intersection (AND) GC Rule.
  *
- * <p>This class ensures type safety when constructing composite rules, preventing
- * the misuse of the standard builder's ambiguous setters.
+ * <p>This class ensures type safety when constructing composite rules, preventing the misuse of the
+ * standard builder's ambiguous setters.
  */
 public final class IntersectionRuleBuilder {
   private final Intersection.Builder intersectionBuilder = Intersection.newBuilder();

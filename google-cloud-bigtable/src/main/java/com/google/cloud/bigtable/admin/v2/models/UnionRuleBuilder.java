@@ -22,8 +22,8 @@ import com.google.bigtable.admin.v2.GcRule.Union;
 /**
  * Builder for creating a Union (OR) GC Rule.
  *
- * <p>This class ensures type safety when constructing composite rules, preventing
- * the misuse of the standard builder's ambiguous setters.
+ * <p>This class ensures type safety when constructing composite rules, preventing the misuse of the
+ * standard builder's ambiguous setters.
  */
 public final class UnionRuleBuilder {
   private final Union.Builder unionBuilder = Union.newBuilder();
