@@ -23,7 +23,7 @@ import com.google.protobuf.util.Durations;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Duration;
+import java.time.Duration;
 
 @RunWith(JUnit4.class)
 public class GcRuleBuilderTest {
@@ -88,17 +88,34 @@ public class GcRuleBuilderTest {
 
   @Test
   public void nestedComplexRules_workCorrectly() {
-    // Union of (Version(1) OR Intersection(Age(1h) AND Version(5)))
-    GcRule actual =
-        GcRuleBuilder.union()
-            .add(GcRuleBuilder.maxVersions(1))
-            .add(
-                GcRuleBuilder.intersection()
-                    .add(GcRuleBuilder.maxAge(Duration.ofHours(1)))
-                    .add(GcRuleBuilder.maxVersions(5))
+    // Expected Proto structure: Union of (Version(1) OR Intersection(Age(1h) AND Version(5)))
+    GcRule expected = GcRule.newBuilder()
+        .setUnion(GcRule.Union.newBuilder()
+            .addRules(GcRule.newBuilder().setMaxNumVersions(1).build())
+            .addRules(GcRule.newBuilder()
+                .setIntersection(GcRule.Intersection.newBuilder()
+                    .addRules(GcRule.newBuilder()
+                        .setMaxAge(Durations.fromHours(1))
+                        .build())
+                    .addRules(GcRule.newBuilder().setMaxNumVersions(5).build())
                     .build())
-            .build();
+                .build())
+            .build())
+        .build();
 
+    // Using the new Builder
+    GcRule actual = GcRuleBuilder.union()
+        .add(GcRuleBuilder.maxVersions(1))
+        .add(GcRuleBuilder.intersection()
+            .add(GcRuleBuilder.maxAge(Duration.ofHours(1)))
+            .add(GcRuleBuilder.maxVersions(5))
+            .build())
+        .build();
+
+    // Verify the structure matches the raw proto construction
+    assertThat(actual).isEqualTo(expected);
+
+    // Verify specific properties
     assertThat(actual.getUnion().getRulesCount()).isEqualTo(2);
     assertThat(actual.getUnion().getRules(1).getIntersection().getRulesCount()).isEqualTo(2);
   }

@@ -28,13 +28,22 @@ import com.google.bigtable.admin.v2.GcRule.Intersection;
 public final class IntersectionRuleBuilder {
   private final Intersection.Builder intersectionBuilder = Intersection.newBuilder();
 
-  /** Adds a rule to the intersection. */
+  /**
+   * Adds a rule to the intersection.
+   *
+   * @param rule The rule to add to the intersection.
+   * @return The builder instance for chaining.
+   */
   public IntersectionRuleBuilder add(GcRule rule) {
     intersectionBuilder.addRules(rule);
     return this;
   }
 
-  /** Builds the final GcRule proto. */
+  /**
+   * Builds the final GcRule proto.
+   *
+   * @return The constructed GcRule proto.
+   */
   public GcRule build() {
     return GcRule.newBuilder().setIntersection(intersectionBuilder).build();
   }

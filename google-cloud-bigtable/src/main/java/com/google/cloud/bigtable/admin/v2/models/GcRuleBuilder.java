@@ -18,32 +18,46 @@ package com.google.cloud.bigtable.admin.v2.models;
 
 import com.google.bigtable.admin.v2.GcRule;
 import com.google.protobuf.util.Durations;
-import org.threeten.bp.Duration;
+import java.time.Duration;
 
 /**
  * Factory for creating safe GcRule protos.
  *
- * <p>Use this class to construct GcRules instead of the raw proto builder to avoid common pitfalls
- * with "oneof" fields (e.g. accidentally overwriting max age with max versions).
+ * <p>Use this class to construct {@link GcRule} instances instead of the raw proto builder
+ * ({@link GcRule#newBuilder()}) to avoid common pitfalls with "oneof" fields (e.g. accidentally
+ * overwriting max age with max versions).
  */
 public final class GcRuleBuilder {
   private GcRuleBuilder() {} // Static utility
 
   // Entry points for composite rules
 
-  /** Starts building an Intersection (AND) rule. */
+  /**
+   * Starts building an Intersection (AND) rule.
+   *
+   * @return A new builder for an intersection rule.
+   */
   public static IntersectionRuleBuilder intersection() {
     return new IntersectionRuleBuilder();
   }
 
-  /** Starts building a Union (OR) rule. */
+  /**
+   * Starts building a Union (OR) rule.
+   *
+   * @return A new builder for a union rule.
+   */
   public static UnionRuleBuilder union() {
     return new UnionRuleBuilder();
   }
 
   // Entry points for simple rules (return the Proto directly)
 
-  /** Creates a Max Age rule. */
+  /**
+   * Creates a Max Age rule.
+   *
+   * @param age The maximum age of the cell.
+   * @return The constructed GcRule proto.
+   */
   public static GcRule maxAge(Duration age) {
     long seconds = age.getSeconds();
     int nanos = age.getNano();
@@ -52,7 +66,12 @@ public final class GcRuleBuilder {
         .build();
   }
 
-  /** Creates a Max Versions rule. */
+  /**
+   * Creates a Max Versions rule.
+   *
+   * @param versions The maximum number of versions.
+   * @return The constructed GcRule proto.
+   */
   public static GcRule maxVersions(int versions) {
     return GcRule.newBuilder().setMaxNumVersions(versions).build();
   }

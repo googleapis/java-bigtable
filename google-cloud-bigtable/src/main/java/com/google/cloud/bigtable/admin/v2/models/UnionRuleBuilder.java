@@ -28,13 +28,22 @@ import com.google.bigtable.admin.v2.GcRule.Union;
 public final class UnionRuleBuilder {
   private final Union.Builder unionBuilder = Union.newBuilder();
 
-  /** Adds a rule to the union. */
+  /**
+   * Adds a rule to the union.
+   *
+   * @param rule The rule to add to the union.
+   * @return The builder instance for chaining.
+   */
   public UnionRuleBuilder add(GcRule rule) {
     unionBuilder.addRules(rule);
     return this;
   }
 
-  /** Builds the final GcRule proto. */
+  /**
+   * Builds the final GcRule proto.
+   *
+   * @return The constructed GcRule proto.
+   */
   public GcRule build() {
     return GcRule.newBuilder().setUnion(unionBuilder).build();
   }
