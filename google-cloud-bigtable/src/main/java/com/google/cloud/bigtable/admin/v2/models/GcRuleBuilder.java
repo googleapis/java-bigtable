@@ -23,9 +23,9 @@ import java.time.Duration;
 /**
  * Factory for creating safe GcRule protos.
  *
- * <p>Use this class to construct {@link GcRule} instances instead of the raw proto builder
- * ({@link GcRule#newBuilder()}) to avoid common pitfalls with "oneof" fields (e.g. accidentally
- * overwriting max age with max versions).
+ * <p>Use this class to construct {@link GcRule} instances instead of the raw proto builder ({@link
+ * GcRule#newBuilder()}) to avoid common pitfalls with "oneof" fields (e.g. accidentally overwriting
+ * max age with max versions).
  */
 public final class GcRuleBuilder {
   private GcRuleBuilder() {} // Static utility
