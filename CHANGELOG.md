@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.72.0](https://github.com/googleapis/java-bigtable/compare/v2.71.0...v2.72.0) (2026-01-22)
+
+
+### Features
+
+* Add GcRuleBuilder for safe GC rule construction ([#2758](https://github.com/googleapis/java-bigtable/issues/2758)) ([4a99a8c](https://github.com/googleapis/java-bigtable/commit/4a99a8ccad8469933b63aa63205bc2c800a24fef))
+
 ## [2.71.0](https://github.com/googleapis/java-bigtable/compare/v2.70.1...v2.71.0) (2026-01-15)
 
 
