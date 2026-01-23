@@ -25,12 +25,13 @@ import static com.google.api.MetricDescriptor.ValueType;
 import static com.google.api.MetricDescriptor.ValueType.DISTRIBUTION;
 import static com.google.api.MetricDescriptor.ValueType.DOUBLE;
 import static com.google.api.MetricDescriptor.ValueType.INT64;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APP_PROFILE_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.BIGTABLE_CLIENT_METRICS;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.BIGTABLE_PROJECT_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_UID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLUSTER_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.GRPC_METRICS;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID_KEY;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INTERNAL_METRICS;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METER_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID_KEY;
@@ -98,6 +99,14 @@ class BigtableExporterUtils {
   private static final Set<AttributeKey<String>> BIGTABLE_PROMOTED_RESOURCE_LABELS =
       ImmutableSet.of(
           BIGTABLE_PROJECT_ID_KEY, INSTANCE_ID_KEY, TABLE_ID_KEY, CLUSTER_ID_KEY, ZONE_ID_KEY);
+
+  // These labels are defined on the bigtable_client monitored resource. For connection level
+  // metrics, they are hard coded from the settings when we create the internal otel. For per
+  // request metrics, we update the values of these fields with the values from metrics label.
+  // This is needed for BigtableDataClientFactory when the otel instance is created with the
+  // shared settings and the clients are created with different instances / app profile ids.
+  private static final Set<AttributeKey<String>> BIGTABLE_CLIENT_RESOURCE_LABEL =
+      ImmutableSet.of(BIGTABLE_PROJECT_ID_KEY, INSTANCE_ID_KEY, APP_PROFILE_KEY);
 
   private static final Map<GCPPlatformDetector.SupportedPlatform, String> SUPPORTED_PLATFORM_MAP =
       ImmutableMap.of(
@@ -317,8 +326,10 @@ class BigtableExporterUtils {
     // To unify these:
     // - the useless views should be removed
     // - internal metrics should use relative metric names w/o the prefix
-    if (INTERNAL_METRICS.contains(metricData.getName())) {
-      metricBuilder = newApplicationMetricBuilder(metricData.getName(), pointData.getAttributes());
+    if (BIGTABLE_CLIENT_METRICS.contains(metricData.getName())) {
+      metricBuilder =
+          newApplicationMetricBuilder(
+              metricData.getName(), pointData.getAttributes(), applicationResource);
     } else if (GRPC_METRICS.containsKey(metricData.getName())) {
       metricBuilder = newGrpcMetricBuilder(metricData.getName(), pointData.getAttributes());
     } else {
@@ -343,10 +354,16 @@ class BigtableExporterUtils {
   }
 
   private static Metric.Builder newApplicationMetricBuilder(
-      String metricName, Attributes attributes) {
+      String metricName, Attributes attributes, MonitoredResource applicationResource) {
+    MonitoredResource.Builder updatedResource = applicationResource.toBuilder();
     // TODO: unify handling of metric prefixes
     Metric.Builder metricBuilder = Metric.newBuilder().setType(metricName);
     for (Map.Entry<AttributeKey<?>, Object> e : attributes.asMap().entrySet()) {
+      AttributeKey<?> key = e.getKey();
+      if (BIGTABLE_CLIENT_RESOURCE_LABEL.contains(key)) {
+        updatedResource.putLabels(key.getKey(), String.valueOf(e.getValue()));
+      }
+
       metricBuilder.putLabels(e.getKey().getKey(), String.valueOf(e.getValue()));
     }
     return metricBuilder;

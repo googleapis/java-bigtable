@@ -57,6 +57,7 @@ public class BuiltinMetricsConstants {
   static final AttributeKey<String> TRANSPORT_REGION = AttributeKey.stringKey("transport_region");
   static final AttributeKey<String> TRANSPORT_ZONE = AttributeKey.stringKey("transport_zone");
   static final AttributeKey<String> TRANSPORT_SUBZONE = AttributeKey.stringKey("transport_subzone");
+  static final AttributeKey<String> LB_POLICY_KEY = AttributeKey.stringKey("lb_policy");
 
   // gRPC attribute keys
   // Note that these attributes keys from transformed from
@@ -167,8 +168,13 @@ public class BuiltinMetricsConstants {
                   GRPC_TARGET_KEY.getKey()))
           .build();
 
-  public static final Set<String> INTERNAL_METRICS =
-      ImmutableSet.of(PER_CONNECTION_ERROR_COUNT_NAME, OUTSTANDING_RPCS_PER_CHANNEL_NAME).stream()
+  public static final Set<String> BIGTABLE_CLIENT_METRICS =
+      ImmutableSet.of(
+              PER_CONNECTION_ERROR_COUNT_NAME,
+              OUTSTANDING_RPCS_PER_CHANNEL_NAME,
+              BATCH_WRITE_FLOW_CONTROL_FACTOR_NAME,
+              BATCH_WRITE_FLOW_CONTROL_TARGET_QPS_NAME)
+          .stream()
           .map(m -> METER_NAME + m)
           .collect(ImmutableSet.toImmutableSet());
   // End allow list of metrics that will be exported
@@ -246,8 +252,6 @@ public class BuiltinMetricsConstants {
             .build();
     Set<String> attributesFilter =
         ImmutableSet.<String>builder()
-            .addAll(
-                COMMON_ATTRIBUTES.stream().map(AttributeKey::getKey).collect(Collectors.toSet()))
             .addAll(attributes.stream().map(AttributeKey::getKey).collect(Collectors.toSet()))
             .build();
     ViewBuilder viewBuilder =
@@ -259,7 +263,7 @@ public class BuiltinMetricsConstants {
   }
 
   // uses cloud.BigtableClient schema
-  public static Map<InstrumentSelector, View> getInternalViews() {
+  public static Map<InstrumentSelector, View> getBigtableClientViews() {
     ImmutableMap.Builder<InstrumentSelector, View> views = ImmutableMap.builder();
     defineView(
         views,
@@ -277,12 +281,43 @@ public class BuiltinMetricsConstants {
         InstrumentType.HISTOGRAM,
         "1",
         ImmutableSet.<AttributeKey>builder()
-            .add(BIGTABLE_PROJECT_ID_KEY, INSTANCE_ID_KEY, APP_PROFILE_KEY, CLIENT_NAME_KEY)
+            .add(
+                BIGTABLE_PROJECT_ID_KEY,
+                INSTANCE_ID_KEY,
+                APP_PROFILE_KEY,
+                TRANSPORT_TYPE,
+                STREAMING_KEY,
+                LB_POLICY_KEY)
+            .build());
+    defineView(
+        views,
+        BATCH_WRITE_FLOW_CONTROL_TARGET_QPS_NAME,
+        null,
+        InstrumentType.GAUGE,
+        "1",
+        ImmutableSet.<AttributeKey>builder()
+            .add(BIGTABLE_PROJECT_ID_KEY, INSTANCE_ID_KEY, APP_PROFILE_KEY, METHOD_KEY)
+            .build());
+    defineView(
+        views,
+        BATCH_WRITE_FLOW_CONTROL_FACTOR_NAME,
+        AGGREGATION_BATCH_WRITE_FLOW_CONTROL_FACTOR_HISTOGRAM,
+        InstrumentType.HISTOGRAM,
+        "1",
+        ImmutableSet.<AttributeKey>builder()
+            .add(
+                BIGTABLE_PROJECT_ID_KEY,
+                INSTANCE_ID_KEY,
+                APP_PROFILE_KEY,
+                STATUS_KEY,
+                APPLIED_KEY,
+                METHOD_KEY)
             .build());
     return views.build();
   }
 
-  public static Map<InstrumentSelector, View> getAllViews() {
+  // uses cloud.BigtableTable schema
+  public static Map<InstrumentSelector, View> getBigtableTableViews() {
     ImmutableMap.Builder<InstrumentSelector, View> views = ImmutableMap.builder();
 
     defineView(
@@ -372,23 +407,6 @@ public class BuiltinMetricsConstants {
         ImmutableSet.<AttributeKey>builder()
             .addAll(COMMON_ATTRIBUTES)
             .add(STREAMING_KEY, STATUS_KEY)
-            .build());
-    defineView(
-        views,
-        BATCH_WRITE_FLOW_CONTROL_TARGET_QPS_NAME,
-        null,
-        InstrumentType.GAUGE,
-        "1",
-        ImmutableSet.<AttributeKey>builder().addAll(COMMON_ATTRIBUTES).build());
-    defineView(
-        views,
-        BATCH_WRITE_FLOW_CONTROL_FACTOR_NAME,
-        AGGREGATION_BATCH_WRITE_FLOW_CONTROL_FACTOR_HISTOGRAM,
-        InstrumentType.HISTOGRAM,
-        "1",
-        ImmutableSet.<AttributeKey>builder()
-            .addAll(COMMON_ATTRIBUTES)
-            .add(STATUS_KEY, APPLIED_KEY)
             .build());
     return views.build();
   }
