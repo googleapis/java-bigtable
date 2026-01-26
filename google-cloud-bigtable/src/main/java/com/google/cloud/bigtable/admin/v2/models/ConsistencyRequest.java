@@ -24,6 +24,7 @@ import com.google.bigtable.admin.v2.StandardReadRemoteWrites;
 import com.google.bigtable.admin.v2.TableName;
 import com.google.cloud.bigtable.data.v2.internal.TableAdminRequestContext;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 @AutoValue
 public abstract class ConsistencyRequest {
@@ -33,14 +34,33 @@ public abstract class ConsistencyRequest {
   @Nonnull
   protected abstract CheckConsistencyRequest.ModeCase getMode();
 
+  /**
+   * Internal accessor for the consistency token.
+   * Must be public to be accessible from the stub package.
+   */
+  @InternalApi
+  @Nullable
+  public abstract String getConsistencyToken();
+
   public static ConsistencyRequest forReplication(String tableId) {
     return new AutoValue_ConsistencyRequest(
-        tableId, CheckConsistencyRequest.ModeCase.STANDARD_READ_REMOTE_WRITES);
+        tableId, CheckConsistencyRequest.ModeCase.STANDARD_READ_REMOTE_WRITES, null);
+  }
+
+  /**
+   * Creates a request to check consistency using an existing token.
+   *
+   * @param tableId The table ID.
+   * @param consistencyToken The token to check.
+   */
+  public static ConsistencyRequest forReplication(String tableId, String consistencyToken) {
+    return new AutoValue_ConsistencyRequest(
+        tableId, CheckConsistencyRequest.ModeCase.STANDARD_READ_REMOTE_WRITES, consistencyToken);
   }
 
   public static ConsistencyRequest forDataBoost(String tableId) {
     return new AutoValue_ConsistencyRequest(
-        tableId, CheckConsistencyRequest.ModeCase.DATA_BOOST_READ_LOCAL_WRITES);
+        tableId, CheckConsistencyRequest.ModeCase.DATA_BOOST_READ_LOCAL_WRITES, null);
   }
 
   @InternalApi

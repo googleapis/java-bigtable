@@ -1461,6 +1461,49 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
+   * Generates a consistency token and polls it until replication is consistent.
+   * Blocks until completion.
+   *
+   * @param tableId The table to check.
+   */
+  public void waitForConsistency(String tableId) {
+    awaitReplication(tableId);
+  }
+
+  /**
+   * Asynchronously generates a token and polls until consistent.
+   *
+   * @param tableId The table to check.
+   */
+  public ApiFuture<Void> waitForConsistencyAsync(String tableId) {
+    return awaitReplicationAsync(tableId);
+  }
+
+  /**
+   * Polls an existing consistency token until replication is consistent.
+   * Useful for checking consistency of a token generated in a separate process.
+   * Blocks until completion.
+   *
+   * @param tableId The table to check.
+   * @param consistencyToken The token to poll.
+   */
+  public void waitForConsistency(String tableId, String consistencyToken) {
+    ApiExceptions.callAndTranslateApiException(
+        waitForConsistencyAsync(tableId, consistencyToken));
+  }
+
+  /**
+   * Asynchronously polls an existing consistency token.
+   *
+   * @param tableId The table to check.
+   * @param consistencyToken The token to poll.
+   */
+  public ApiFuture<Void> waitForConsistencyAsync(String tableId, String consistencyToken) {
+    return stub.awaitConsistencyCallable().futureCall(
+        ConsistencyRequest.forReplication(tableId, consistencyToken));
+  }
+
+  /**
    * Creates a new authorized view with the specified configuration.
    *
    * <p>Sample code:
