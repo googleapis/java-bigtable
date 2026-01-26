@@ -353,7 +353,9 @@ public class AwaitConsistencyCallableTest {
 
     // 4. Verify: Generate was NEVER called, Check WAS called
     Mockito.verify(mockGenerateConsistencyTokenCallable, Mockito.never())
-        .futureCall(ArgumentMatchers.any(GenerateConsistencyTokenRequest.class), ArgumentMatchers.any(ApiCallContext.class));
+        .futureCall(
+            ArgumentMatchers.any(GenerateConsistencyTokenRequest.class),
+            ArgumentMatchers.any(ApiCallContext.class));
     Mockito.verify(mockCheckConsistencyCallable, Mockito.times(1))
         .futureCall(expectedCheckRequest, CALL_CONTEXT);
   }

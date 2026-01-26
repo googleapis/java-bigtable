@@ -35,8 +35,8 @@ public abstract class ConsistencyRequest {
   protected abstract CheckConsistencyRequest.ModeCase getMode();
 
   /**
-   * Internal accessor for the consistency token.
-   * Must be public to be accessible from the stub package.
+   * Internal accessor for the consistency token. Must be public to be accessible from the stub
+   * package.
    */
   @InternalApi
   @Nullable
