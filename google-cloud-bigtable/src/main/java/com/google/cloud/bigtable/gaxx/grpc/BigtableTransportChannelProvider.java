@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 /**
@@ -38,7 +40,7 @@ import javax.annotation.Nullable;
  */
 @InternalApi
 public final class BigtableTransportChannelProvider implements TransportChannelProvider {
-
+  static final Logger LOG = Logger.getLogger(BigtableTransportChannelProvider.class.getName());
   private final InstantiatingGrpcChannelProvider delegate;
   private final ChannelPrimer channelPrimer;
   @Nullable private final ChannelPoolMetricsTracer channelPoolMetricsTracer;
@@ -168,6 +170,13 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
       channelPoolMetricsTracer.registerChannelInsightsProvider(btChannelPool::getChannelInfos);
       channelPoolMetricsTracer.registerLoadBalancingStrategy(
           btPoolSettings.getLoadBalancingStrategy().name());
+      if (backgroundExecutor != null) {
+        channelPoolMetricsTracer.start(backgroundExecutor);
+      } else {
+        LOG.log(
+            Level.WARNING,
+            "backgroundExecutor is null, ChannelPoolMetricsTracer cannot be started.");
+      }
     }
 
     return GrpcTransportChannel.create(btChannelPool);

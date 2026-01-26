@@ -88,8 +88,7 @@ public class ChannelPoolMetricsTracer implements Runnable {
 
   /** Starts the periodic collection. */
   public ScheduledFuture<?> start(ScheduledExecutorService scheduler) {
-    return scheduler.scheduleAtFixedRate(
-        this, SAMPLING_PERIOD_SECONDS, SAMPLING_PERIOD_SECONDS, TimeUnit.SECONDS);
+    return scheduler.scheduleAtFixedRate(this, 0, SAMPLING_PERIOD_SECONDS, TimeUnit.SECONDS);
   }
 
   @Override
