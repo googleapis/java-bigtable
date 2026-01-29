@@ -1,6 +1,6 @@
-gapic_generator_version: 2.64.1
-googleapis_commitish: 15fa97d38ad2a38319426328c795ef76a03448bd
-libraries_bom_version: 26.71.0
+gapic_generator_version: 2.66.0
+googleapis_commitish: 598c395b092f184974f5b5fe625bc605ec2364b3
+libraries_bom_version: 26.74.0
 template_excludes:
   - .gitignore
   - .kokoro/presubmit/integration.cfg
