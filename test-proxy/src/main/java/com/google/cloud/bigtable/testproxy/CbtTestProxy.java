@@ -59,6 +59,7 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContext;
+import io.grpc.protobuf.StatusProto;
 import io.grpc.stub.StreamObserver;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
@@ -300,14 +301,10 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
               .build());
       responseObserver.onCompleted();
       return;
-    } catch (StatusRuntimeException e) {
+    } catch (StatusException | StatusRuntimeException e) {
       responseObserver.onNext(
           MutateRowResult.newBuilder()
-              .setStatus(
-                  com.google.rpc.Status.newBuilder()
-                      .setCode(e.getStatus().getCode().value())
-                      .setMessage(e.getStatus().getDescription())
-                      .build())
+              .setStatus(StatusProto.fromThrowable(e))
               .build());
       responseObserver.onCompleted();
       return;
@@ -365,14 +362,10 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
               .build());
       responseObserver.onCompleted();
       return;
-    } catch (StatusRuntimeException e) {
+    } catch (StatusException | StatusRuntimeException e) {
       responseObserver.onNext(
           MutateRowsResult.newBuilder()
-              .setStatus(
-                  com.google.rpc.Status.newBuilder()
-                      .setCode(e.getStatus().getCode().value())
-                      .setMessage(e.getStatus().getDescription())
-                      .build())
+              .setStatus(StatusProto.fromThrowable(e))
               .build());
       responseObserver.onCompleted();
       return;
@@ -430,14 +423,10 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
               .build());
       responseObserver.onCompleted();
       return;
-    } catch (StatusRuntimeException e) {
+    } catch (StatusException | StatusRuntimeException e) {
       responseObserver.onNext(
           RowResult.newBuilder()
-              .setStatus(
-                  com.google.rpc.Status.newBuilder()
-                      .setCode(e.getStatus().getCode().value())
-                      .setMessage(e.getStatus().getDescription())
-                      .build())
+              .setStatus(StatusProto.fromThrowable(e))
               .build());
       responseObserver.onCompleted();
       return;
@@ -486,14 +475,10 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
               .build());
       responseObserver.onCompleted();
       return;
-    } catch (StatusRuntimeException e) {
+    } catch (StatusException | StatusRuntimeException e) {
       responseObserver.onNext(
           RowsResult.newBuilder()
-              .setStatus(
-                  com.google.rpc.Status.newBuilder()
-                      .setCode(e.getStatus().getCode().value())
-                      .setMessage(e.getStatus().getDescription())
-                      .build())
+              .setStatus(StatusProto.fromThrowable(e))
               .build());
       responseObserver.onCompleted();
       return;
@@ -616,14 +601,10 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
               .build());
       responseObserver.onCompleted();
       return;
-    } catch (StatusRuntimeException e) {
+    } catch (StatusException | StatusRuntimeException e) {
       responseObserver.onNext(
           SampleRowKeysResult.newBuilder()
-              .setStatus(
-                  com.google.rpc.Status.newBuilder()
-                      .setCode(e.getStatus().getCode().value())
-                      .setMessage(e.getStatus().getDescription())
-                      .build())
+              .setStatus(StatusProto.fromThrowable(e))
               .build());
       responseObserver.onCompleted();
       return;
@@ -667,14 +648,10 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
               .build());
       responseObserver.onCompleted();
       return;
-    } catch (StatusRuntimeException e) {
+    } catch (StatusException | StatusRuntimeException e) {
       responseObserver.onNext(
           CheckAndMutateRowResult.newBuilder()
-              .setStatus(
-                  com.google.rpc.Status.newBuilder()
-                      .setCode(e.getStatus().getCode().value())
-                      .setMessage(e.getStatus().getDescription())
-                      .build())
+              .setStatus(StatusProto.fromThrowable(e))
               .build());
       responseObserver.onCompleted();
       return;
@@ -724,14 +701,10 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
               .build());
       responseObserver.onCompleted();
       return;
-    } catch (StatusRuntimeException e) {
+    } catch (StatusException | StatusRuntimeException e) {
       responseObserver.onNext(
           RowResult.newBuilder()
-              .setStatus(
-                  com.google.rpc.Status.newBuilder()
-                      .setCode(e.getStatus().getCode().value())
-                      .setMessage(e.getStatus().getDescription())
-                      .build())
+              .setStatus(StatusProto.fromThrowable(e))
               .build());
       responseObserver.onCompleted();
       return;
@@ -793,14 +766,10 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
               .build());
       responseObserver.onCompleted();
       return;
-    } catch (StatusRuntimeException e) {
+    } catch (StatusException | StatusRuntimeException e) {
       responseObserver.onNext(
           ExecuteQueryResult.newBuilder()
-              .setStatus(
-                  com.google.rpc.Status.newBuilder()
-                      .setCode(e.getStatus().getCode().value())
-                      .setMessage(e.getStatus().getDescription())
-                      .build())
+              .setStatus(StatusProto.fromThrowable(e))
               .build());
       responseObserver.onCompleted();
       return;
