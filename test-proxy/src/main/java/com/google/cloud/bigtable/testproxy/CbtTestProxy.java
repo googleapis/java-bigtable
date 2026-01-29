@@ -411,8 +411,6 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
             resultBuilder.setStatus(com.google.rpc.Status.getDefaultInstance()).build());
       } else {
         logger.info(String.format("readRow() did not find row: %s", request.getRowKey()));
-        responseObserver.onNext(
-            RowResult.newBuilder().setStatus(com.google.rpc.Status.getDefaultInstance()).build());
       }
     } catch (ApiException e) {
       responseObserver.onNext(
