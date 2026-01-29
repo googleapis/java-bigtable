@@ -300,6 +300,17 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
               .build());
       responseObserver.onCompleted();
       return;
+    } catch (StatusRuntimeException e) {
+      responseObserver.onNext(
+          MutateRowResult.newBuilder()
+              .setStatus(
+                  com.google.rpc.Status.newBuilder()
+                      .setCode(e.getStatus().getCode().value())
+                      .setMessage(e.getStatus().getDescription())
+                      .build())
+              .build());
+      responseObserver.onCompleted();
+      return;
     }
 
     responseObserver.onNext(
@@ -354,6 +365,17 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
               .build());
       responseObserver.onCompleted();
       return;
+    } catch (StatusRuntimeException e) {
+      responseObserver.onNext(
+          MutateRowsResult.newBuilder()
+              .setStatus(
+                  com.google.rpc.Status.newBuilder()
+                      .setCode(e.getStatus().getCode().value())
+                      .setMessage(e.getStatus().getDescription())
+                      .build())
+              .build());
+      responseObserver.onCompleted();
+      return;
     }
 
     responseObserver.onNext(
@@ -388,6 +410,15 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
           client
               .dataClient()
               .readRow(tableId, request.getRowKey(), FILTERS.fromProto(request.getFilter()));
+      if (row != null) {
+        RowResult.Builder resultBuilder = convertRowResult(row);
+        responseObserver.onNext(
+            resultBuilder.setStatus(com.google.rpc.Status.getDefaultInstance()).build());
+      } else {
+        logger.info(String.format("readRow() did not find row: %s", request.getRowKey()));
+        responseObserver.onNext(
+            RowResult.newBuilder().setStatus(com.google.rpc.Status.getDefaultInstance()).build());
+      }
     } catch (ApiException e) {
       responseObserver.onNext(
           RowResult.newBuilder()
@@ -399,30 +430,29 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
               .build());
       responseObserver.onCompleted();
       return;
-    }
-
-    if (row != null) {
-      try {
-        RowResult.Builder resultBuilder = convertRowResult(row);
-        responseObserver.onNext(
-            resultBuilder.setStatus(com.google.rpc.Status.getDefaultInstance()).build());
-      } catch (RuntimeException e) {
-        // If client encounters problem, don't return any row result.
-        responseObserver.onNext(
-            RowResult.newBuilder()
-                .setStatus(
-                    com.google.rpc.Status.newBuilder()
-                        .setCode(Code.INTERNAL.getNumber())
-                        .setMessage(e.getMessage())
-                        .build())
-                .build());
-        responseObserver.onCompleted();
-        return;
-      }
-    } else {
-      logger.info(String.format("readRow() did not find row: %s", request.getRowKey()));
+    } catch (StatusRuntimeException e) {
       responseObserver.onNext(
-          RowResult.newBuilder().setStatus(com.google.rpc.Status.getDefaultInstance()).build());
+          RowResult.newBuilder()
+              .setStatus(
+                  com.google.rpc.Status.newBuilder()
+                      .setCode(e.getStatus().getCode().value())
+                      .setMessage(e.getStatus().getDescription())
+                      .build())
+              .build());
+      responseObserver.onCompleted();
+      return;
+    } catch (RuntimeException e) {
+      // If client encounters problem, don't return any row result.
+      responseObserver.onNext(
+          RowResult.newBuilder()
+              .setStatus(
+                  com.google.rpc.Status.newBuilder()
+                      .setCode(Code.INTERNAL.getNumber())
+                      .setMessage(e.getMessage())
+                      .build())
+              .build());
+      responseObserver.onCompleted();
+      return;
     }
     responseObserver.onCompleted();
   }
@@ -441,6 +471,10 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
     Query query = Query.fromProto(request.getRequest());
     try {
       rows = client.dataClient().readRows(query);
+      int cancelAfterRows = request.getCancelAfterRows();
+      RowsResult.Builder resultBuilder = convertRowsResult(rows, cancelAfterRows);
+      responseObserver.onNext(
+          resultBuilder.setStatus(com.google.rpc.Status.getDefaultInstance()).build());
     } catch (ApiException e) {
       responseObserver.onNext(
           RowsResult.newBuilder()
@@ -452,13 +486,17 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
               .build());
       responseObserver.onCompleted();
       return;
-    }
-
-    int cancelAfterRows = request.getCancelAfterRows();
-    try {
-      RowsResult.Builder resultBuilder = convertRowsResult(rows, cancelAfterRows);
+    } catch (StatusRuntimeException e) {
       responseObserver.onNext(
-          resultBuilder.setStatus(com.google.rpc.Status.getDefaultInstance()).build());
+          RowsResult.newBuilder()
+              .setStatus(
+                  com.google.rpc.Status.newBuilder()
+                      .setCode(e.getStatus().getCode().value())
+                      .setMessage(e.getStatus().getDescription())
+                      .build())
+              .build());
+      responseObserver.onCompleted();
+      return;
     } catch (RuntimeException e) {
       // If client encounters problem, don't return any row result.
       responseObserver.onNext(
@@ -578,6 +616,17 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
               .build());
       responseObserver.onCompleted();
       return;
+    } catch (StatusRuntimeException e) {
+      responseObserver.onNext(
+          SampleRowKeysResult.newBuilder()
+              .setStatus(
+                  com.google.rpc.Status.newBuilder()
+                      .setCode(e.getStatus().getCode().value())
+                      .setMessage(e.getStatus().getDescription())
+                      .build())
+              .build());
+      responseObserver.onCompleted();
+      return;
     }
 
     SampleRowKeysResult.Builder resultBuilder = SampleRowKeysResult.newBuilder();
@@ -618,6 +667,17 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
               .build());
       responseObserver.onCompleted();
       return;
+    } catch (StatusRuntimeException e) {
+      responseObserver.onNext(
+          CheckAndMutateRowResult.newBuilder()
+              .setStatus(
+                  com.google.rpc.Status.newBuilder()
+                      .setCode(e.getStatus().getCode().value())
+                      .setMessage(e.getStatus().getDescription())
+                      .build())
+              .build());
+      responseObserver.onCompleted();
+      return;
     }
 
     CheckAndMutateRowResult.Builder resultBuilder = CheckAndMutateRowResult.newBuilder();
@@ -642,6 +702,17 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
     ReadModifyWriteRow mutation = ReadModifyWriteRow.fromProto(request.getRequest());
     try {
       row = client.dataClient().readModifyWriteRow(mutation);
+      if (row != null) {
+        RowResult.Builder resultBuilder = convertRowResult(row);
+        responseObserver.onNext(
+            resultBuilder.setStatus(com.google.rpc.Status.getDefaultInstance()).build());
+      } else {
+        logger.info(
+            String.format(
+                "readModifyWriteRow() did not find row: %s", request.getRequest().getRowKey()));
+        responseObserver.onNext(
+            RowResult.newBuilder().setStatus(com.google.rpc.Status.getDefaultInstance()).build());
+      }
     } catch (ApiException e) {
       responseObserver.onNext(
           RowResult.newBuilder()
@@ -653,32 +724,29 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
               .build());
       responseObserver.onCompleted();
       return;
-    }
-
-    if (row != null) {
-      try {
-        RowResult.Builder resultBuilder = convertRowResult(row);
-        responseObserver.onNext(
-            resultBuilder.setStatus(com.google.rpc.Status.getDefaultInstance()).build());
-      } catch (RuntimeException e) {
-        // If client encounters problem, fail the whole operation.
-        responseObserver.onNext(
-            RowResult.newBuilder()
-                .setStatus(
-                    com.google.rpc.Status.newBuilder()
-                        .setCode(Code.INTERNAL.getNumber())
-                        .setMessage(e.getMessage())
-                        .build())
-                .build());
-        responseObserver.onCompleted();
-        return;
-      }
-    } else {
-      logger.info(
-          String.format(
-              "readModifyWriteRow() did not find row: %s", request.getRequest().getRowKey()));
+    } catch (StatusRuntimeException e) {
       responseObserver.onNext(
-          RowResult.newBuilder().setStatus(com.google.rpc.Status.getDefaultInstance()).build());
+          RowResult.newBuilder()
+              .setStatus(
+                  com.google.rpc.Status.newBuilder()
+                      .setCode(e.getStatus().getCode().value())
+                      .setMessage(e.getStatus().getDescription())
+                      .build())
+              .build());
+      responseObserver.onCompleted();
+      return;
+    } catch (RuntimeException e) {
+      // If client encounters problem, fail the whole operation.
+      responseObserver.onNext(
+          RowResult.newBuilder()
+              .setStatus(
+                  com.google.rpc.Status.newBuilder()
+                      .setCode(Code.INTERNAL.getNumber())
+                      .setMessage(e.getMessage())
+                      .build())
+              .build());
+      responseObserver.onCompleted();
+      return;
     }
     responseObserver.onCompleted();
   }
