@@ -303,9 +303,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
       return;
     } catch (StatusException | StatusRuntimeException e) {
       responseObserver.onNext(
-          MutateRowResult.newBuilder()
-              .setStatus(StatusProto.fromThrowable(e))
-              .build());
+          MutateRowResult.newBuilder().setStatus(StatusProto.fromThrowable(e)).build());
       responseObserver.onCompleted();
       return;
     }
@@ -364,9 +362,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
       return;
     } catch (StatusException | StatusRuntimeException e) {
       responseObserver.onNext(
-          MutateRowsResult.newBuilder()
-              .setStatus(StatusProto.fromThrowable(e))
-              .build());
+          MutateRowsResult.newBuilder().setStatus(StatusProto.fromThrowable(e)).build());
       responseObserver.onCompleted();
       return;
     }
@@ -425,9 +421,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
       return;
     } catch (StatusException | StatusRuntimeException e) {
       responseObserver.onNext(
-          RowResult.newBuilder()
-              .setStatus(StatusProto.fromThrowable(e))
-              .build());
+          RowResult.newBuilder().setStatus(StatusProto.fromThrowable(e)).build());
       responseObserver.onCompleted();
       return;
     } catch (RuntimeException e) {
@@ -478,9 +472,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
       return;
     } catch (StatusException | StatusRuntimeException e) {
       responseObserver.onNext(
-          RowsResult.newBuilder()
-              .setStatus(StatusProto.fromThrowable(e))
-              .build());
+          RowsResult.newBuilder().setStatus(StatusProto.fromThrowable(e)).build());
       responseObserver.onCompleted();
       return;
     } catch (RuntimeException e) {
@@ -604,9 +596,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
       return;
     } catch (StatusException | StatusRuntimeException e) {
       responseObserver.onNext(
-          SampleRowKeysResult.newBuilder()
-              .setStatus(StatusProto.fromThrowable(e))
-              .build());
+          SampleRowKeysResult.newBuilder().setStatus(StatusProto.fromThrowable(e)).build());
       responseObserver.onCompleted();
       return;
     }
@@ -652,9 +642,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
       return;
     } catch (StatusException | StatusRuntimeException e) {
       responseObserver.onNext(
-          CheckAndMutateRowResult.newBuilder()
-              .setStatus(StatusProto.fromThrowable(e))
-              .build());
+          CheckAndMutateRowResult.newBuilder().setStatus(StatusProto.fromThrowable(e)).build());
       responseObserver.onCompleted();
       return;
     }
@@ -705,9 +693,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
       return;
     } catch (StatusException | StatusRuntimeException e) {
       responseObserver.onNext(
-          RowResult.newBuilder()
-              .setStatus(StatusProto.fromThrowable(e))
-              .build());
+          RowResult.newBuilder().setStatus(StatusProto.fromThrowable(e)).build());
       responseObserver.onCompleted();
       return;
     } catch (RuntimeException e) {
@@ -770,9 +756,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
       return;
     } catch (StatusException | StatusRuntimeException e) {
       responseObserver.onNext(
-          ExecuteQueryResult.newBuilder()
-              .setStatus(StatusProto.fromThrowable(e))
-              .build());
+          ExecuteQueryResult.newBuilder().setStatus(StatusProto.fromThrowable(e)).build());
       responseObserver.onCompleted();
       return;
     } catch (RuntimeException e) {
