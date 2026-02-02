@@ -39,7 +39,6 @@ import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.grpc.GaxGrpcProperties;
 import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.GrpcTransportChannel;
-import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.FailedPreconditionException;
 import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.api.gax.rpc.InstantiatingWatchdogProvider;
@@ -709,7 +708,8 @@ public class EnhancedBigtableStubTest {
       contextInterceptor.contexts.clear();
 
       // Override the timeout
-      GrpcCallContext clientCtx = GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
+      GrpcCallContext clientCtx =
+              GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
 
       // Send a batch
       try (Batcher<RowMutationEntry, Void> batcher =
@@ -738,7 +738,8 @@ public class EnhancedBigtableStubTest {
       contextInterceptor.contexts.clear();
 
       // Override the timeout
-      GrpcCallContext clientCtx = GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
+      GrpcCallContext clientCtx =
+              GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
 
       // Send a batch
       try (Batcher<ByteString, Row> batcher =
