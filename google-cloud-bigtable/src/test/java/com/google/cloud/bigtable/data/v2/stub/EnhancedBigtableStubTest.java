@@ -709,11 +709,7 @@ public class EnhancedBigtableStubTest {
       contextInterceptor.contexts.clear();
 
       // Override the timeout
-      GrpcCallContext clientCtx =
-          GrpcCallContext.createDefault()
-              .withTimeout(Duration.ofMinutes(10))
-              .withRetrySettings(
-                  RetrySettings.newBuilder().setTotalTimeout(Duration.ofMinutes(10)).build());
+      GrpcCallContext clientCtx = GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
 
       // Send a batch
       try (Batcher<RowMutationEntry, Void> batcher =
@@ -742,11 +738,7 @@ public class EnhancedBigtableStubTest {
       contextInterceptor.contexts.clear();
 
       // Override the timeout
-      GrpcCallContext clientCtx =
-          GrpcCallContext.createDefault()
-              .withTimeout(Duration.ofMinutes(10))
-              .withRetrySettings(
-                  RetrySettings.newBuilder().setTotalTimeout(Duration.ofMinutes(10)).build());
+      GrpcCallContext clientCtx = GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
 
       // Send a batch
       try (Batcher<ByteString, Row> batcher =
@@ -981,7 +973,7 @@ public class EnhancedBigtableStubTest {
     final BlockingQueue<MethodContext> contexts = Queues.newLinkedBlockingDeque();
 
     static class MethodContext {
-      final MethodDescriptor<?, ?> method;
+      final MethodDescriptor<?,?> method;
       final Context context;
 
       MethodContext(MethodDescriptor<?, ?> method, Context context) {
