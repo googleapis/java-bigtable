@@ -709,7 +709,7 @@ public class EnhancedBigtableStubTest {
 
       // Override the timeout
       GrpcCallContext clientCtx =
-              GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
+          GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
 
       // Send a batch
       try (Batcher<RowMutationEntry, Void> batcher =
@@ -739,7 +739,7 @@ public class EnhancedBigtableStubTest {
 
       // Override the timeout
       GrpcCallContext clientCtx =
-              GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
+          GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
 
       // Send a batch
       try (Batcher<ByteString, Row> batcher =
