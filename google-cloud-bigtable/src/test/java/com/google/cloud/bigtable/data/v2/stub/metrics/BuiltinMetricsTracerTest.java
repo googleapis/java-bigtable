@@ -281,9 +281,7 @@ public class BuiltinMetricsTracerTest {
           if (oldConfigurator != null) {
             builder = oldConfigurator.apply(builder);
           }
-          return builder
-            .proxyDetector(delayProxyDetector)
-            .intercept(outstandingRpcCounter);
+          return builder.proxyDetector(delayProxyDetector).intercept(outstandingRpcCounter);
         });
     stubSettingsBuilder.setTransportChannelProvider(channelProvider.build());
     EnhancedBigtableStubSettings stubSettings = stubSettingsBuilder.build();
@@ -1141,34 +1139,41 @@ public class BuiltinMetricsTracerTest {
     private final Object lock = new Object();
 
     @Override
-    public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> methodDescriptor, CallOptions callOptions, Channel channel) {
+    public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+        MethodDescriptor<ReqT, RespT> methodDescriptor, CallOptions callOptions, Channel channel) {
       synchronized (lock) {
         numOutstandingRpcs++;
       }
-      return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(channel.newCall(methodDescriptor, callOptions)) {
+      return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(
+          channel.newCall(methodDescriptor, callOptions)) {
         @Override
         public void start(Listener<RespT> responseListener, Metadata headers) {
-          super.start(new ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT>(responseListener) {
-            @Override
-            public void onClose(Status status, Metadata trailers) {
-              super.onClose(status, trailers);
-              synchronized (lock) {
-                numOutstandingRpcs--;
-                lock.notify();
-              }
-            }
-          }, headers);
+          super.start(
+              new ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT>(
+                  responseListener) {
+                @Override
+                public void onClose(Status status, Metadata trailers) {
+                  super.onClose(status, trailers);
+                  synchronized (lock) {
+                    numOutstandingRpcs--;
+                    lock.notify();
+                  }
+                }
+              },
+              headers);
         }
       };
     }
+
     void waitUntilRpcsDone() throws InterruptedException {
       synchronized (lock) {
-        while(numOutstandingRpcs > 0) {
+        while (numOutstandingRpcs > 0) {
           lock.wait();
         }
       }
     }
   }
+
   class DelayProxyDetector implements ProxyDetector {
     private volatile Instant lastProxyDelay = null;
 
