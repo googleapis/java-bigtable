@@ -974,7 +974,7 @@ public class EnhancedBigtableStubTest {
     final BlockingQueue<MethodContext> contexts = Queues.newLinkedBlockingDeque();
 
     static class MethodContext {
-      final MethodDescriptor<?,?> method;
+      final MethodDescriptor<?, ?> method;
       final Context context;
 
       MethodContext(MethodDescriptor<?, ?> method, Context context) {
