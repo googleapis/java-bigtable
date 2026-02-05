@@ -1461,8 +1461,9 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Polls an existing consistency token until replication is consistent. Useful for checking
-   * consistency of a token generated in a separate process. Blocks until completion.
+   * Polls an existing consistency token until table replication is consistent across all clusters.
+   * Useful for checking consistency of a token generated in a separate process. Blocks until
+   * completion.
    *
    * @param tableId The table to check.
    * @param consistencyToken The token to poll.
@@ -1472,7 +1473,8 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously polls an existing consistency token.
+   * Asynchronously polls the consistency token. Returns a future that completes when table
+   * replication is consistent across all clusters.
    *
    * @param tableId The table to check.
    * @param consistencyToken The token to poll.
