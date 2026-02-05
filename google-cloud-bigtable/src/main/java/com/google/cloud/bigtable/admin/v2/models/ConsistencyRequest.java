@@ -23,6 +23,7 @@ import com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest;
 import com.google.bigtable.admin.v2.StandardReadRemoteWrites;
 import com.google.bigtable.admin.v2.TableName;
 import com.google.cloud.bigtable.data.v2.internal.TableAdminRequestContext;
+import com.google.common.base.Preconditions;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -51,9 +52,12 @@ public abstract class ConsistencyRequest {
    * Creates a request to check consistency using an existing token.
    *
    * @param tableId The table ID.
-   * @param consistencyToken The token to check.
+   * @param consistencyToken The token to check. Must not be null.
+   * @throws NullPointerException if consistencyToken is null.
    */
   public static ConsistencyRequest forReplication(String tableId, String consistencyToken) {
+    Preconditions.checkNotNull(consistencyToken, "consistencyToken must not be null");
+
     return new AutoValue_ConsistencyRequest(
         tableId, CheckConsistencyRequest.ModeCase.STANDARD_READ_REMOTE_WRITES, consistencyToken);
   }
