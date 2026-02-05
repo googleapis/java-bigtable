@@ -8,7 +8,7 @@
 *                       @googleapis/cloud-sdk-java-team @googleapis/api-bigtable
 
 # for handwritten libraries, keep codeowner_team in .repo-metadata.json as owner
-**/*.java               @googleapis/api-bigtable
+**/*.java               @googleapis/api-bigtable @googleapis/cloud-sdk-java-team
 
 
 # The java-samples-reviewers team is the default owner for samples changes
