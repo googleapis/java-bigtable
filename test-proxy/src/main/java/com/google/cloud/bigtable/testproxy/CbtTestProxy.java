@@ -466,7 +466,6 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
     responseObserver.onCompleted();
   }
 
-
   /**
    * Helper method to convert row from type com.google.cloud.bigtable.data.v2.models.Row to type
    * com.google.bigtable.v2.Row. After conversion, row cells within the same column and family are
