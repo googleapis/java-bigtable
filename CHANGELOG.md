@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.73.1](https://github.com/googleapis/java-bigtable/compare/v2.73.0...v2.73.1) (2026-02-12)
+
+
+### Bug Fixes
+
+* Test proxy doesn't return "http2 excpetion" for long errors ([#2775](https://github.com/googleapis/java-bigtable/issues/2775)) ([dafe647](https://github.com/googleapis/java-bigtable/commit/dafe647ab7877f65b5d73e2a6519f71e6eb03f77))
+* Use StatusProto.fromThrowable for ApiException in test-proxy ([#2778](https://github.com/googleapis/java-bigtable/issues/2778)) ([de1669e](https://github.com/googleapis/java-bigtable/commit/de1669e882b814ff1708d2b74e62540f5bcd3dbf))
+
 ## [2.73.0](https://github.com/googleapis/java-bigtable/compare/v2.72.0...v2.73.0) (2026-02-06)
 
 
