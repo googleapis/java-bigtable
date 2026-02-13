@@ -72,6 +72,7 @@ import com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest;
 import com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub;
 import com.google.cloud.bigtable.data.v2.internal.TableAdminRequestContext;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -88,9 +89,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
-import com.google.bigtable.admin.v2.OptimizeRestoredTableMetadata;
-import com.google.bigtable.admin.v2.RestoreTableMetadata;
-import com.google.common.base.Strings;
 
 /**
  * Client for creating, configuring, and deleting Cloud Bigtable tables
@@ -1300,16 +1298,15 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-  * Awaits the completion of the "Optimize Restored Table" operation.
-  *
-  * <p>This method blocks until the restore operation is complete, extracts the optimization token,
-  * and returns an ApiFuture for the optimization phase.
-  *
-  * @param restoreFuture The future returned by restoreTableAsync().
-  * @return An ApiFuture that tracks the optimization progress.
-  */
-  public ApiFuture<Empty> awaitOptimizeRestoredTable(
-      ApiFuture<RestoredTableResult> restoreFuture) {
+   * Awaits the completion of the "Optimize Restored Table" operation.
+   *
+   * <p>This method blocks until the restore operation is complete, extracts the optimization token,
+   * and returns an ApiFuture for the optimization phase.
+   *
+   * @param restoreFuture The future returned by restoreTableAsync().
+   * @return An ApiFuture that tracks the optimization progress.
+   */
+  public ApiFuture<Empty> awaitOptimizeRestoredTable(ApiFuture<RestoredTableResult> restoreFuture) {
     // 1. Block and wait for the restore operation to complete
     RestoredTableResult result;
     try {
