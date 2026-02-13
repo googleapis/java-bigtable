@@ -30,8 +30,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 /**
@@ -168,7 +166,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
     if (channelPoolMetricsTracer != null) {
       channelPoolMetricsTracer.registerChannelInsightsProvider(btChannelPool::getChannelInfos);
       channelPoolMetricsTracer.registerLoadBalancingStrategy(
-              btPoolSettings.getLoadBalancingStrategy().name());
+          btPoolSettings.getLoadBalancingStrategy().name());
     }
 
     return GrpcTransportChannel.create(btChannelPool);
