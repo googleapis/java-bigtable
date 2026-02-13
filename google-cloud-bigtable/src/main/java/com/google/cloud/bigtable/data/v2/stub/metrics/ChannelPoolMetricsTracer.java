@@ -101,7 +101,6 @@ public class ChannelPoolMetricsTracer implements Runnable {
 
     String lbPolicy = lbPolicyRef.get();
 
-    // Build the four permutations once per run to avoid allocations in the channel loop
     Attributes dpUnaryAttrs =
         Attributes.builder()
             .put("transport_type", "directpath")
@@ -133,13 +132,11 @@ public class ChannelPoolMetricsTracer implements Runnable {
 
       long currentOutstandingUnaryRpcs = info.getOutstandingUnaryRpcs();
       long currentOutstandingStreamingRpcs = info.getOutstandingStreamingRpcs();
-
-      // Record outstanding RPCs with the transport_type, streaming, and lb_policy attributes
       outstandingRpcsHistogram.record(currentOutstandingUnaryRpcs, unaryAttrs);
       outstandingRpcsHistogram.record(currentOutstandingStreamingRpcs, streamingAttrs);
 
       long errors = info.getAndResetErrorCount();
-      // Record errors with empty attributes as requested
+      // Record errors with empty attributes.
       perConnectionErrorCountHistogram.record(errors, Attributes.empty());
     }
   }
