@@ -500,6 +500,18 @@
         <method>com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPoolSettings$Builder setLoadBalancingStrategy(com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPoolSettings$LoadBalancingStrategy)</method>
     </difference>
     <difference>
+        <!-- InternalApi was udpated -->
+        <differenceType>6001</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/stub/metrics/BuiltinMetricsConstants</className>
+        <field>*</field>
+    </difference>
+    <difference>
+        <!-- InternalApi was udpated -->
+        <differenceType>7002</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/stub/metrics/BuiltinMetricsConstants</className>
+        <method>*</method>
+    </difference>
+    <difference>
         <!-- InternalApi was updated -->
         <differenceType>7004</differenceType>
         <className>com/google/cloud/bigtable/data/v2/stub/EnhancedBigtableStubSettings$InternalMetricsProvider</className>

@@ -17,14 +17,17 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APPLICATION_BLOCKING_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APPLIED_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APP_PROFILE_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ATTEMPT_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.BATCH_WRITE_FLOW_CONTROL_FACTOR_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.BATCH_WRITE_FLOW_CONTROL_TARGET_QPS_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.BIGTABLE_PROJECT_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_BLOCKING_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_NAME_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLUSTER_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CONNECTIVITY_ERROR_COUNT_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.FIRST_RESPONSE_LATENCIES_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METHOD_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.OPERATION_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.REMAINING_DEADLINE_NAME;
@@ -184,7 +187,12 @@ public class BuiltinMetricsTracerTest {
         SdkMeterProvider.builder().registerMetricReader(metricReader);
 
     for (Map.Entry<InstrumentSelector, View> entry :
-        BuiltinMetricsConstants.getAllViews().entrySet()) {
+        BuiltinMetricsConstants.getBigtableTableViews().entrySet()) {
+      meterProvider.registerView(entry.getKey(), entry.getValue());
+    }
+
+    for (Map.Entry<InstrumentSelector, View> entry :
+        BuiltinMetricsConstants.getBigtableClientViews().entrySet()) {
       meterProvider.registerView(entry.getKey(), entry.getValue());
     }
 
@@ -839,17 +847,25 @@ public class BuiltinMetricsTracerTest {
       MetricData targetQpsMetric =
           getMetricData(metricReader, BATCH_WRITE_FLOW_CONTROL_TARGET_QPS_NAME);
       Attributes targetQpsAttributes =
-          baseAttributes.toBuilder().put(METHOD_KEY, "Bigtable.MutateRows").build();
+          Attributes.builder()
+              .put(METHOD_KEY, "Bigtable.MutateRows")
+              .put(BIGTABLE_PROJECT_ID_KEY, PROJECT_ID)
+              .put(INSTANCE_ID_KEY, INSTANCE_ID)
+              .put(APP_PROFILE_KEY, APP_PROFILE_ID)
+              .build();
       double actual_qps = getAggregatedDoubleValue(targetQpsMetric, targetQpsAttributes);
       double expected_qps = 12;
       assertThat(expected_qps).isEqualTo(actual_qps);
 
       MetricData factorMetric = getMetricData(metricReader, BATCH_WRITE_FLOW_CONTROL_FACTOR_NAME);
       Attributes factorAttributes =
-          baseAttributes.toBuilder()
+          Attributes.builder()
               .put(METHOD_KEY, "Bigtable.MutateRows")
               .put(APPLIED_KEY, true)
               .put(STATUS_KEY, "OK")
+              .put(BIGTABLE_PROJECT_ID_KEY, PROJECT_ID)
+              .put(INSTANCE_ID_KEY, INSTANCE_ID)
+              .put(APP_PROFILE_KEY, APP_PROFILE_ID)
               .build();
       double actual_factor_mean = getAggregatedDoubleValue(factorMetric, factorAttributes);
       double expected_factor_mean = 1.2;
@@ -869,17 +885,25 @@ public class BuiltinMetricsTracerTest {
       MetricData targetQpsMetric =
           getMetricData(metricReader, BATCH_WRITE_FLOW_CONTROL_TARGET_QPS_NAME);
       Attributes targetQpsAttributes =
-          baseAttributes.toBuilder().put(METHOD_KEY, "Bigtable.MutateRows").build();
+          Attributes.builder()
+              .put(METHOD_KEY, "Bigtable.MutateRows")
+              .put(BIGTABLE_PROJECT_ID_KEY, PROJECT_ID)
+              .put(INSTANCE_ID_KEY, INSTANCE_ID)
+              .put(APP_PROFILE_KEY, APP_PROFILE_ID)
+              .build();
       double actual_qps = getAggregatedDoubleValue(targetQpsMetric, targetQpsAttributes);
       double expected_qps = 8.0;
       assertThat(expected_qps).isEqualTo(actual_qps);
 
       MetricData factorMetric = getMetricData(metricReader, BATCH_WRITE_FLOW_CONTROL_FACTOR_NAME);
       Attributes factorAttributes =
-          baseAttributes.toBuilder()
+          Attributes.builder()
               .put(METHOD_KEY, "Bigtable.MutateRows")
               .put(APPLIED_KEY, true)
               .put(STATUS_KEY, "OK")
+              .put(BIGTABLE_PROJECT_ID_KEY, PROJECT_ID)
+              .put(INSTANCE_ID_KEY, INSTANCE_ID)
+              .put(APP_PROFILE_KEY, APP_PROFILE_ID)
               .build();
       double actual_factor_mean = getAggregatedDoubleValue(factorMetric, factorAttributes);
       double expected_factor_mean = 0.8;
@@ -899,7 +923,12 @@ public class BuiltinMetricsTracerTest {
       MetricData targetQpsMetric =
           getMetricData(metricReader, BATCH_WRITE_FLOW_CONTROL_TARGET_QPS_NAME);
       Attributes targetQpsAttributes =
-          baseAttributes.toBuilder().put(METHOD_KEY, "Bigtable.MutateRows").build();
+          Attributes.builder()
+              .put(METHOD_KEY, "Bigtable.MutateRows")
+              .put(BIGTABLE_PROJECT_ID_KEY, PROJECT_ID)
+              .put(INSTANCE_ID_KEY, INSTANCE_ID)
+              .put(APP_PROFILE_KEY, APP_PROFILE_ID)
+              .build();
       double actual_qps = getAggregatedDoubleValue(targetQpsMetric, targetQpsAttributes);
       // Factor is 1.8 but capped at 1.3 so updated QPS is 13.
       double expected_qps = 13;
@@ -907,10 +936,13 @@ public class BuiltinMetricsTracerTest {
 
       MetricData factorMetric = getMetricData(metricReader, BATCH_WRITE_FLOW_CONTROL_FACTOR_NAME);
       Attributes factorAttributes =
-          baseAttributes.toBuilder()
+          Attributes.builder()
               .put(METHOD_KEY, "Bigtable.MutateRows")
               .put(APPLIED_KEY, true)
               .put(STATUS_KEY, "OK")
+              .put(BIGTABLE_PROJECT_ID_KEY, PROJECT_ID)
+              .put(INSTANCE_ID_KEY, INSTANCE_ID)
+              .put(APP_PROFILE_KEY, APP_PROFILE_ID)
               .build();
       double actual_factor_mean = getAggregatedDoubleValue(factorMetric, factorAttributes);
       // Factor is 1.8 but capped at 1.3
@@ -931,7 +963,12 @@ public class BuiltinMetricsTracerTest {
       MetricData targetQpsMetric =
           getMetricData(metricReader, BATCH_WRITE_FLOW_CONTROL_TARGET_QPS_NAME);
       Attributes targetQpsAttributes =
-          baseAttributes.toBuilder().put(METHOD_KEY, "Bigtable.MutateRows").build();
+          Attributes.builder()
+              .put(METHOD_KEY, "Bigtable.MutateRows")
+              .put(BIGTABLE_PROJECT_ID_KEY, PROJECT_ID)
+              .put(INSTANCE_ID_KEY, INSTANCE_ID)
+              .put(APP_PROFILE_KEY, APP_PROFILE_ID)
+              .build();
       double actual_qps = getAggregatedDoubleValue(targetQpsMetric, targetQpsAttributes);
       // Factor is 0.5 but capped at 0.7 so updated QPS is 7.
       double expected_qps = 7;
@@ -939,10 +976,13 @@ public class BuiltinMetricsTracerTest {
 
       MetricData factorMetric = getMetricData(metricReader, BATCH_WRITE_FLOW_CONTROL_FACTOR_NAME);
       Attributes factorAttributes =
-          baseAttributes.toBuilder()
+          Attributes.builder()
               .put(METHOD_KEY, "Bigtable.MutateRows")
               .put(APPLIED_KEY, true)
               .put(STATUS_KEY, "OK")
+              .put(BIGTABLE_PROJECT_ID_KEY, PROJECT_ID)
+              .put(INSTANCE_ID_KEY, INSTANCE_ID)
+              .put(APP_PROFILE_KEY, APP_PROFILE_ID)
               .build();
       double actual_factor_mean = getAggregatedDoubleValue(factorMetric, factorAttributes);
       // Factor is 0.5 but capped at 0.7
@@ -964,7 +1004,12 @@ public class BuiltinMetricsTracerTest {
       MetricData targetQpsMetric =
           getMetricData(metricReader, BATCH_WRITE_FLOW_CONTROL_TARGET_QPS_NAME);
       Attributes targetQpsAttributes =
-          baseAttributes.toBuilder().put(METHOD_KEY, "Bigtable.MutateRows").build();
+          Attributes.builder()
+              .put(METHOD_KEY, "Bigtable.MutateRows")
+              .put(BIGTABLE_PROJECT_ID_KEY, PROJECT_ID)
+              .put(INSTANCE_ID_KEY, INSTANCE_ID)
+              .put(APP_PROFILE_KEY, APP_PROFILE_ID)
+              .build();
       double actual_qps = getAggregatedDoubleValue(targetQpsMetric, targetQpsAttributes);
       // On error, min factor is applied.
       double expected_qps = 7;
@@ -972,10 +1017,13 @@ public class BuiltinMetricsTracerTest {
 
       MetricData factorMetric = getMetricData(metricReader, BATCH_WRITE_FLOW_CONTROL_FACTOR_NAME);
       Attributes factorAttributes =
-          baseAttributes.toBuilder()
+          Attributes.builder()
               .put(METHOD_KEY, "Bigtable.MutateRows")
               .put(APPLIED_KEY, true)
               .put(STATUS_KEY, "UNAVAILABLE")
+              .put(BIGTABLE_PROJECT_ID_KEY, PROJECT_ID)
+              .put(INSTANCE_ID_KEY, INSTANCE_ID)
+              .put(APP_PROFILE_KEY, APP_PROFILE_ID)
               .build();
       double actual_factor_mean = getAggregatedDoubleValue(factorMetric, factorAttributes);
       // On error, min factor is applied.
