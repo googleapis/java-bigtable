@@ -316,6 +316,15 @@ public class LargeRowIT {
         .containsExactly(expectedRow6, expectedRow5, expectedRow4, expectedRow1)
         .inOrder();
 
+    assertThat(
+            client
+                .skipLargeRowsCallable()
+                .all()
+                .call(
+                    Query.create(tableId)
+                        .range(ByteStringRange.unbounded().startClosed("r2").endOpen("r3\0"))))
+        .isEmpty();
+
     // async
     AccumulatingObserver observer = new AccumulatingObserver();
     Query query = Query.create(tableId).range("r1", "r3");
