@@ -163,8 +163,7 @@ public final class RowSetUtil {
     ByteString endKey = EndPoint.extract(range).value;
 
     // if end key is on the left of large row key, don't split. Empty endKey means it's unbounded
-    // and it's always
-    // on the right of the large key
+    // so it's always on the right of the large key
     if (!endKey.isEmpty() && ByteStringComparator.INSTANCE.compare(endKey, largeRowKey) < 0) {
       rowRanges.add(range);
       return rowRanges;
