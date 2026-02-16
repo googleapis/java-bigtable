@@ -81,6 +81,7 @@ public class BuiltinMetricsConstants {
   static final AttributeKey<String> GRPC_XDS_SERVER_KEY = AttributeKey.stringKey("grpc.xds.server");
   static final AttributeKey<String> GRPC_XDS_RESOURCE_TYPE_KEY =
       AttributeKey.stringKey("grpc.xds.resource_type");
+  static final AttributeKey<String> GRPC_LB_POLICY_KEY = AttributeKey.stringKey("lb_policy");
 
   public static final String METER_NAME = "bigtable.googleapis.com/internal/client/";
 
@@ -246,8 +247,6 @@ public class BuiltinMetricsConstants {
             .build();
     Set<String> attributesFilter =
         ImmutableSet.<String>builder()
-            .addAll(
-                COMMON_ATTRIBUTES.stream().map(AttributeKey::getKey).collect(Collectors.toSet()))
             .addAll(attributes.stream().map(AttributeKey::getKey).collect(Collectors.toSet()))
             .build();
     ViewBuilder viewBuilder =
@@ -277,7 +276,7 @@ public class BuiltinMetricsConstants {
         InstrumentType.HISTOGRAM,
         "1",
         ImmutableSet.<AttributeKey>builder()
-            .add(BIGTABLE_PROJECT_ID_KEY, INSTANCE_ID_KEY, APP_PROFILE_KEY, CLIENT_NAME_KEY)
+            .add(TRANSPORT_TYPE, GRPC_LB_POLICY_KEY, STREAMING_KEY)
             .build());
     return views.build();
   }

@@ -15,9 +15,12 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.GRPC_LB_POLICY_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METER_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.OUTSTANDING_RPCS_PER_CHANNEL_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STREAMING_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TRANSPORT_TYPE;
 
 import com.google.api.core.InternalApi;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelObserver;
@@ -103,9 +106,9 @@ public class ChannelPoolMetricsTracer implements Runnable {
 
     // Build attributes if they haven't been built yet.
     if (unaryAttributes == null || streamingAttributes == null) {
-      Attributes baseAttrs = commonAttrs.toBuilder().put("lb_policy", lbPolicy).build();
-      this.unaryAttributes = baseAttrs.toBuilder().put("streaming", false).build();
-      this.streamingAttributes = baseAttrs.toBuilder().put("streaming", true).build();
+      Attributes baseAttrs = Attributes.of(GRPC_LB_POLICY_KEY, lbPolicy);
+      this.unaryAttributes = baseAttrs.toBuilder().put(STREAMING_KEY, false).build();
+      this.streamingAttributes = baseAttrs.toBuilder().put(STREAMING_KEY, true).build();
     }
     List<? extends BigtableChannelObserver> channelInsights =
         channelInsightsProvider.getChannelInfos();
@@ -115,9 +118,9 @@ public class ChannelPoolMetricsTracer implements Runnable {
     for (BigtableChannelObserver info : channelInsights) {
       String transportTypeValue = info.isAltsChannel() ? "DIRECTPATH" : "CLOUDPATH";
       this.unaryAttributes =
-          this.unaryAttributes.toBuilder().put("transport_type", transportTypeValue).build();
+          this.unaryAttributes.toBuilder().put(TRANSPORT_TYPE, transportTypeValue).build();
       this.streamingAttributes =
-          this.streamingAttributes.toBuilder().put("transport_type", transportTypeValue).build();
+          this.streamingAttributes.toBuilder().put(TRANSPORT_TYPE, transportTypeValue).build();
 
       long currentOutstandingUnaryRpcs = info.getOutstandingUnaryRpcs();
       long currentOutstandingStreamingRpcs = info.getOutstandingStreamingRpcs();
