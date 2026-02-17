@@ -1,5 +1,35 @@
 # Changelog
 
+## [2.73.0](https://github.com/googleapis/java-bigtable/compare/v2.72.0...v2.73.0) (2026-02-06)
+
+
+### Features
+
+* Add methods to wait for consistency with a token ([#2762](https://github.com/googleapis/java-bigtable/issues/2762)) ([b4a90b2](https://github.com/googleapis/java-bigtable/commit/b4a90b2d0fa2db34067577c2b56d815163dc7282))
+
+
+### Dependencies
+
+* Update shared dependencies ([#2773](https://github.com/googleapis/java-bigtable/issues/2773)) ([33a6d8a](https://github.com/googleapis/java-bigtable/commit/33a6d8ad8a0051550998724f5833a1e803315b47))
+
+## [2.72.0](https://github.com/googleapis/java-bigtable/compare/v2.71.0...v2.72.0) (2026-01-30)
+
+
+### Features
+
+* Add GcRuleBuilder for safe GC rule construction ([#2758](https://github.com/googleapis/java-bigtable/issues/2758)) ([4a99a8c](https://github.com/googleapis/java-bigtable/commit/4a99a8ccad8469933b63aa63205bc2c800a24fef))
+* Handle StatusRuntimeException in CbtTestProxy, increase inbound message / metadata size ([#2763](https://github.com/googleapis/java-bigtable/issues/2763)) ([3e27d28](https://github.com/googleapis/java-bigtable/commit/3e27d2895816685743ee59d566cd8870447c02f1))
+
+
+### Bug Fixes
+
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.66.0 ([ca24007](https://github.com/googleapis/java-bigtable/commit/ca240078ea4400cd071d796259ed4b8c9501a6f6))
+
+
+### Dependencies
+
+* Update dependency com.google.cloud:sdk-platform-java-config to v3.56.0 ([#2765](https://github.com/googleapis/java-bigtable/issues/2765)) ([d1020a1](https://github.com/googleapis/java-bigtable/commit/d1020a1ea1e296273408262a33a09427a20d8156))
+
 ## [2.71.0](https://github.com/googleapis/java-bigtable/compare/v2.70.1...v2.71.0) (2026-01-15)
 
 
