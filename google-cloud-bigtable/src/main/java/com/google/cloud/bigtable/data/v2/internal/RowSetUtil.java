@@ -162,9 +162,11 @@ public final class RowSetUtil {
     ByteString startKey = StartPoint.extract(range).value;
     ByteString endKey = EndPoint.extract(range).value;
 
-    // if end key is on the left of large row key, don't split. Empty endKey means it's unbounded
-    // so it's always on the right of the large key
-    if (!endKey.isEmpty() && ByteStringComparator.INSTANCE.compare(endKey, largeRowKey) < 0) {
+    // Empty endKey means it's unbounded
+    boolean boundedEnd = !endKey.isEmpty();
+
+    // if end key is on the left of large row key, don't split.
+    if (boundedEnd && ByteStringComparator.INSTANCE.compare(endKey, largeRowKey) < 0) {
       rowRanges.add(range);
       return rowRanges;
     }
@@ -182,8 +184,8 @@ public final class RowSetUtil {
     }
 
     // if the end key is on the right of the large row key, set the start key to be large row key
-    // open. Empty end key is unbounded so it's always on the right of the large key
-    if (endKey.isEmpty() || ByteStringComparator.INSTANCE.compare(endKey, largeRowKey) > 0) {
+    // open.
+    if (!boundedEnd|| ByteStringComparator.INSTANCE.compare(endKey, largeRowKey) > 0) {
       // handle the edge case where (key, key\0) is an empty range and should be excluded
       ByteString nextKey = largeRowKey.concat(ByteString.copyFrom(new byte[] {0}));
       EndPoint endPoint = EndPoint.extract(range);
