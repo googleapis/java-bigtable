@@ -185,7 +185,7 @@ public final class RowSetUtil {
 
     // if the end key is on the right of the large row key, set the start key to be large row key
     // open.
-    if (!boundedEnd|| ByteStringComparator.INSTANCE.compare(endKey, largeRowKey) > 0) {
+    if (!boundedEnd || ByteStringComparator.INSTANCE.compare(endKey, largeRowKey) > 0) {
       // handle the edge case where (key, key\0) is an empty range and should be excluded
       ByteString nextKey = largeRowKey.concat(ByteString.copyFrom(new byte[] {0}));
       EndPoint endPoint = EndPoint.extract(range);
