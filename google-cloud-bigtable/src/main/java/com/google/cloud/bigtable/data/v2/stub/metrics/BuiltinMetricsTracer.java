@@ -34,20 +34,17 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.Util.extractStatus;
 import com.google.api.core.ObsoleteApi;
 import com.google.api.gax.retrying.ServerStreamingAttemptException;
 import com.google.api.gax.tracing.SpanName;
-import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.PeerInfo;
 import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.stub.MetadataExtractorInterceptor;
 import com.google.common.base.Stopwatch;
 import com.google.common.math.IntMath;
-import com.google.gson.reflect.TypeToken;
 import io.grpc.Deadline;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.DoubleGauge;
 import io.opentelemetry.api.metrics.DoubleHistogram;
 import io.opentelemetry.api.metrics.LongCounter;
 import java.time.Duration;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
@@ -61,22 +58,6 @@ import javax.annotation.Nullable;
  * bigtable.googleapis.com/client namespace
  */
 class BuiltinMetricsTracer extends BigtableTracer {
-  @AutoValue
-  abstract static class TransportAttrs {
-    @Nullable
-    abstract String getLocality();
-
-    @Nullable
-    abstract String getBackendService();
-
-    static TransportAttrs create(@Nullable String locality, @Nullable String backendService) {
-      return new AutoValue_BuiltinMetricsTracer_TransportAttrs(locality, backendService);
-    }
-  }
-
-  private static final TypeToken<Map<String, String>> LOCALITY_TYPE =
-      new TypeToken<Map<String, String>>() {};
-
   private static final String NAME = "java-bigtable/" + Version.VERSION;
   private final OperationType operationType;
   private final SpanName spanName;
@@ -370,8 +351,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
     Attributes attributes =
         baseAttributes.toBuilder()
             .put(TABLE_ID_KEY, tableId)
-            .put(CLUSTER_ID_KEY, Util.formatClusterIdMetricLabel(sidebandData.getResponseParams()))
-            .put(ZONE_ID_KEY, Util.formatZoneIdMetricLabel(sidebandData.getResponseParams()))
+            .put(CLUSTER_ID_KEY, Util.formatClusterIdMetricLabel(sidebandData))
+            .put(ZONE_ID_KEY, Util.formatZoneIdMetricLabel(sidebandData))
             .put(METHOD_KEY, spanName.toString())
             .put(CLIENT_NAME_KEY, NAME)
             .put(STREAMING_KEY, isStreaming)
@@ -425,8 +406,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
     Attributes attributes =
         baseAttributes.toBuilder()
             .put(TABLE_ID_KEY, tableId)
-            .put(CLUSTER_ID_KEY, Util.formatClusterIdMetricLabel(sidebandData.getResponseParams()))
-            .put(ZONE_ID_KEY, Util.formatZoneIdMetricLabel(sidebandData.getResponseParams()))
+            .put(CLUSTER_ID_KEY, Util.formatClusterIdMetricLabel(sidebandData))
+            .put(ZONE_ID_KEY, Util.formatZoneIdMetricLabel(sidebandData))
             .put(METHOD_KEY, spanName.toString())
             .put(CLIENT_NAME_KEY, NAME)
             .put(STREAMING_KEY, isStreaming)
@@ -445,7 +426,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
     String transportSubzone = "";
 
     if (sidebandData != null) {
-      transportTypeStr = Util.formatTransportTypeMetricLabel(sidebandData.getPeerInfo());
+      transportTypeStr = Util.formatTransportTypeMetricLabel(sidebandData);
       transportZone =
           Optional.ofNullable(sidebandData.getPeerInfo())
               .map(PeerInfo::getApplicationFrontendZone)

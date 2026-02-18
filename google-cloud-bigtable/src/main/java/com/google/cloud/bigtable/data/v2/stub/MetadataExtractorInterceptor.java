@@ -17,7 +17,6 @@ package com.google.cloud.bigtable.data.v2.stub;
 
 import com.google.api.core.InternalApi;
 import com.google.api.gax.grpc.GrpcCallContext;
-import com.google.api.gax.grpc.GrpcTransportChannel;
 import com.google.bigtable.v2.PeerInfo;
 import com.google.bigtable.v2.ResponseParams;
 import com.google.common.base.Strings;

@@ -35,7 +35,7 @@ import com.google.bigtable.v2.ResponseParams;
 import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.TableName;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
-import com.google.common.base.Strings;
+import com.google.cloud.bigtable.data.v2.stub.MetadataExtractorInterceptor;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
 import io.grpc.Metadata;
@@ -177,8 +177,10 @@ public class Util {
     return OpenTelemetrySdk.builder().setMeterProvider(meterProviderBuilder.build()).build();
   }
 
-  public static String formatTransportTypeMetricLabel(PeerInfo peerInfo) {
-    return Optional.ofNullable(peerInfo)
+  public static String formatTransportTypeMetricLabel(
+      MetadataExtractorInterceptor.SidebandData sidebandData) {
+    return Optional.ofNullable(sidebandData)
+        .flatMap(s -> Optional.ofNullable(s.getPeerInfo()))
         .map(PeerInfo::getTransportType)
         .orElse(PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN)
         .name()
@@ -186,17 +188,21 @@ public class Util {
         .toLowerCase(Locale.ENGLISH);
   }
 
-  public static String formatClusterIdMetricLabel(ResponseParams params) {
-    if (params == null || Strings.isNullOrEmpty(params.getClusterId())) {
-      return "<unspecified>";
-    }
-    return params.getClusterId();
+  public static String formatClusterIdMetricLabel(
+      @Nullable MetadataExtractorInterceptor.SidebandData sidebandData) {
+    return Optional.ofNullable(sidebandData)
+        .flatMap(d -> Optional.ofNullable(d.getResponseParams()))
+        .map(ResponseParams::getClusterId)
+        .filter(s -> !s.isEmpty())
+        .orElse("<unspecified>");
   }
 
-  public static String formatZoneIdMetricLabel(ResponseParams params) {
-    if (params == null || Strings.isNullOrEmpty(params.getZoneId())) {
-      return "global";
-    }
-    return params.getZoneId();
+  public static String formatZoneIdMetricLabel(
+      @Nullable MetadataExtractorInterceptor.SidebandData sidebandData) {
+    return Optional.ofNullable(sidebandData)
+        .flatMap(d -> Optional.ofNullable(d.getResponseParams()))
+        .map(ResponseParams::getZoneId)
+        .filter(s -> !s.isEmpty())
+        .orElse("global");
   }
 }
