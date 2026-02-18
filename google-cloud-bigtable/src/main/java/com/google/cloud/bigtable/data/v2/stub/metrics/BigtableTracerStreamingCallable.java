@@ -64,10 +64,11 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
     // tracer should always be an instance of bigtable tracer
     if (context.getTracer() instanceof BigtableTracer) {
       BigtableTracer tracer = (BigtableTracer) context.getTracer();
-      grpcCtx = grpcCtx.withCallOptions(
-          grpcCtx
-              .getCallOptions()
-              .withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer)));
+      grpcCtx =
+          grpcCtx.withCallOptions(
+              grpcCtx
+                  .getCallOptions()
+                  .withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer)));
 
       BigtableTracerResponseObserver<ResponseT> innerObserver =
           new BigtableTracerResponseObserver<>(
