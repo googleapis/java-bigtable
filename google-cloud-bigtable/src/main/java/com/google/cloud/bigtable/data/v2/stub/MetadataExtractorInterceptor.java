@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.stub;
 
 import com.google.api.core.InternalApi;
 import com.google.api.gax.grpc.GrpcCallContext;
+import com.google.api.gax.grpc.GrpcTransportChannel;
 import com.google.bigtable.v2.PeerInfo;
 import com.google.bigtable.v2.ResponseParams;
 import com.google.common.base.Strings;
@@ -43,6 +44,9 @@ public class MetadataExtractorInterceptor implements ClientInterceptor {
   private final SidebandData sidebandData = new SidebandData();
 
   public GrpcCallContext injectInto(GrpcCallContext ctx) {
+    // TODO: migrate to using .withTransportChannel
+    //  This will require a change on gax's side to expose the underlying ManagedChannel in
+    //  GrpcTransportChannel (its currently package private).
     return ctx.withChannel(ClientInterceptors.intercept(ctx.getChannel(), this))
         .withCallOptions(ctx.getCallOptions().withOption(SidebandData.KEY, sidebandData));
   }
