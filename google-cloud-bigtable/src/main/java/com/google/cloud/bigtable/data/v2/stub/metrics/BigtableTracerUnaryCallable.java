@@ -59,7 +59,7 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
     if (context.getTracer() instanceof BigtableTracer) {
       BigtableTracer tracer = (BigtableTracer) context.getTracer();
 
-      grpcCtx.withCallOptions(
+      grpcCtx = grpcCtx.withCallOptions(
           grpcCtx
               .getCallOptions()
               .withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer)));
