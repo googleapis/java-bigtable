@@ -160,6 +160,8 @@ public class MetadataExtractorInterceptor implements ClientInterceptor {
         PeerInfo peerInfo = PeerInfo.parseFrom(decoded);
         PeerInfo.TransportType effectiveTransport = peerInfo.getTransportType();
 
+        // TODO: remove this once transport_type is being sent by the server
+        //  This is a temporary workaround to detect directpath until its available from the server
         if (effectiveTransport == PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN) {
           boolean isAlts = AltsContextUtil.check(attributes);
           if (isAlts) {
