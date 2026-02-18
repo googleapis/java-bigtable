@@ -73,7 +73,6 @@ import com.google.cloud.bigtable.data.v2.models.TableId;
 import com.google.cloud.bigtable.data.v2.stub.BigtableClientContext;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
-import com.google.cloud.bigtable.data.v2.stub.MetadataExtractorInterceptor;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Comparators;
 import com.google.common.collect.Range;
@@ -138,7 +137,7 @@ import org.mockito.junit.MockitoRule;
 @RunWith(JUnit4.class)
 public class BuiltinMetricsTracerTest {
   private static final Metadata.Key<byte[]> LOCATION_METADATA_KEY =
-          Metadata.Key.of("x-goog-ext-425905942-bin", Metadata.BINARY_BYTE_MARSHALLER);
+      Metadata.Key.of("x-goog-ext-425905942-bin", Metadata.BINARY_BYTE_MARSHALLER);
 
   private static final String PROJECT_ID = "fake-project";
   private static final String INSTANCE_ID = "fake-instance";

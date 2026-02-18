@@ -60,7 +60,9 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
       BigtableTracer tracer = (BigtableTracer) context.getTracer();
 
       grpcCtx.withCallOptions(
-              grpcCtx.getCallOptions().withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer)));
+          grpcCtx
+              .getCallOptions()
+              .withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer)));
 
       BigtableTracerUnaryCallback<ResponseT> callback =
           new BigtableTracerUnaryCallback<>(
@@ -68,8 +70,7 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
       if (context.getRetrySettings() != null) {
         tracer.setTotalTimeoutDuration(context.getRetrySettings().getTotalTimeoutDuration());
       }
-      ApiFuture<ResponseT> future =
-          innerCallable.futureCall(request, grpcCtx);
+      ApiFuture<ResponseT> future = innerCallable.futureCall(request, grpcCtx);
       ApiFutures.addCallback(future, callback, MoreExecutors.directExecutor());
       return future;
     } else {
@@ -82,7 +83,8 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
     private final BigtableTracer tracer;
     private final MetadataExtractorInterceptor.SidebandData sidebandData;
 
-    BigtableTracerUnaryCallback(BigtableTracer tracer, MetadataExtractorInterceptor.SidebandData sidebandData) {
+    BigtableTracerUnaryCallback(
+        BigtableTracer tracer, MetadataExtractorInterceptor.SidebandData sidebandData) {
       this.tracer = tracer;
       this.sidebandData = sidebandData;
     }

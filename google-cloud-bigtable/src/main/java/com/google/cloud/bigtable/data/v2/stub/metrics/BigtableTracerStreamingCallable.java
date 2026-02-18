@@ -26,8 +26,6 @@ import com.google.cloud.bigtable.data.v2.stub.MetadataExtractorInterceptor;
 import com.google.cloud.bigtable.data.v2.stub.SafeResponseObserver;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
-import io.grpc.ClientInterceptors;
-
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 
@@ -63,15 +61,17 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
     MetadataExtractorInterceptor metadataExtractor = new MetadataExtractorInterceptor();
     grpcCtx = metadataExtractor.injectInto(grpcCtx);
 
-
     // tracer should always be an instance of bigtable tracer
     if (context.getTracer() instanceof BigtableTracer) {
       BigtableTracer tracer = (BigtableTracer) context.getTracer();
       grpcCtx.withCallOptions(
-              grpcCtx.getCallOptions().withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer)));
+          grpcCtx
+              .getCallOptions()
+              .withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer)));
 
       BigtableTracerResponseObserver<ResponseT> innerObserver =
-          new BigtableTracerResponseObserver<>(responseObserver, tracer, metadataExtractor.getSidebandData());
+          new BigtableTracerResponseObserver<>(
+              responseObserver, tracer, metadataExtractor.getSidebandData());
       if (context.getRetrySettings() != null) {
         tracer.setTotalTimeoutDuration(context.getRetrySettings().getTotalTimeoutDuration());
       }

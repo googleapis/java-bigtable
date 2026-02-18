@@ -15,10 +15,8 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
-import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTracer.TransportAttrs;
 import io.grpc.ClientStreamTracer;
 import io.grpc.Metadata;
-import io.grpc.Status;
 
 /**
  * Records the time a request is enqueued in a grpc channel queue. This a bridge between gRPC stream

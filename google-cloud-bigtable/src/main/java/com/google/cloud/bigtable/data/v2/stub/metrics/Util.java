@@ -16,8 +16,6 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.InternalApi;
-import com.google.api.gax.grpc.GrpcCallContext;
-import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.StatusCode;
@@ -40,13 +38,10 @@ import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.common.base.Strings;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
-import com.google.protobuf.InvalidProtocolBufferException;
-import io.grpc.CallOptions;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
-import io.opencensus.tags.TagValue;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.metrics.InstrumentSelector;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
@@ -63,11 +58,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
 /** Utilities to help integrating with OpenCensus. */
@@ -98,7 +89,6 @@ public class Util {
 
     return statusString;
   }
-
 
   static String extractTableId(Object request) {
     String tableName = null;
@@ -189,9 +179,11 @@ public class Util {
 
   public static String formatTransportTypeMetricLabel(PeerInfo peerInfo) {
     return Optional.ofNullable(peerInfo)
-            .map(PeerInfo::getTransportType)
-            .orElse(PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN)
-            .name().replace("TRANSPORT_TYPE_", "").toLowerCase(Locale.ENGLISH);
+        .map(PeerInfo::getTransportType)
+        .orElse(PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN)
+        .name()
+        .replace("TRANSPORT_TYPE_", "")
+        .toLowerCase(Locale.ENGLISH);
   }
 
   public static String formatClusterIdMetricLabel(ResponseParams params) {

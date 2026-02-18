@@ -19,7 +19,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.gax.grpc.GrpcStatusCode;
 import com.google.api.gax.rpc.DeadlineExceededException;
-import com.google.common.util.concurrent.Futures;
 import io.grpc.Status;
 import io.opencensus.tags.TagValue;
 import org.junit.Test;
@@ -33,7 +32,6 @@ public class UtilTest {
     TagValue tagValue = TagValue.create(Util.extractStatus((Throwable) null));
     assertThat(tagValue.asString()).isEqualTo("OK");
   }
-
 
   @Test
   public void testError() {

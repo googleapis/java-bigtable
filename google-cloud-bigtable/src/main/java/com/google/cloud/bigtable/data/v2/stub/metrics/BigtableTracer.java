@@ -21,7 +21,6 @@ import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.BaseApiTracer;
 import com.google.cloud.bigtable.data.v2.stub.MetadataExtractorInterceptor;
-
 import java.time.Duration;
 import javax.annotation.Nullable;
 
@@ -76,6 +75,7 @@ public class BigtableTracer extends BaseApiTracer {
    * Record the latency between Google's network receives the RPC and reads back the first byte of
    * the response from server-timing header. If server-timing header is missing, increment the
    * missing header count.
+   *
    * @deprecated Use {@link #setSidebandData(MetadataExtractorInterceptor.SidebandData)}
    */
   @Deprecated
@@ -91,17 +91,19 @@ public class BigtableTracer extends BaseApiTracer {
   public void setSidebandData(MetadataExtractorInterceptor.SidebandData sidebandData) {
     // noop
   }
+
   /**
    * Set the Bigtable zone and cluster so metrics can be tagged with location information. This will
    * be called in BuiltinMetricsTracer.
+   *
    * @deprecated Use {@link #setSidebandData(MetadataExtractorInterceptor.SidebandData)}
    */
   @Deprecated
-  public void setLocations(String zone, String cluster) {
-  }
+  public void setLocations(String zone, String cluster) {}
 
   /**
    * Set the underlying transport used to process the attempt
+   *
    * @deprecated Use {@link #setSidebandData(MetadataExtractorInterceptor.SidebandData)}
    */
   @Deprecated

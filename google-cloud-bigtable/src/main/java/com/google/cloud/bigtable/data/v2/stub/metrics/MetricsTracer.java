@@ -191,8 +191,8 @@ class MetricsTracer extends BigtableTracer {
 
     if (sidebandData != null && sidebandData.getGfeTiming() != null) {
       measures
-              .put(RpcMeasureConstants.BIGTABLE_GFE_LATENCY, sidebandData.getGfeTiming())
-              .put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 0L);
+          .put(RpcMeasureConstants.BIGTABLE_GFE_LATENCY, sidebandData.getGfeTiming())
+          .put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 0L);
     } else {
       measures.put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 1L);
     }

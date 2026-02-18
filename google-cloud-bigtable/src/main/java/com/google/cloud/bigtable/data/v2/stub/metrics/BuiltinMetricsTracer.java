@@ -446,10 +446,12 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
     if (sidebandData != null) {
       transportTypeStr = Util.formatTransportTypeMetricLabel(sidebandData.getPeerInfo());
-      transportZone = Optional.ofNullable(sidebandData.getPeerInfo())
+      transportZone =
+          Optional.ofNullable(sidebandData.getPeerInfo())
               .map(PeerInfo::getApplicationFrontendZone)
               .orElse("");
-      transportSubzone = Optional.ofNullable(sidebandData.getPeerInfo())
+      transportSubzone =
+          Optional.ofNullable(sidebandData.getPeerInfo())
               .map(PeerInfo::getApplicationFrontendSubzone)
               .orElse("");
     }
