@@ -35,11 +35,11 @@ import com.google.api.core.ObsoleteApi;
 import com.google.api.gax.retrying.ServerStreamingAttemptException;
 import com.google.api.gax.tracing.SpanName;
 import com.google.auto.value.AutoValue;
+import com.google.bigtable.v2.PeerInfo;
 import com.google.cloud.bigtable.Version;
+import com.google.cloud.bigtable.data.v2.stub.MetadataExtractorInterceptor;
 import com.google.common.base.Stopwatch;
-import com.google.common.base.Strings;
 import com.google.common.math.IntMath;
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import io.grpc.Deadline;
 import io.opentelemetry.api.common.Attributes;
@@ -48,13 +48,12 @@ import io.opentelemetry.api.metrics.DoubleHistogram;
 import io.opentelemetry.api.metrics.LongCounter;
 import java.time.Duration;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 /**
@@ -75,8 +74,6 @@ class BuiltinMetricsTracer extends BigtableTracer {
     }
   }
 
-  private static final Logger logger = Logger.getLogger(BuiltinMetricsTracer.class.getName());
-  private static final Gson GSON = new Gson();
   private static final TypeToken<Map<String, String>> LOCALITY_TYPE =
       new TypeToken<Map<String, String>>() {};
 
@@ -108,22 +105,18 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   private final AtomicInteger requestLeft = new AtomicInteger(0);
 
-  // Monitored resource labels
   private String tableId = "<unspecified>";
-  private String zone = "global";
-  private String cluster = "<unspecified>";
 
   private final AtomicLong totalClientBlockingTime = new AtomicLong(0);
 
   private final Attributes baseAttributes;
 
-  private Long serverLatencies = null;
   private final AtomicLong grpcMessageSentDelay = new AtomicLong(0);
 
   private Deadline operationDeadline = null;
   private volatile long remainingDeadlineAtAttemptStart = 0;
 
-  private TransportAttrs transportAttrs = null;
+  private MetadataExtractorInterceptor.SidebandData sidebandData = null;
 
   // OpenCensus (and server) histogram buckets use [start, end), however OpenTelemetry uses (start,
   // end]. To work around this, we measure all the latencies in nanoseconds and convert them
@@ -328,21 +321,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   @Override
-  public void recordGfeMetadata(@Nullable Long latency, @Nullable Throwable throwable) {
-    if (latency != null) {
-      serverLatencies = latency;
-    }
-  }
-
-  @Override
-  public void setLocations(String zone, String cluster) {
-    this.zone = zone;
-    this.cluster = cluster;
-  }
-
-  @Override
-  public void setTransportAttrs(TransportAttrs attrs) {
-    this.transportAttrs = attrs;
+  public void setSidebandData(MetadataExtractorInterceptor.SidebandData sidebandData) {
+    this.sidebandData = sidebandData;
   }
 
   @Override
@@ -390,8 +370,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
     Attributes attributes =
         baseAttributes.toBuilder()
             .put(TABLE_ID_KEY, tableId)
-            .put(CLUSTER_ID_KEY, cluster)
-            .put(ZONE_ID_KEY, zone)
+            .put(CLUSTER_ID_KEY, Util.formatClusterIdMetricLabel(sidebandData.getResponseParams()))
+            .put(ZONE_ID_KEY, Util.formatZoneIdMetricLabel(sidebandData.getResponseParams()))
             .put(METHOD_KEY, spanName.toString())
             .put(CLIENT_NAME_KEY, NAME)
             .put(STREAMING_KEY, isStreaming)
@@ -445,8 +425,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
     Attributes attributes =
         baseAttributes.toBuilder()
             .put(TABLE_ID_KEY, tableId)
-            .put(CLUSTER_ID_KEY, cluster)
-            .put(ZONE_ID_KEY, zone)
+            .put(CLUSTER_ID_KEY, Util.formatClusterIdMetricLabel(sidebandData.getResponseParams()))
+            .put(ZONE_ID_KEY, Util.formatZoneIdMetricLabel(sidebandData.getResponseParams()))
             .put(METHOD_KEY, spanName.toString())
             .put(CLIENT_NAME_KEY, NAME)
             .put(STREAMING_KEY, isStreaming)
@@ -459,29 +439,25 @@ class BuiltinMetricsTracer extends BigtableTracer {
     attemptLatenciesHistogram.record(
         convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)), attributes);
 
-    String transportType = "cloudpath";
+    String transportTypeStr = "cloudpath";
     String transportRegion = "";
     String transportZone = "";
     String transportSubzone = "";
 
-    try {
-      if (transportAttrs != null && !Strings.isNullOrEmpty(transportAttrs.getLocality())) {
-        // only directpath has locality
-        transportType = "directpath";
-        Map<String, String> localityMap =
-            GSON.fromJson(transportAttrs.getLocality(), LOCALITY_TYPE);
-        transportRegion = localityMap.getOrDefault("region", "");
-        transportZone = localityMap.getOrDefault("zone", "");
-        transportSubzone = localityMap.getOrDefault("sub_zone", "");
-      }
-    } catch (RuntimeException e) {
-      logger.log(
-          Level.WARNING, "Failed to parse transport locality: " + transportAttrs.getLocality(), e);
+    if (sidebandData != null) {
+      transportTypeStr = Util.formatTransportTypeMetricLabel(sidebandData.getPeerInfo());
+      transportZone = Optional.ofNullable(sidebandData.getPeerInfo())
+              .map(PeerInfo::getApplicationFrontendZone)
+              .orElse("");
+      transportSubzone = Optional.ofNullable(sidebandData.getPeerInfo())
+              .map(PeerInfo::getApplicationFrontendSubzone)
+              .orElse("");
     }
+
     attemptLatencies2Histogram.record(
         convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)),
         attributes.toBuilder()
-            .put(TRANSPORT_TYPE, transportType)
+            .put(TRANSPORT_TYPE, transportTypeStr)
             .put(TRANSPORT_REGION, transportRegion)
             .put(TRANSPORT_ZONE, transportZone)
             .put(TRANSPORT_SUBZONE, transportSubzone)
@@ -493,8 +469,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
       remainingDeadlineHistogram.record(Math.max(0, remainingDeadlineAtAttemptStart), attributes);
     }
 
-    if (serverLatencies != null) {
-      serverLatenciesHistogram.record(serverLatencies, attributes);
+    if (sidebandData.getGfeTiming() != null) {
+      serverLatenciesHistogram.record(sidebandData.getGfeTiming(), attributes);
       connectivityErrorCounter.add(0, attributes);
     } else {
       connectivityErrorCounter.add(1, attributes);

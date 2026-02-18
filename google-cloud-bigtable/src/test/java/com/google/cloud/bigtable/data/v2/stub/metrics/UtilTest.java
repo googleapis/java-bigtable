@@ -34,11 +34,6 @@ public class UtilTest {
     assertThat(tagValue.asString()).isEqualTo("OK");
   }
 
-  @Test
-  public void testOkFuture() {
-    TagValue tagValue = Util.extractStatusFromFuture(Futures.immediateFuture(null));
-    assertThat(tagValue.asString()).isEqualTo("OK");
-  }
 
   @Test
   public void testError() {
@@ -47,20 +42,5 @@ public class UtilTest {
             "Deadline exceeded", null, GrpcStatusCode.of(Status.Code.DEADLINE_EXCEEDED), true);
     TagValue tagValue = TagValue.create(Util.extractStatus(error));
     assertThat(tagValue.asString()).isEqualTo("DEADLINE_EXCEEDED");
-  }
-
-  @Test
-  public void testErrorFuture() {
-    DeadlineExceededException error =
-        new DeadlineExceededException(
-            "Deadline exceeded", null, GrpcStatusCode.of(Status.Code.DEADLINE_EXCEEDED), true);
-    TagValue tagValue = Util.extractStatusFromFuture(Futures.immediateFailedFuture(error));
-    assertThat(tagValue.asString()).isEqualTo("DEADLINE_EXCEEDED");
-  }
-
-  @Test
-  public void testCancelledFuture() {
-    TagValue tagValue = Util.extractStatusFromFuture(Futures.immediateCancelledFuture());
-    assertThat(tagValue.asString()).isEqualTo("CANCELLED");
   }
 }

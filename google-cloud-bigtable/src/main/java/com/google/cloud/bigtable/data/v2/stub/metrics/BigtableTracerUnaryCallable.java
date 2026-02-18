@@ -19,9 +19,11 @@ import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutureCallback;
 import com.google.api.core.ApiFutures;
 import com.google.api.core.InternalApi;
+import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.UnaryCallable;
+import com.google.cloud.bigtable.data.v2.stub.MetadataExtractorInterceptor;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.MoreExecutors;
 import javax.annotation.Nonnull;
@@ -35,8 +37,6 @@ import javax.annotation.Nonnull;
  *     the gfe_header_missing_counter in this case.
  * <li>-This class will also access trailers from {@link GrpcResponseMetadata} to record zone and
  *     cluster ids.
- * <li>-This class will also inject a {@link BigtableGrpcStreamTracer} that'll record the time an
- *     RPC spent in a grpc channel queue.
  * <li>This class is considered an internal implementation detail and not meant to be used by
  *     applications.
  */
@@ -52,46 +52,49 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
 
   @Override
   public ApiFuture<ResponseT> futureCall(RequestT request, ApiCallContext context) {
+    MetadataExtractorInterceptor interceptor = new MetadataExtractorInterceptor();
+    GrpcCallContext grpcCtx = interceptor.injectInto((GrpcCallContext) context);
+
     // tracer should always be an instance of BigtableTracer
     if (context.getTracer() instanceof BigtableTracer) {
       BigtableTracer tracer = (BigtableTracer) context.getTracer();
-      final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
+
+      grpcCtx.withCallOptions(
+              grpcCtx.getCallOptions().withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer)));
+
       BigtableTracerUnaryCallback<ResponseT> callback =
-          new BigtableTracerUnaryCallback<ResponseT>(
-              (BigtableTracer) context.getTracer(), responseMetadata);
+          new BigtableTracerUnaryCallback<>(
+              (BigtableTracer) context.getTracer(), interceptor.getSidebandData());
       if (context.getRetrySettings() != null) {
         tracer.setTotalTimeoutDuration(context.getRetrySettings().getTotalTimeoutDuration());
       }
       ApiFuture<ResponseT> future =
-          innerCallable.futureCall(
-              request,
-              Util.injectBigtableStreamTracer(
-                  context, responseMetadata, (BigtableTracer) context.getTracer()));
+          innerCallable.futureCall(request, grpcCtx);
       ApiFutures.addCallback(future, callback, MoreExecutors.directExecutor());
       return future;
     } else {
-      return innerCallable.futureCall(request, context);
+      return innerCallable.futureCall(request, grpcCtx);
     }
   }
 
   private class BigtableTracerUnaryCallback<ResponseT> implements ApiFutureCallback<ResponseT> {
 
     private final BigtableTracer tracer;
-    private final GrpcResponseMetadata responseMetadata;
+    private final MetadataExtractorInterceptor.SidebandData sidebandData;
 
-    BigtableTracerUnaryCallback(BigtableTracer tracer, GrpcResponseMetadata responseMetadata) {
+    BigtableTracerUnaryCallback(BigtableTracer tracer, MetadataExtractorInterceptor.SidebandData sidebandData) {
       this.tracer = tracer;
-      this.responseMetadata = responseMetadata;
+      this.sidebandData = sidebandData;
     }
 
     @Override
     public void onFailure(Throwable throwable) {
-      Util.recordMetricsFromMetadata(responseMetadata, tracer, throwable);
+      tracer.setSidebandData(sidebandData);
     }
 
     @Override
     public void onSuccess(ResponseT response) {
-      Util.recordMetricsFromMetadata(responseMetadata, tracer, null);
+      tracer.setSidebandData(sidebandData);
     }
   }
 }

@@ -16,14 +16,18 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.InternalApi;
+import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.StreamController;
+import com.google.cloud.bigtable.data.v2.stub.MetadataExtractorInterceptor;
 import com.google.cloud.bigtable.data.v2.stub.SafeResponseObserver;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
+import io.grpc.ClientInterceptors;
+
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 
@@ -37,8 +41,6 @@ import javax.annotation.Nonnull;
  * <li>-This class will also access trailers from {@link GrpcResponseMetadata} to record zone and
  *     cluster ids.
  * <li>-Call {@link BigtableTracer#onRequest(int)} to record the request events in a stream.
- * <li>-This class will also inject a {@link BigtableGrpcStreamTracer} that'll record the time an
- *     RPC spent in a grpc channel queue.
  * <li>This class is considered an internal implementation detail and not meant to be used by
  *     applications.
  */
@@ -56,22 +58,26 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
   @Override
   public void call(
       RequestT request, ResponseObserver<ResponseT> responseObserver, ApiCallContext context) {
-    final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
+    GrpcCallContext grpcCtx = (GrpcCallContext) context;
+
+    MetadataExtractorInterceptor metadataExtractor = new MetadataExtractorInterceptor();
+    grpcCtx = metadataExtractor.injectInto(grpcCtx);
+
+
     // tracer should always be an instance of bigtable tracer
     if (context.getTracer() instanceof BigtableTracer) {
       BigtableTracer tracer = (BigtableTracer) context.getTracer();
+      grpcCtx.withCallOptions(
+              grpcCtx.getCallOptions().withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer)));
+
       BigtableTracerResponseObserver<ResponseT> innerObserver =
-          new BigtableTracerResponseObserver<>(responseObserver, tracer, responseMetadata);
+          new BigtableTracerResponseObserver<>(responseObserver, tracer, metadataExtractor.getSidebandData());
       if (context.getRetrySettings() != null) {
         tracer.setTotalTimeoutDuration(context.getRetrySettings().getTotalTimeoutDuration());
       }
-      innerCallable.call(
-          request,
-          innerObserver,
-          Util.injectBigtableStreamTracer(
-              context, responseMetadata, (BigtableTracer) context.getTracer()));
+      innerCallable.call(request, innerObserver, grpcCtx);
     } else {
-      innerCallable.call(request, responseObserver, context);
+      innerCallable.call(request, responseObserver, grpcCtx);
     }
   }
 
@@ -79,17 +85,17 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
 
     private final BigtableTracer tracer;
     private final ResponseObserver<ResponseT> outerObserver;
-    private final GrpcResponseMetadata responseMetadata;
+    private final MetadataExtractorInterceptor.SidebandData sidebandData;
 
     BigtableTracerResponseObserver(
         ResponseObserver<ResponseT> observer,
         BigtableTracer tracer,
-        GrpcResponseMetadata metadata) {
+        MetadataExtractorInterceptor.SidebandData sidebandData) {
       super(observer);
 
       this.tracer = tracer;
       this.outerObserver = observer;
-      this.responseMetadata = metadata;
+      this.sidebandData = sidebandData;
     }
 
     @Override
@@ -107,13 +113,13 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
 
     @Override
     protected void onErrorImpl(Throwable t) {
-      Util.recordMetricsFromMetadata(responseMetadata, tracer, t);
+      tracer.setSidebandData(sidebandData);
       outerObserver.onError(t);
     }
 
     @Override
     protected void onCompleteImpl() {
-      Util.recordMetricsFromMetadata(responseMetadata, tracer, null);
+      tracer.setSidebandData(sidebandData);
       outerObserver.onComplete();
     }
   }

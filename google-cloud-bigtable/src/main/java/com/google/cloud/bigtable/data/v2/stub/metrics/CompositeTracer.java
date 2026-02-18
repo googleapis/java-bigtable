@@ -19,6 +19,7 @@ import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeDuration;
 
 import com.google.api.core.ObsoleteApi;
 import com.google.api.gax.tracing.ApiTracer;
+import com.google.cloud.bigtable.data.v2.stub.MetadataExtractorInterceptor;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
@@ -222,6 +223,13 @@ class CompositeTracer extends BigtableTracer {
   public void setTransportAttrs(BuiltinMetricsTracer.TransportAttrs attrs) {
     for (BigtableTracer tracer : bigtableTracers) {
       tracer.setTransportAttrs(attrs);
+    }
+  }
+
+  @Override
+  public void setSidebandData(MetadataExtractorInterceptor.SidebandData sidebandData) {
+    for (BigtableTracer bigtableTracer : bigtableTracers) {
+      bigtableTracer.setSidebandData(sidebandData);
     }
   }
 
