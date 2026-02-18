@@ -17,7 +17,6 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.InternalApi;
 import com.google.api.gax.grpc.GrpcCallContext;
-import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
@@ -30,17 +29,8 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 
 /**
- * This callable will
- * <li>-Inject a {@link GrpcResponseMetadata} to access the headers returned by gRPC methods upon
- *     completion. The {@link BigtableTracer} will process metrics that were injected in the
- *     header/trailer and publish them to OpenCensus. If {@link GrpcResponseMetadata#getMetadata()}
- *     returned null, it probably means that the request has never reached GFE, and it'll increment
- *     the gfe_header_missing_counter in this case.
- * <li>-This class will also access trailers from {@link GrpcResponseMetadata} to record zone and
- *     cluster ids.
- * <li>-Call {@link BigtableTracer#onRequest(int)} to record the request events in a stream.
- * <li>This class is considered an internal implementation detail and not meant to be used by
- *     applications.
+ * This class is considered an internal implementation detail and not meant to be used by
+ * applications.
  */
 @InternalApi
 public class BigtableTracerStreamingCallable<RequestT, ResponseT>
@@ -64,6 +54,7 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
     // tracer should always be an instance of bigtable tracer
     if (context.getTracer() instanceof BigtableTracer) {
       BigtableTracer tracer = (BigtableTracer) context.getTracer();
+      tracer.setSidebandData(metadataExtractor.getSidebandData());
       grpcCtx =
           grpcCtx.withCallOptions(
               grpcCtx
@@ -71,8 +62,7 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
                   .withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer)));
 
       BigtableTracerResponseObserver<ResponseT> innerObserver =
-          new BigtableTracerResponseObserver<>(
-              responseObserver, tracer, metadataExtractor.getSidebandData());
+          new BigtableTracerResponseObserver<>(responseObserver, tracer);
       if (context.getRetrySettings() != null) {
         tracer.setTotalTimeoutDuration(context.getRetrySettings().getTotalTimeoutDuration());
       }
@@ -83,20 +73,14 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
   }
 
   private class BigtableTracerResponseObserver<ResponseT> extends SafeResponseObserver<ResponseT> {
-
     private final BigtableTracer tracer;
     private final ResponseObserver<ResponseT> outerObserver;
-    private final MetadataExtractorInterceptor.SidebandData sidebandData;
 
-    BigtableTracerResponseObserver(
-        ResponseObserver<ResponseT> observer,
-        BigtableTracer tracer,
-        MetadataExtractorInterceptor.SidebandData sidebandData) {
+    BigtableTracerResponseObserver(ResponseObserver<ResponseT> observer, BigtableTracer tracer) {
       super(observer);
 
       this.tracer = tracer;
       this.outerObserver = observer;
-      this.sidebandData = sidebandData;
     }
 
     @Override
@@ -114,13 +98,11 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
 
     @Override
     protected void onErrorImpl(Throwable t) {
-      tracer.setSidebandData(sidebandData);
       outerObserver.onError(t);
     }
 
     @Override
     protected void onCompleteImpl() {
-      tracer.setSidebandData(sidebandData);
       outerObserver.onComplete();
     }
   }

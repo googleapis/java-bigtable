@@ -16,29 +16,17 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.ApiFuture;
-import com.google.api.core.ApiFutureCallback;
-import com.google.api.core.ApiFutures;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.grpc.GrpcCallContext;
-import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.MetadataExtractorInterceptor;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.MoreExecutors;
 import javax.annotation.Nonnull;
 
 /**
- * This callable will:
- * <li>- Inject a {@link GrpcResponseMetadata} to access the headers returned by gRPC methods upon
- *     completion. The {@link BigtableTracer} will process metrics that were injected in the
- *     header/trailer and publish them to OpenCensus. If {@link GrpcResponseMetadata#getMetadata()}
- *     returned null, it probably means that the request has never reached GFE, and it'll increment
- *     the gfe_header_missing_counter in this case.
- * <li>-This class will also access trailers from {@link GrpcResponseMetadata} to record zone and
- *     cluster ids.
- * <li>This class is considered an internal implementation detail and not meant to be used by
- *     applications.
+ * This class is considered an internal implementation detail and not meant to be used by
+ * applications.
  */
 @InternalApi
 public class BigtableTracerUnaryCallable<RequestT, ResponseT>
@@ -58,6 +46,7 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
     // tracer should always be an instance of BigtableTracer
     if (context.getTracer() instanceof BigtableTracer) {
       BigtableTracer tracer = (BigtableTracer) context.getTracer();
+      tracer.setSidebandData(interceptor.getSidebandData());
 
       grpcCtx =
           grpcCtx.withCallOptions(
@@ -65,39 +54,10 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
                   .getCallOptions()
                   .withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer)));
 
-      BigtableTracerUnaryCallback<ResponseT> callback =
-          new BigtableTracerUnaryCallback<>(
-              (BigtableTracer) context.getTracer(), interceptor.getSidebandData());
       if (context.getRetrySettings() != null) {
         tracer.setTotalTimeoutDuration(context.getRetrySettings().getTotalTimeoutDuration());
       }
-      ApiFuture<ResponseT> future = innerCallable.futureCall(request, grpcCtx);
-      ApiFutures.addCallback(future, callback, MoreExecutors.directExecutor());
-      return future;
-    } else {
-      return innerCallable.futureCall(request, grpcCtx);
     }
-  }
-
-  private class BigtableTracerUnaryCallback<ResponseT> implements ApiFutureCallback<ResponseT> {
-
-    private final BigtableTracer tracer;
-    private final MetadataExtractorInterceptor.SidebandData sidebandData;
-
-    BigtableTracerUnaryCallback(
-        BigtableTracer tracer, MetadataExtractorInterceptor.SidebandData sidebandData) {
-      this.tracer = tracer;
-      this.sidebandData = sidebandData;
-    }
-
-    @Override
-    public void onFailure(Throwable throwable) {
-      tracer.setSidebandData(sidebandData);
-    }
-
-    @Override
-    public void onSuccess(ResponseT response) {
-      tracer.setSidebandData(sidebandData);
-    }
+    return innerCallable.futureCall(request, grpcCtx);
   }
 }

@@ -97,7 +97,10 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private Deadline operationDeadline = null;
   private volatile long remainingDeadlineAtAttemptStart = 0;
 
-  private MetadataExtractorInterceptor.SidebandData sidebandData = null;
+  // TODO: ensure that this is never null and remove all of the checks
+  // Sideband data wrapper itself should never be null unless a callable chain forgets to
+  // add BigtableTracer{Streaming,Unary}Callable. Which would be considered a bug.
+  @Nullable private volatile MetadataExtractorInterceptor.SidebandData sidebandData = null;
 
   // OpenCensus (and server) histogram buckets use [start, end), however OpenTelemetry uses (start,
   // end]. To work around this, we measure all the latencies in nanoseconds and convert them
@@ -452,7 +455,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
       remainingDeadlineHistogram.record(Math.max(0, remainingDeadlineAtAttemptStart), attributes);
     }
 
-    if (sidebandData.getGfeTiming() != null) {
+    if (sidebandData != null && sidebandData.getGfeTiming() != null) {
       serverLatenciesHistogram.record(sidebandData.getGfeTiming(), attributes);
       connectivityErrorCounter.add(0, attributes);
     } else {
