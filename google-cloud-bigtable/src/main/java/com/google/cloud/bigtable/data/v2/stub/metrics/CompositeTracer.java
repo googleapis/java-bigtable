@@ -199,30 +199,9 @@ class CompositeTracer extends BigtableTracer {
   }
 
   @Override
-  public void recordGfeMetadata(@Nullable Long latency, @Nullable Throwable throwable) {
-    for (BigtableTracer tracer : bigtableTracers) {
-      tracer.recordGfeMetadata(latency, throwable);
-    }
-  }
-
-  @Override
   public void batchRequestThrottled(long throttledTimeMs) {
     for (BigtableTracer tracer : bigtableTracers) {
       tracer.batchRequestThrottled(throttledTimeMs);
-    }
-  }
-
-  @Override
-  public void setLocations(String zone, String cluster) {
-    for (BigtableTracer tracer : bigtableTracers) {
-      tracer.setLocations(zone, cluster);
-    }
-  }
-
-  @Override
-  public void setTransportAttrs(BuiltinMetricsTracer.TransportAttrs attrs) {
-    for (BigtableTracer tracer : bigtableTracers) {
-      tracer.setTransportAttrs(attrs);
     }
   }
 
@@ -251,13 +230,6 @@ class CompositeTracer extends BigtableTracer {
   public void afterResponse(long applicationLatency) {
     for (BigtableTracer tracer : bigtableTracers) {
       tracer.afterResponse(applicationLatency);
-    }
-  }
-
-  @Override
-  public void grpcChannelQueuedLatencies(long queuedTimeMs) {
-    for (BigtableTracer tracer : bigtableTracers) {
-      tracer.grpcChannelQueuedLatencies(queuedTimeMs);
     }
   }
 

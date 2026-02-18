@@ -71,49 +71,12 @@ public class BigtableTracer extends BaseApiTracer {
     return attempt;
   }
 
-  /**
-   * Record the latency between Google's network receives the RPC and reads back the first byte of
-   * the response from server-timing header. If server-timing header is missing, increment the
-   * missing header count.
-   *
-   * @deprecated Use {@link #setSidebandData(MetadataExtractorInterceptor.SidebandData)}
-   */
-  @Deprecated
-  public void recordGfeMetadata(@Nullable Long latency, @Nullable Throwable throwable) {
-    // noop
-  }
-
   /** Adds an annotation of the total throttled time of a batch. */
   public void batchRequestThrottled(long throttledTimeMs) {
     // noop
   }
 
   public void setSidebandData(MetadataExtractorInterceptor.SidebandData sidebandData) {
-    // noop
-  }
-
-  /**
-   * Set the Bigtable zone and cluster so metrics can be tagged with location information. This will
-   * be called in BuiltinMetricsTracer.
-   *
-   * @deprecated Use {@link #setSidebandData(MetadataExtractorInterceptor.SidebandData)}
-   */
-  @Deprecated
-  public void setLocations(String zone, String cluster) {}
-
-  /**
-   * Set the underlying transport used to process the attempt
-   *
-   * @deprecated Use {@link #setSidebandData(MetadataExtractorInterceptor.SidebandData)}
-   */
-  @Deprecated
-  public void setTransportAttrs(BuiltinMetricsTracer.TransportAttrs attrs) {}
-
-  @Deprecated
-  /**
-   * @deprecated {@link #grpcMessageSent()} is called instead.
-   */
-  public void grpcChannelQueuedLatencies(long queuedTimeMs) {
     // noop
   }
 
