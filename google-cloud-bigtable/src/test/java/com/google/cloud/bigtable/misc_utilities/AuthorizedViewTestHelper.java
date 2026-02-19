@@ -22,8 +22,8 @@ import com.google.cloud.bigtable.admin.v2.models.CreateAuthorizedViewRequest;
 import com.google.cloud.bigtable.admin.v2.models.FamilySubsets;
 import com.google.cloud.bigtable.admin.v2.models.SubsetView;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
-import java.time.Duration;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -65,7 +65,9 @@ public class AuthorizedViewTestHelper {
                 + tableId
                 + ", retryCount: "
                 + retryCount);
-        Thread.sleep(Duration.ofMinutes(1).toMillis());
+        // Exponential backoff delay starting at 100ms.
+        double expSleep = 100 * Math.pow(2, retryCount);
+        Thread.sleep((long) Math.min(expSleep, TimeUnit.MINUTES.toMillis(1)));
       }
     }
   }
