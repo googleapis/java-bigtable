@@ -136,7 +136,7 @@ public class BuiltinMetricsView {
             executorService);
 
     for (Map.Entry<InstrumentSelector, View> entry :
-        BuiltinMetricsConstants.getAllViews().entrySet()) {
+        BuiltinMetricsConstants.getBigtableTableViews().entrySet()) {
       builder.registerView(entry.getKey(), entry.getValue());
     }
     PeriodicMetricReaderBuilder readerBuilder = PeriodicMetricReader.builder(publicExporter);

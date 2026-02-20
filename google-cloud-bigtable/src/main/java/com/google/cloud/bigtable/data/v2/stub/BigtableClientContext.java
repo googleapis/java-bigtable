@@ -214,6 +214,10 @@ public class BigtableClientContext {
     return this.openTelemetry;
   }
 
+  public OpenTelemetry getInternalOpenTelemtry() {
+    return this.internalOpenTelemetry;
+  }
+
   public ClientContext getClientContext() {
     return this.clientContext;
   }
