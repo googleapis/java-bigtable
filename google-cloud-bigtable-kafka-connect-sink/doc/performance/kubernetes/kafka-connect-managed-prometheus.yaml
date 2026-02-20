@@ -1,0 +1,11 @@
+apiVersion: monitoring.googleapis.com/v1
+kind: PodMonitoring
+metadata:
+  name: kafka-connect-managed-prometheus
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kafka-connect
+  endpoints:
+  - port: tcp-prometheus
+    interval: 30s
