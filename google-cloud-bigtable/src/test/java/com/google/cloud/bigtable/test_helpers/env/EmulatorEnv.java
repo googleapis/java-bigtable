@@ -112,6 +112,11 @@ public class EmulatorEnv extends AbstractTestEnv {
   }
 
   @Override
+  public String getDataEndpoint() {
+    return dataSettings.getStubSettings().getEndpoint();
+  }
+
+  @Override
   public String getTableId() {
     return TABLE_ID;
   }
