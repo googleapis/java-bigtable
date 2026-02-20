@@ -38,6 +38,7 @@ import com.google.bigtable.v2.TableName;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.stub.MetadataExtractorInterceptor;
 import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.grpc.Metadata;
 import io.grpc.Status;
@@ -52,7 +53,6 @@ import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 import io.opentelemetry.sdk.metrics.export.PeriodicMetricReaderBuilder;
 import java.io.IOException;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -179,32 +179,20 @@ public class Util {
 
     MetricExporter publicExporter =
         BigtableCloudMonitoringExporter.create(
-            "bigtable metrics",
             credentials,
             metricsEndpoint,
             universeDomain,
-            new BigtableCloudMonitoringExporter.PublicTimeSeriesConverter(),
+            ImmutableList.of(
+                new BigtableCloudMonitoringExporter.PublicTimeSeriesConverter(),
+                new BigtableCloudMonitoringExporter.InternalTimeSeriesConverter(
+                    Suppliers.memoize(
+                        () ->
+                            BigtableExporterUtils.createInternalMonitoredResource(
+                                instanceName, appProfileId)))),
             executor);
     PeriodicMetricReaderBuilder readerBuilder =
         PeriodicMetricReader.builder(publicExporter).setExecutor(executor);
     meterProvider.registerMetricReader(readerBuilder.build());
-
-    meterProvider.registerMetricReader(
-        PeriodicMetricReader.builder(
-                BigtableCloudMonitoringExporter.create(
-                    "application metrics",
-                    credentials,
-                    metricsEndpoint,
-                    universeDomain,
-                    new BigtableCloudMonitoringExporter.InternalTimeSeriesConverter(
-                        Suppliers.memoize(
-                            () ->
-                                BigtableExporterUtils.createInternalMonitoredResource(
-                                    instanceName, appProfileId))),
-                    executor))
-            .setExecutor(executor)
-            .setInterval(Duration.ofMinutes(1))
-            .build());
 
     return OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
   }
