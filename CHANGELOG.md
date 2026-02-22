@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.74.0](https://github.com/googleapis/java-bigtable/compare/v2.73.1...v2.74.0) (2026-02-22)
+
+
+### Features
+
+* Add awaitOptimizeRestoredTable helper for Bigtable Admin ([#2781](https://github.com/googleapis/java-bigtable/issues/2781)) ([cf15d45](https://github.com/googleapis/java-bigtable/commit/cf15d45a8f4c0ee385d3e53a0bae153ee1064999))
+* **Bigtable:** Add support for creating instances with tags ([#2733](https://github.com/googleapis/java-bigtable/issues/2733)) ([bc46174](https://github.com/googleapis/java-bigtable/commit/bc461749a0aa702f65c26774dd4696d47ef88eae))
+
+
+### Bug Fixes
+
+* Ensure that per attempt metrics tracer is below the retries ([#2793](https://github.com/googleapis/java-bigtable/issues/2793)) ([1f39032](https://github.com/googleapis/java-bigtable/commit/1f390328b23855ee39e2c3dacf8a0eed8d962b08))
+
 ## [2.73.1](https://github.com/googleapis/java-bigtable/compare/v2.73.0...v2.73.1) (2026-02-17)
 
 
