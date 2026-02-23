@@ -65,7 +65,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
@@ -99,9 +98,6 @@ import org.threeten.bp.Duration;
  * }</pre>
  */
 public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableStubSettings> {
-  private static final Logger logger =
-      Logger.getLogger(EnhancedBigtableStubSettings.class.getName());
-
   // The largest message that can be received is a 256 MB ReadRowsResponse.
   private static final int MAX_MESSAGE_SIZE = 256 * 1024 * 1024;
   private static final String SERVER_DEFAULT_APP_PROFILE_ID = "";
@@ -145,7 +141,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           .setRetryDelayMultiplier(2.0)
           .setMaxRetryDelay(Duration.ofMinutes(1))
           .setMaxAttempts(10)
-          .setJittered(true)
           .setInitialRpcTimeout(Duration.ofMinutes(30))
           .setRpcTimeoutMultiplier(2.0)
           .setMaxRpcTimeout(Duration.ofMinutes(30))
@@ -172,7 +167,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           .setRetryDelayMultiplier(2.0)
           .setMaxRetryDelay(Duration.ofMinutes(1))
           .setMaxAttempts(10)
-          .setJittered(true)
           .setInitialRpcTimeout(Duration.ofMinutes(1))
           .setRpcTimeoutMultiplier(2.0)
           .setMaxRpcTimeout(Duration.ofMinutes(10))
@@ -211,7 +205,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           .setRetryDelayMultiplier(2.0)
           .setMaxRetryDelay(Duration.ofMinutes(1))
           .setMaxAttempts(10)
-          .setJittered(true)
           .setInitialRpcTimeout(Duration.ofMinutes(30))
           .setRpcTimeoutMultiplier(1.0)
           .setMaxRpcTimeout(Duration.ofMinutes(30))
@@ -255,7 +248,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final String instanceId;
   private final String appProfileId;
   private final boolean isRefreshingChannel;
-  private ImmutableList<String> primedTableIds;
 
   private final ServerStreamingCallSettings<Query, Row> readRowsSettings;
   private final UnaryCallSettings<Query, Row> readRowSettings;
@@ -277,7 +269,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   private final MetricsProvider metricsProvider;
   @Nullable private final String metricsEndpoint;
-  @Nonnull private final boolean areInternalMetricsEnabled;
+  private final boolean areInternalMetricsEnabled;
   private final String jwtAudience;
 
   private EnhancedBigtableStubSettings(Builder builder) {
@@ -302,7 +294,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     instanceId = builder.instanceId;
     appProfileId = builder.appProfileId;
     isRefreshingChannel = builder.isRefreshingChannel;
-    primedTableIds = builder.primedTableIds;
     metricsProvider = builder.metricsProvider;
     metricsEndpoint = builder.metricsEndpoint;
     areInternalMetricsEnabled = builder.areInternalMetricsEnabled;
@@ -362,7 +353,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
    */
   @Deprecated
   public List<String> getPrimedTableIds() {
-    return primedTableIds;
+    return ImmutableList.of();
   }
 
   /**
@@ -739,7 +730,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private String instanceId;
     private String appProfileId;
     private boolean isRefreshingChannel;
-    private ImmutableList<String> primedTableIds;
     private String jwtAudience;
 
     private final ServerStreamingCallSettings.Builder<Query, Row> readRowsSettings;
@@ -760,7 +750,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private final UnaryCallSettings.Builder<PrepareQueryRequest, PrepareResponse>
         prepareQuerySettings;
 
-    private FeatureFlags.Builder featureFlags;
+    private final FeatureFlags.Builder featureFlags;
 
     private MetricsProvider metricsProvider;
     @Nullable private String metricsEndpoint;
@@ -777,7 +767,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private Builder() {
       this.appProfileId = SERVER_DEFAULT_APP_PROFILE_ID;
       this.isRefreshingChannel = true;
-      primedTableIds = ImmutableList.of();
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
       metricsProvider = DefaultMetricsProvider.INSTANCE;
       this.areInternalMetricsEnabled = true;
@@ -914,7 +903,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       instanceId = settings.instanceId;
       appProfileId = settings.appProfileId;
       isRefreshingChannel = settings.isRefreshingChannel;
-      primedTableIds = settings.primedTableIds;
       metricsProvider = settings.metricsProvider;
       metricsEndpoint = settings.getMetricsEndpoint();
       areInternalMetricsEnabled = settings.areInternalMetricsEnabled;
@@ -1037,7 +1025,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
      */
     @Deprecated
     public Builder setPrimedTableIds(String... tableIds) {
-      this.primedTableIds = ImmutableList.copyOf(tableIds);
       return this;
     }
 
@@ -1057,7 +1044,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
      */
     @Deprecated
     public List<String> getPrimedTableIds() {
-      return primedTableIds;
+      return ImmutableList.of();
     }
 
     /**
@@ -1307,7 +1294,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("instanceId", instanceId)
         .add("appProfileId", appProfileId)
         .add("isRefreshingChannel", isRefreshingChannel)
-        .add("primedTableIds", primedTableIds)
         .add("readRowsSettings", readRowsSettings)
         .add("readRowSettings", readRowSettings)
         .add("sampleRowKeysSettings", sampleRowKeysSettings)

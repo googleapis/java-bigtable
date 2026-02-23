@@ -919,7 +919,6 @@ public class EnhancedBigtableStubSettingsTest {
     "instanceId",
     "appProfileId",
     "isRefreshingChannel",
-    "primedTableIds",
     "readRowsSettings",
     "readRowSettings",
     "sampleRowKeysSettings",
@@ -950,17 +949,12 @@ public class EnhancedBigtableStubSettingsTest {
             .build();
 
     checkToString(defaultSettings);
-    assertThat(defaultSettings.toString()).contains("primedTableIds=[]");
 
     EnhancedBigtableStubSettings settings =
-        defaultSettings.toBuilder()
-            .setPrimedTableIds("2", "12", "85", "06")
-            .setEndpoint("example.com:1234")
-            .build();
+        defaultSettings.toBuilder().setEndpoint("example.com:1234").build();
 
     checkToString(settings);
     assertThat(settings.toString()).contains("endpoint=example.com:1234");
-    assertThat(settings.toString()).contains("primedTableIds=[2, 12, 85, 06]");
 
     int nonStaticFields = 0;
     for (Field field : EnhancedBigtableStubSettings.class.getDeclaredFields()) {
