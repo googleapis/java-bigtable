@@ -983,7 +983,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("instanceId", instanceId)
         .add("appProfileId", appProfileId)
         .add("isRefreshingChannel", isRefreshingChannel)
-        .add("perOpSettings.", perOpSettings)
+        .add("perOpSettings", perOpSettings)
         .add("metricsProvider", metricsProvider)
         .add("metricsEndpoint", metricsEndpoint)
         .add("areInternalMetricsEnabled", areInternalMetricsEnabled)
