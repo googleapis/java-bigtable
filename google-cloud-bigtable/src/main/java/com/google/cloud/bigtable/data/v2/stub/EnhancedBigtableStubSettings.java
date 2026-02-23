@@ -256,8 +256,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final String appProfileId;
   private final boolean isRefreshingChannel;
   private ImmutableList<String> primedTableIds;
-  private final boolean enableRoutingCookie;
-  private final boolean enableRetryInfo;
 
   private final ServerStreamingCallSettings<Query, Row> readRowsSettings;
   private final UnaryCallSettings<Query, Row> readRowSettings;
@@ -305,8 +303,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     appProfileId = builder.appProfileId;
     isRefreshingChannel = builder.isRefreshingChannel;
     primedTableIds = builder.primedTableIds;
-    enableRoutingCookie = builder.enableRoutingCookie;
-    enableRetryInfo = builder.enableRetryInfo;
     metricsProvider = builder.metricsProvider;
     metricsEndpoint = builder.metricsEndpoint;
     areInternalMetricsEnabled = builder.areInternalMetricsEnabled;
@@ -384,21 +380,19 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   }
 
   /**
-   * Gets if routing cookie is enabled. If true, client will retry a request with extra metadata
-   * server sent back.
+   * @deprecated routing cookies are always on.
    */
-  @BetaApi("Routing cookie is not currently stable and may change in the future")
+  @Deprecated
   public boolean getEnableRoutingCookie() {
-    return enableRoutingCookie;
+    return true;
   }
 
   /**
-   * Gets if RetryInfo is enabled. If true, client bases retry decision and back off time on server
-   * returned RetryInfo value. Otherwise, client uses {@link RetrySettings}.
+   * @deprecated RetryInfo is now always on.
    */
-  @BetaApi("RetryInfo is not currently stable and may change in the future")
+  @Deprecated
   public boolean getEnableRetryInfo() {
-    return enableRetryInfo;
+    return true;
   }
 
   /**
@@ -747,8 +741,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private boolean isRefreshingChannel;
     private ImmutableList<String> primedTableIds;
     private String jwtAudience;
-    private boolean enableRoutingCookie;
-    private boolean enableRetryInfo;
 
     private final ServerStreamingCallSettings.Builder<Query, Row> readRowsSettings;
     private final UnaryCallSettings.Builder<Query, Row> readRowSettings;
@@ -787,8 +779,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       this.isRefreshingChannel = true;
       primedTableIds = ImmutableList.of();
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
-      this.enableRoutingCookie = true;
-      this.enableRetryInfo = true;
       metricsProvider = DefaultMetricsProvider.INSTANCE;
       this.areInternalMetricsEnabled = true;
       this.jwtAudience = DEFAULT_DATA_JWT_AUDIENCE;
@@ -925,8 +915,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       appProfileId = settings.appProfileId;
       isRefreshingChannel = settings.isRefreshingChannel;
       primedTableIds = settings.primedTableIds;
-      enableRoutingCookie = settings.enableRoutingCookie;
-      enableRetryInfo = settings.enableRetryInfo;
       metricsProvider = settings.metricsProvider;
       metricsEndpoint = settings.getMetricsEndpoint();
       areInternalMetricsEnabled = settings.areInternalMetricsEnabled;
@@ -1159,41 +1147,35 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     }
 
     /**
-     * Sets if routing cookie is enabled. If true, client will retry a request with extra metadata
-     * server sent back.
+     * @deprecated this now a no-op as routing cookies are always on.
      */
-    @BetaApi("Routing cookie is not currently stable and may change in the future")
+    @Deprecated
     public Builder setEnableRoutingCookie(boolean enableRoutingCookie) {
-      this.enableRoutingCookie = enableRoutingCookie;
       return this;
     }
 
     /**
-     * Gets if routing cookie is enabled. If true, client will retry a request with extra metadata
-     * server sent back.
+     * @deprecated routing cookies are always on.
      */
-    @BetaApi("Routing cookie is not currently stable and may change in the future")
+    @Deprecated
     public boolean getEnableRoutingCookie() {
-      return enableRoutingCookie;
+      return true;
     }
 
     /**
-     * Sets if RetryInfo is enabled. If true, client bases retry decision and back off time on
-     * server returned RetryInfo value. Otherwise, client uses {@link RetrySettings}.
+     * @deprecated This is a no-op, RetryInfo is always used now.
      */
-    @BetaApi("RetryInfo is not currently stable and may change in the future")
+    @Deprecated
     public Builder setEnableRetryInfo(boolean enableRetryInfo) {
-      this.enableRetryInfo = enableRetryInfo;
       return this;
     }
 
     /**
-     * Gets if RetryInfo is enabled. If true, client bases retry decision and back off time on
-     * server returned RetryInfo value. Otherwise, client uses {@link RetrySettings}.
+     * @deprecated RetryInfo is always on.
      */
-    @BetaApi("RetryInfo is not currently stable and may change in the future")
+    @Deprecated
     public boolean getEnableRetryInfo() {
-      return enableRetryInfo;
+      return true;
     }
 
     /** Returns the builder for the settings used for calls to readRows. */
@@ -1283,8 +1265,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         featureFlags.setMutateRowsRateLimit2(true);
       }
 
-      featureFlags.setRoutingCookie(this.getEnableRoutingCookie());
-      featureFlags.setRetryInfo(this.getEnableRetryInfo());
+      featureFlags.setRoutingCookie(true);
+      featureFlags.setRetryInfo(true);
       // client_Side_metrics_enabled feature flag is only set when a user is running with a
       // DefaultMetricsProvider. This may cause false negatives when a user registered the
       // metrics on their CustomOpenTelemetryMetricsProvider.
@@ -1326,8 +1308,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("appProfileId", appProfileId)
         .add("isRefreshingChannel", isRefreshingChannel)
         .add("primedTableIds", primedTableIds)
-        .add("enableRoutingCookie", enableRoutingCookie)
-        .add("enableRetryInfo", enableRetryInfo)
         .add("readRowsSettings", readRowsSettings)
         .add("readRowSettings", readRowSettings)
         .add("sampleRowKeysSettings", sampleRowKeysSettings)
