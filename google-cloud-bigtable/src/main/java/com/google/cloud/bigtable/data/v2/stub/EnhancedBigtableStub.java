@@ -184,9 +184,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
     this.bigtableClientContext = clientContext;
     this.requestContext =
         RequestContext.create(
-            clientContext.getInstanceName().getProject(),
-            clientContext.getInstanceName().getInstance(),
-            clientContext.getAppProfileId());
+            clientContext.getClientInfo().getInstanceName().getProject(),
+            clientContext.getClientInfo().getInstanceName().getInstance(),
+            clientContext.getClientInfo().getAppProfileId());
     this.bulkMutationFlowController =
         new FlowController(perOpSettings.bulkMutateRowsSettings.getDynamicFlowControlSettings());
     this.bulkMutationDynamicFlowControlStats = new DynamicFlowControlStats();
