@@ -165,6 +165,7 @@ class ClientOperationSettings {
           .setInitialRetryDelay(Duration.ofMillis(10))
           .setRetryDelayMultiplier(2)
           .setMaxRetryDelay(Duration.ofMinutes(1))
+          // TODO: fix the settings: initial attempt deadline: 5s, max is 20s but multiplier is 1
           .setInitialRpcTimeout(Duration.ofSeconds(5))
           .setRpcTimeoutMultiplier(1.0)
           .setMaxRpcTimeout(Duration.ofSeconds(20))
