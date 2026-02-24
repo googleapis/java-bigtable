@@ -57,6 +57,10 @@ public final class Constants {
 
     static final AttributeKey<Boolean> APPLIED_KEY = AttributeKey.booleanKey("applied");
 
+    static final AttributeKey<String> CHANNEL_POOL_LB_POLICY = AttributeKey.stringKey("lb_policy");
+    static final AttributeKey<String> DP_REASON_KEY = AttributeKey.stringKey("reason");
+    static final AttributeKey<String> DP_IP_PREFERENCE_KEY = AttributeKey.stringKey("reason");
+
     static final AttributeKey<String> SESSION_TYPE_KEY = AttributeKey.stringKey("session_type");
     static final AttributeKey<String> SESSION_NAME = AttributeKey.stringKey("session_name");
     static final AttributeKey<String> AFE_LOCATION_KEY = AttributeKey.stringKey("afe_location");

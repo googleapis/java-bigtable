@@ -18,6 +18,8 @@ package com.google.cloud.bigtable.data.v2.internal.csm;
 
 import com.google.cloud.bigtable.data.v2.internal.csm.metrics.ClientBatchWriteFlowControlFactor;
 import com.google.cloud.bigtable.data.v2.internal.csm.metrics.ClientBatchWriteFlowControlTargetQps;
+import com.google.cloud.bigtable.data.v2.internal.csm.metrics.ClientChannelPoolOutstandingRpcs;
+import com.google.cloud.bigtable.data.v2.internal.csm.metrics.ClientDpCompatGuage;
 import com.google.cloud.bigtable.data.v2.internal.csm.metrics.ClientPerConnectionErrorCount;
 import com.google.cloud.bigtable.data.v2.internal.csm.metrics.GrpcMetric;
 import com.google.cloud.bigtable.data.v2.internal.csm.metrics.MetricWrapper;
@@ -58,7 +60,9 @@ public class MetricRegistry {
   final TableRetryCount retryCountMetric;
   final TableFirstResponseLatency firstResponseLantencyMetric;
   final TableServerLatency serverLatencyMetric;
+  final ClientChannelPoolOutstandingRpcs channelPoolOutstandingRpcsMetric;
   final TableConnectivityErrorCount connectivityErrorCountMetric;
+  final ClientDpCompatGuage dpCompatGuageMetric;
   final TableApplicationBlockingLatency applicationBlockingLatencyMetric;
   final TableClientBlockingLatency clientBlockingLatencyMetric;
   final ClientPerConnectionErrorCount perConnectionErrorCountMetric;
@@ -78,10 +82,12 @@ public class MetricRegistry {
     retryCountMetric = register(new TableRetryCount());
     firstResponseLantencyMetric = register(new TableFirstResponseLatency());
     serverLatencyMetric = register(new TableServerLatency());
+    channelPoolOutstandingRpcsMetric = register(new ClientChannelPoolOutstandingRpcs());
     connectivityErrorCountMetric = register(new TableConnectivityErrorCount());
     applicationBlockingLatencyMetric = register(new TableApplicationBlockingLatency());
     clientBlockingLatencyMetric = register(new TableClientBlockingLatency());
     perConnectionErrorCountMetric = register(new ClientPerConnectionErrorCount());
+    dpCompatGuageMetric = register(new ClientDpCompatGuage());
     remainingDeadlineMetric = register(new TableRemainingDeadline());
     batchWriteFlowControlFactorMetric = register(new ClientBatchWriteFlowControlFactor());
     batchWriteFlowControlTargetQpsMetric = register(new ClientBatchWriteFlowControlTargetQps());
@@ -171,7 +177,9 @@ public class MetricRegistry {
     public final TableRetryCount.Recorder retryCount;
     public final TableFirstResponseLatency.Recorder firstResponseLantency;
     public final TableServerLatency.Recorder serverLatency;
+    public final ClientChannelPoolOutstandingRpcs.Recorder channelPoolOutstandingRpcs;
     public final TableConnectivityErrorCount.Recorder connectivityErrorCount;
+    public final ClientDpCompatGuage.Recorder dpCompatGuage;
     public final TableApplicationBlockingLatency.Recorder applicationBlockingLatency;
     public final TableClientBlockingLatency.Recorder clientBlockingLatency;
     public final ClientPerConnectionErrorCount.Recorder perConnectionErrorCount;
@@ -188,7 +196,9 @@ public class MetricRegistry {
       retryCount = retryCountMetric.newRecorder(meter);
       firstResponseLantency = firstResponseLantencyMetric.newRecorder(meter);
       serverLatency = serverLatencyMetric.newRecorder(meter);
+      channelPoolOutstandingRpcs = channelPoolOutstandingRpcsMetric.newRecorder(meter);
       connectivityErrorCount = connectivityErrorCountMetric.newRecorder(meter);
+      dpCompatGuage = dpCompatGuageMetric.newRecorder(meter);
       applicationBlockingLatency = applicationBlockingLatencyMetric.newRecorder(meter);
       clientBlockingLatency = clientBlockingLatencyMetric.newRecorder(meter);
       perConnectionErrorCount = perConnectionErrorCountMetric.newRecorder(meter);
