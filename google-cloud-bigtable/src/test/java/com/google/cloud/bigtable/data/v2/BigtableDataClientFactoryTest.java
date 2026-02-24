@@ -289,7 +289,7 @@ public class BigtableDataClientFactoryTest {
     Mockito.verify(executorProvider, Mockito.times(1)).getExecutor();
     Mockito.verify(watchdogProvider, Mockito.times(1)).getWatchdog();
 
-    assertThat(warmedChannels).hasSize(poolSize);
+    assertThat(warmedChannels).hasSize(poolSize + 1);
     assertThat(warmedChannels.values()).doesNotContain(false);
 
     // Wait for all the connections to close asynchronously
@@ -297,7 +297,8 @@ public class BigtableDataClientFactoryTest {
     long sleepTimeMs = 1000;
     Thread.sleep(sleepTimeMs);
     // Verify that all the channels are closed
-    assertThat(terminateAttributes).hasSize(poolSize);
+    // We need to consider the direct path channel.
+    assertThat(terminateAttributes).hasSize(poolSize + 1);
   }
 
   @Test

@@ -107,7 +107,8 @@ public class BigtableChannelPoolTest {
             .setMaxChannelCount(1)
             .build();
     channelPool =
-        new BigtableChannelPool(settings, mockChannelFactory, mockChannelPrimer, executorService);
+        new BigtableChannelPool(
+            settings, mockChannelFactory, mockChannelPrimer, executorService, null);
 
     // Capture the listener when start is called
     // Configure mockClientCall.start to capture the listener
@@ -232,5 +233,43 @@ public class BigtableChannelPoolTest {
     assertThat(entry.getAndResetSuccessCount()).isEqualTo(0);
     assertThat(entry.getAndResetErrorCount()).isEqualTo(1); // The last failure
     assertThat(entry.totalOutstandingRpcs()).isEqualTo(0);
+  }
+
+  @Test
+  public void testPreCreatedChannelInitialization() throws IOException {
+    reset(mockChannelFactory);
+    reset(mockChannelPrimer);
+
+    ManagedChannel newMockChannel = mock(ManagedChannel.class);
+    when(mockChannelFactory.createSingleChannel()).thenReturn(newMockChannel);
+
+    BigtableChannelPoolSettings settings =
+        BigtableChannelPoolSettings.builder()
+            .setInitialChannelCount(3) // Request 3 channels total
+            .setMinChannelCount(1)
+            .setMaxChannelCount(5)
+            .build();
+
+    ManagedChannel preCreatedChannelMock = mock(ManagedChannel.class);
+
+    // Create the pool, passing in our pre-created channel
+    BigtableChannelPool poolWithPreCreated =
+        new BigtableChannelPool(
+            settings,
+            mockChannelFactory,
+            mockChannelPrimer,
+            executorService,
+            preCreatedChannelMock);
+
+    // Verify the pool size is exactly 3
+    List<? extends BigtableChannelObserver> infos = poolWithPreCreated.getChannelInfos();
+    assertThat(infos).hasSize(3);
+
+    // Verify the factory was only called 2 times.
+    verify(mockChannelFactory, times(2)).createSingleChannel();
+
+    // Verify the primer was only called 2 times.
+    // As pre created channel is already primed.
+    verify(mockChannelPrimer, times(2)).primeChannel(any(ManagedChannel.class));
   }
 }

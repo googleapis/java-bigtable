@@ -82,9 +82,11 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
       BigtableChannelPoolSettings settings,
       ChannelFactory channelFactory,
       ChannelPrimer channelPrimer,
-      ScheduledExecutorService backgroundExecutor)
+      ScheduledExecutorService backgroundExecutor,
+      @Nullable ManagedChannel preCreatedChannel)
       throws IOException {
-    return new BigtableChannelPool(settings, channelFactory, channelPrimer, backgroundExecutor);
+    return new BigtableChannelPool(
+        settings, channelFactory, channelPrimer, backgroundExecutor, preCreatedChannel);
   }
 
   /**
@@ -99,7 +101,8 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
       BigtableChannelPoolSettings settings,
       ChannelFactory channelFactory,
       ChannelPrimer channelPrimer,
-      ScheduledExecutorService executor)
+      ScheduledExecutorService executor,
+      @Nullable ManagedChannel preCreatedChannel)
       throws IOException {
     this.settings = settings;
     this.channelFactory = channelFactory;
@@ -110,8 +113,12 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
     this.channelPoolHealthChecker.start();
 
     ImmutableList.Builder<Entry> initialListBuilder = ImmutableList.builder();
-
-    for (int i = 0; i < settings.getInitialChannelCount(); i++) {
+    int channelsToCreate = settings.getInitialChannelCount();
+    if (preCreatedChannel != null) {
+      initialListBuilder.add(new Entry(preCreatedChannel));
+      channelsToCreate--;
+    }
+    for (int i = 0; i < channelsToCreate; i++) {
       ManagedChannel newChannel = channelFactory.createSingleChannel();
       channelPrimer.primeChannel(newChannel);
       initialListBuilder.add(new Entry(newChannel));

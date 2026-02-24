@@ -237,6 +237,25 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return areInternalMetricsEnabled;
   }
 
+  /** Applies common pool, message size, and keep-alive settings to the provided builder. */
+  private static InstantiatingGrpcChannelProvider.Builder commonTraits(
+      InstantiatingGrpcChannelProvider.Builder builder) {
+    return builder
+        .setChannelPoolSettings(
+            ChannelPoolSettings.builder()
+                .setInitialChannelCount(10)
+                .setMinRpcsPerChannel(1)
+                // Keep it conservative as we scale the channel size every 1min
+                // and delta is 2 channels.
+                .setMaxRpcsPerChannel(25)
+                .setPreemptiveRefreshEnabled(true)
+                .build())
+        .setMaxInboundMessageSize(MAX_MESSAGE_SIZE)
+        .setKeepAliveTime(Duration.ofSeconds(30)) // sends ping in this interval
+        .setKeepAliveTimeout(
+            Duration.ofSeconds(10)); // wait this long before considering the connection dead
+  }
+
   /** Returns a builder for the default ChannelProvider for this service. */
   public static InstantiatingGrpcChannelProvider.Builder defaultGrpcTransportProviderBuilder() {
     InstantiatingGrpcChannelProvider.Builder grpcTransportProviderBuilder =
@@ -256,20 +275,25 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
             Collections.singletonList(InstantiatingGrpcChannelProvider.HardBoundTokenTypes.ALTS));
       }
     }
-    return grpcTransportProviderBuilder
-        .setChannelPoolSettings(
-            ChannelPoolSettings.builder()
-                .setInitialChannelCount(10)
-                .setMinRpcsPerChannel(1)
-                // Keep it conservative as we scale the channel size every 1min
-                // and delta is 2 channels.
-                .setMaxRpcsPerChannel(25)
-                .setPreemptiveRefreshEnabled(true)
-                .build())
-        .setMaxInboundMessageSize(MAX_MESSAGE_SIZE)
-        .setKeepAliveTime(Duration.ofSeconds(30)) // sends ping in this interval
-        .setKeepAliveTimeout(
-            Duration.ofSeconds(10)); // wait this long before considering the connection dead
+    return commonTraits(grpcTransportProviderBuilder);
+  }
+
+  /** Returns a builder for the Direct Access Transport Provider. */
+  /** Applies Direct Access traits (DirectPath & ALTS) to an existing builder. */
+  public static InstantiatingGrpcChannelProvider.Builder applyDirectAccessTraits(
+      InstantiatingGrpcChannelProvider.Builder builder) {
+
+    builder
+        .setAttemptDirectPathXds()
+        .setAttemptDirectPath(true)
+        .setAllowNonDefaultServiceAccount(true);
+
+    if (!DIRECT_PATH_BOUND_TOKEN_DISABLED) {
+      builder.setAllowHardBoundTokenTypes(
+          Collections.singletonList(InstantiatingGrpcChannelProvider.HardBoundTokenTypes.ALTS));
+    }
+
+    return builder;
   }
 
   @SuppressWarnings("WeakerAccess")
