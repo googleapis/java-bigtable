@@ -49,7 +49,8 @@ public class PacemakerDelay extends MetricWrapper<ClientSchema> {
           meter
               .histogramBuilder(NAME)
               .setDescription(
-                  "Distribution of the delay between the pacemaker firing and the pacemaker task being scheduled.")
+                  "Distribution of the delay between the pacemaker firing and the pacemaker task"
+                      + " being scheduled.")
               .setUnit(Units.MICROSECOND)
               .setExplicitBucketBoundariesAdvice(Buckets.PACEMAKER_BUCKET)
               .build();
