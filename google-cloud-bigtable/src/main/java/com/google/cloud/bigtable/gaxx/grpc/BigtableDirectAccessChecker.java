@@ -16,6 +16,7 @@
 
 package com.google.cloud.bigtable.gaxx.grpc;
 
+import com.google.api.core.InternalApi;
 import com.google.cloud.bigtable.data.v2.stub.BigtableChannelPrimer;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
@@ -32,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+@InternalApi
 public class BigtableDirectAccessChecker implements DirectAccessChecker {
   private static final Logger LOG = Logger.getLogger(BigtableDirectAccessChecker.class.getName());
   private final ChannelPrimer channelPrimer;
@@ -75,16 +77,13 @@ public class BigtableDirectAccessChecker implements DirectAccessChecker {
                       public void onHeaders(Metadata responseHeaders) {
                         boolean altsCheckPassed = false;
                         try {
-                          LOG.info("Checking AltsContextUtil on attributes during onHeaders...");
                           // Verify ALTS context is present
                           if (AltsContextUtil.check(thisCall.getAttributes())) {
                             altsCheckPassed = true;
                           }
                         } catch (Exception e) {
-                          LOG.warning("AltsContextUtil check failed: " + e.getMessage());
+                          LOG.warning("direct access check failed: " + e.getMessage());
                         }
-
-                        LOG.info("ALTS check: " + altsCheckPassed);
                         if (altsCheckPassed) {
                           isDirectAccessEligible.set(true);
                         }
@@ -147,7 +146,7 @@ public class BigtableDirectAccessChecker implements DirectAccessChecker {
 
       // Delegate the actual RPC execution to the primer.
       // This synchronously sends the PingAndWarm request and triggers the onHeaders callback.
-      channelPrimer.primeChannel(wrappedManagedChannel);
+      primer.primeChannel(wrappedManagedChannel);
 
     } catch (Exception e) {
       LOG.warning("The direct access probe failed to execute: " + e.getMessage());

@@ -25,6 +25,7 @@ import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.auth.Credentials;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.cloud.bigtable.data.v2.stub.metrics.ChannelPoolMetricsTracer;
+import com.google.cloud.bigtable.data.v2.stub.metrics.DirectAccessMetricsRecorder;
 import com.google.common.base.Preconditions;
 import io.grpc.ManagedChannel;
 import java.io.IOException;
@@ -47,19 +48,25 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
   private final ChannelPrimer channelPrimer;
   @Nullable private final ChannelPoolMetricsTracer channelPoolMetricsTracer;
   @Nullable private final ScheduledExecutorService backgroundExecutor;
-  @Nullable private final Map<String, String> headers; // <-- Add this field
+  @Nullable private final Map<String, String> headers;
+  @Nullable private final DirectAccessMetricsRecorder directAccessMetricsRecorder;
 
   private BigtableTransportChannelProvider(
       InstantiatingGrpcChannelProvider instantiatingGrpcChannelProvider,
       ChannelPrimer channelPrimer,
       ChannelPoolMetricsTracer channelPoolMetricsTracer,
       ScheduledExecutorService backgroundExecutor,
-      @Nullable Map<String, String> headers) {
+      @Nullable Map<String, String> headers,
+      @Nullable DirectAccessMetricsRecorder directAccessMetricsRecorder) {
     delegate = Preconditions.checkNotNull(instantiatingGrpcChannelProvider);
     this.channelPrimer = channelPrimer;
     this.channelPoolMetricsTracer = channelPoolMetricsTracer;
     this.backgroundExecutor = backgroundExecutor;
     this.headers = headers;
+    this.directAccessMetricsRecorder =
+        directAccessMetricsRecorder != null
+            ? directAccessMetricsRecorder
+            : DirectAccessMetricsRecorder.NOOP_DIRECT_ACCESS_METRIC_RECORDER;
   }
 
   @Override
@@ -84,7 +91,12 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
     InstantiatingGrpcChannelProvider newChannelProvider =
         (InstantiatingGrpcChannelProvider) delegate.withExecutor(executor);
     return new BigtableTransportChannelProvider(
-        newChannelProvider, channelPrimer, channelPoolMetricsTracer, backgroundExecutor, headers);
+        newChannelProvider,
+        channelPrimer,
+        channelPoolMetricsTracer,
+        backgroundExecutor,
+        headers,
+        directAccessMetricsRecorder);
   }
 
   @Override
@@ -97,7 +109,12 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
     InstantiatingGrpcChannelProvider newChannelProvider =
         (InstantiatingGrpcChannelProvider) delegate.withBackgroundExecutor(executor);
     return new BigtableTransportChannelProvider(
-        newChannelProvider, channelPrimer, channelPoolMetricsTracer, executor, headers);
+        newChannelProvider,
+        channelPrimer,
+        channelPoolMetricsTracer,
+        executor,
+        headers,
+        directAccessMetricsRecorder);
   }
 
   @Override
@@ -110,7 +127,12 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
     InstantiatingGrpcChannelProvider newChannelProvider =
         (InstantiatingGrpcChannelProvider) delegate.withHeaders(headers);
     return new BigtableTransportChannelProvider(
-        newChannelProvider, channelPrimer, channelPoolMetricsTracer, backgroundExecutor, headers);
+        newChannelProvider,
+        channelPrimer,
+        channelPoolMetricsTracer,
+        backgroundExecutor,
+        headers,
+        directAccessMetricsRecorder);
   }
 
   @Override
@@ -123,7 +145,12 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
     InstantiatingGrpcChannelProvider newChannelProvider =
         (InstantiatingGrpcChannelProvider) delegate.withEndpoint(endpoint);
     return new BigtableTransportChannelProvider(
-        newChannelProvider, channelPrimer, channelPoolMetricsTracer, backgroundExecutor, headers);
+        newChannelProvider,
+        channelPrimer,
+        channelPoolMetricsTracer,
+        backgroundExecutor,
+        headers,
+        directAccessMetricsRecorder);
   }
 
   @Deprecated
@@ -138,7 +165,12 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
     InstantiatingGrpcChannelProvider newChannelProvider =
         (InstantiatingGrpcChannelProvider) delegate.withPoolSize(size);
     return new BigtableTransportChannelProvider(
-        newChannelProvider, channelPrimer, channelPoolMetricsTracer, backgroundExecutor, headers);
+        newChannelProvider,
+        channelPrimer,
+        channelPoolMetricsTracer,
+        backgroundExecutor,
+        headers,
+        directAccessMetricsRecorder);
   }
 
   // We need this for direct access checker.
@@ -195,11 +227,11 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
     try {
       isDirectAccessEligible = directAccessChecker.check(maybeDirectAccessChannel);
     } catch (Exception e) {
-      LOG.log(
-          Level.INFO,
-          "Failed to probe for Direct Access eligibility. Falling back to default routing.",
-          e);
+      LOG.log(Level.INFO, "Client is not direct access eligible, using standard transport.", e);
     }
+
+    // constructor ensures no null
+    directAccessMetricsRecorder.recordEligibility(isDirectAccessEligible);
 
     InstantiatingGrpcChannelProvider selectedProvider;
     ManagedChannel preCreatedChannel = null;
@@ -266,20 +298,27 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
     InstantiatingGrpcChannelProvider newChannelProvider =
         (InstantiatingGrpcChannelProvider) delegate.withCredentials(credentials);
     return new BigtableTransportChannelProvider(
-        newChannelProvider, channelPrimer, channelPoolMetricsTracer, backgroundExecutor, headers);
+        newChannelProvider,
+        channelPrimer,
+        channelPoolMetricsTracer,
+        backgroundExecutor,
+        headers,
+        directAccessMetricsRecorder);
   }
 
   /** Creates a BigtableTransportChannelProvider. */
   public static BigtableTransportChannelProvider create(
       InstantiatingGrpcChannelProvider instantiatingGrpcChannelProvider,
       ChannelPrimer channelPrimer,
-      ChannelPoolMetricsTracer outstandingRpcsMetricTracker,
-      ScheduledExecutorService backgroundExecutor) {
+      ChannelPoolMetricsTracer channelPoolMetricsTracer,
+      ScheduledExecutorService backgroundExecutor,
+      DirectAccessMetricsRecorder directAccessMetricsRecorder) {
     return new BigtableTransportChannelProvider(
         instantiatingGrpcChannelProvider,
         channelPrimer,
-        outstandingRpcsMetricTracker,
+        channelPoolMetricsTracer,
         backgroundExecutor,
-        null);
+        null,
+        directAccessMetricsRecorder);
   }
 }

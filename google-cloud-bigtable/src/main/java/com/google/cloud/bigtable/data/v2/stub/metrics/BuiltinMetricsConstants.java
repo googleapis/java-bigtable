@@ -101,6 +101,7 @@ public class BuiltinMetricsConstants {
   static final String BATCH_WRITE_FLOW_CONTROL_TARGET_QPS_NAME =
       "batch_write_flow_control_target_qps";
   static final String BATCH_WRITE_FLOW_CONTROL_FACTOR_NAME = "batch_write_flow_control_factor";
+  static final String DIRECT_ACCESS_COMPATIBLE_NAME = "direct_access/compatible";
 
   // Start allow list of metrics that will be exported as internal
   public static final Map<String, Set<String>> GRPC_METRICS =
@@ -168,7 +169,11 @@ public class BuiltinMetricsConstants {
           .build();
 
   public static final Set<String> INTERNAL_METRICS =
-      ImmutableSet.of(PER_CONNECTION_ERROR_COUNT_NAME, OUTSTANDING_RPCS_PER_CHANNEL_NAME).stream()
+      ImmutableSet.of(
+              PER_CONNECTION_ERROR_COUNT_NAME,
+              OUTSTANDING_RPCS_PER_CHANNEL_NAME,
+              DIRECT_ACCESS_COMPATIBLE_NAME)
+          .stream()
           .map(m -> METER_NAME + m)
           .collect(ImmutableSet.toImmutableSet());
   // End allow list of metrics that will be exported

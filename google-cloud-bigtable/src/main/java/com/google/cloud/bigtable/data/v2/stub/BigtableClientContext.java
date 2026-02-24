@@ -29,10 +29,12 @@ import com.google.auth.Credentials;
 import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.bigtable.v2.InstanceName;
 import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableDirectAccessMetricsRecorder;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants;
 import com.google.cloud.bigtable.data.v2.stub.metrics.ChannelPoolMetricsTracer;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CompositeTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
+import com.google.cloud.bigtable.data.v2.stub.metrics.DirectAccessMetricsRecorder;
 import com.google.cloud.bigtable.data.v2.stub.metrics.Util;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableTransportChannelProvider;
 import com.google.cloud.bigtable.gaxx.grpc.ChannelPrimer;
@@ -167,12 +169,19 @@ public class BigtableClientContext {
                 builder.getHeaderProvider().getHeaders());
       }
 
+      DirectAccessMetricsRecorder directAccessMetricsRecorder =
+          DirectAccessMetricsRecorder.NOOP_DIRECT_ACCESS_METRIC_RECORDER;
+      if (builtinOtel != null) {
+        directAccessMetricsRecorder = new BigtableDirectAccessMetricsRecorder(builtinOtel);
+      }
+
       BigtableTransportChannelProvider btTransportProvider =
           BigtableTransportChannelProvider.create(
               transportProvider.build(),
               channelPrimer,
               channelPoolMetricsTracer,
-              backgroundExecutor);
+              backgroundExecutor,
+              directAccessMetricsRecorder);
 
       builder.setTransportChannelProvider(btTransportProvider);
     }

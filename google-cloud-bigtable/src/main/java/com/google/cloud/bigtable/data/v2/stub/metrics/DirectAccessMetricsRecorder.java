@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.gaxx.grpc;
+
+package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.InternalApi;
-import io.grpc.ManagedChannel;
 
 @InternalApi
-/* Evaluates whether a given channel supports Direct Access. */
-public interface DirectAccessChecker {
-  /// Performs a request on the provided channel to check for Direct Access eligibility.
-  boolean check(ManagedChannel channel);
+public interface DirectAccessMetricsRecorder {
+  /** Records whether the underlying transport was eligible for Direct Access. */
+  void recordEligibility(boolean isEligible);
+
+  DirectAccessMetricsRecorder NOOP_DIRECT_ACCESS_METRIC_RECORDER = isEligible -> {};
 }
