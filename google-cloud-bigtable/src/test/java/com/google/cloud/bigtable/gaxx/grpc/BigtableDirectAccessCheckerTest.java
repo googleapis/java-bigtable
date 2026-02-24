@@ -39,7 +39,6 @@ public class BigtableDirectAccessCheckerTest {
   public void setUp() {
     mockPrimer = mock(BigtableChannelPrimer.class);
     mockChannel = mock(ManagedChannel.class);
-    // Ensure the call returns empty attributes by default to avoid NullPointerExceptions
     checker = new BigtableDirectAccessChecker(mockPrimer);
   }
 
@@ -64,7 +63,7 @@ public class BigtableDirectAccessCheckerTest {
   }
 
   @Test
-  public void testProbe_TimeoutDuringPriming_ReturnsFalse() {
+  public void testProbeTimeoutDuringPrimingReturnsFalse() {
     doThrow(
             io.grpc.Status.DEADLINE_EXCEEDED
                 .withDescription("deadline exceeded after 1m")
