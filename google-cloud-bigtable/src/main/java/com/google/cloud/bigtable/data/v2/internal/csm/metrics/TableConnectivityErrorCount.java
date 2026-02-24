@@ -59,7 +59,7 @@ public class TableConnectivityErrorCount extends MetricWrapper<TableSchema> {
               .counterBuilder(NAME)
               .setDescription(
                   "Number of requests that failed to reach the Google datacenter. (Requests without"
-                      + " google response headers")
+                      + " google response headers)")
               .setUnit(Units.COUNT)
               .build();
     }
