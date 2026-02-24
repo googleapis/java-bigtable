@@ -45,6 +45,7 @@ import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.TableName;
 import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
+import com.google.cloud.bigtable.data.v2.internal.csm.attributes.ClientInfo;
 import com.google.cloud.bigtable.data.v2.stub.MetadataExtractorInterceptor;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
@@ -241,14 +242,18 @@ public class Util {
         .orElse("global");
   }
 
-  public static ApiTracerFactory createOCTracingFactory(
-      InstanceName instanceName, String appProfileId) {
+  public static ApiTracerFactory createOCTracingFactory(ClientInfo clientInfo) {
     return new OpencensusTracerFactory(
         ImmutableMap.<String, String>builder()
             // Annotate traces with the same tags as metrics
-            .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID.getName(), instanceName.getProject())
-            .put(RpcMeasureConstants.BIGTABLE_INSTANCE_ID.getName(), instanceName.getInstance())
-            .put(RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID.getName(), appProfileId)
+            .put(
+                RpcMeasureConstants.BIGTABLE_PROJECT_ID.getName(),
+                clientInfo.getInstanceName().getProject())
+            .put(
+                RpcMeasureConstants.BIGTABLE_INSTANCE_ID.getName(),
+                clientInfo.getInstanceName().getInstance())
+            .put(
+                RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID.getName(), clientInfo.getAppProfileId())
             // Also annotate traces with library versions
             .put("gax", GaxGrpcProperties.getGaxGrpcVersion())
             .put("grpc", GaxGrpcProperties.getGrpcVersion())
@@ -257,30 +262,33 @@ public class Util {
   }
 
   public static ApiTracerFactory createOCMetricsFactory(
-      InstanceName instanceName, String appProfileId, Tagger tagger, StatsRecorder stats) {
+      ClientInfo clientInfo, Tagger tagger, StatsRecorder stats) {
 
     ImmutableMap<TagKey, TagValue> attributes =
         ImmutableMap.<TagKey, TagValue>builder()
             .put(
-                RpcMeasureConstants.BIGTABLE_PROJECT_ID, TagValue.create(instanceName.getProject()))
+                RpcMeasureConstants.BIGTABLE_PROJECT_ID,
+                TagValue.create(clientInfo.getInstanceName().getProject()))
             .put(
                 RpcMeasureConstants.BIGTABLE_INSTANCE_ID,
-                TagValue.create(instanceName.getInstance()))
-            .put(RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID, TagValue.create(appProfileId))
+                TagValue.create(clientInfo.getInstanceName().getInstance()))
+            .put(
+                RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID,
+                TagValue.create(clientInfo.getAppProfileId()))
             .build();
     return MetricsTracerFactory.create(tagger, stats, attributes);
   }
 
   public static BuiltinMetricsTracerFactory createOtelMetricsFactory(
-      OpenTelemetry otel, InstanceName instanceName, String appProfileId) throws IOException {
+      OpenTelemetry otel, ClientInfo clientInfo) throws IOException {
     Attributes attributes =
         Attributes.of(
             BIGTABLE_PROJECT_ID_KEY,
-            instanceName.getProject(),
+            clientInfo.getInstanceName().getProject(),
             INSTANCE_ID_KEY,
-            instanceName.getInstance(),
+            clientInfo.getInstanceName().getInstance(),
             APP_PROFILE_KEY,
-            appProfileId,
+            clientInfo.getAppProfileId(),
             CLIENT_NAME_KEY,
             "bigtable-java/" + Version.VERSION);
     return BuiltinMetricsTracerFactory.create(otel, attributes);
