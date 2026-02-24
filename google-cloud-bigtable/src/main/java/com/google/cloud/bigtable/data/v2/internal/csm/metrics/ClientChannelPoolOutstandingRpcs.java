@@ -46,9 +46,7 @@ public class ClientChannelPoolOutstandingRpcs extends MetricWrapper<ClientSchema
           rpcCount,
           getSchema()
               .createResourceAttrs(clientInfo)
-              .put(
-                  MetricLabels.TRANSPORT_TYPE,
-                  Util.transportTypeToString(transportType))
+              .put(MetricLabels.TRANSPORT_TYPE, Util.transportTypeToString(transportType))
               .put(MetricLabels.CHANNEL_POOL_LB_POLICY, lbPolicy.name())
               .put(MetricLabels.STREAMING_KEY, isStreaming)
               .build());
