@@ -26,7 +26,7 @@ import io.opentelemetry.api.metrics.Meter;
 
 public class ClientBatchWriteFlowControlFactor extends MetricWrapper<ClientSchema> {
   private static final String NAME =
-      "bigtable.googleapis.com/internal/client/batch_write_flow_control_target_qps";
+      "bigtable.googleapis.com/internal/client/batch_write_flow_control_factor";
 
   public ClientBatchWriteFlowControlFactor() {
     super(ClientSchema.INSTANCE, NAME);
@@ -44,7 +44,7 @@ public class ClientBatchWriteFlowControlFactor extends MetricWrapper<ClientSchem
           meter
               .gaugeBuilder(NAME)
               .setDescription(
-                  "The current target QPS of the client under batch write flow control.")
+                  "The distribution of batch write flow control factors received from the server.")
               .setUnit("1")
               .build();
     }
