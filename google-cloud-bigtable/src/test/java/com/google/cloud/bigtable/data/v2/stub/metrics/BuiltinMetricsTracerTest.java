@@ -170,7 +170,6 @@ public class BuiltinMetricsTracerTest {
   private ClientInfo clientInfo;
   private Attributes expectedBaseAttributes;
 
-
   private InMemoryMetricReader metricReader;
 
   private DelayProxyDetector delayProxyDetector;
@@ -181,15 +180,17 @@ public class BuiltinMetricsTracerTest {
   public void setUp() throws Exception {
     metricReader = InMemoryMetricReader.create();
 
-    clientInfo = ClientInfo.builder()
-        .setInstanceName(InstanceName.of(PROJECT_ID, INSTANCE_ID))
-        .setAppProfileId(APP_PROFILE_ID)
-        .build();
-    expectedBaseAttributes = Attributes.builder()
-        .put(BuiltinMetricsConstants.BIGTABLE_PROJECT_ID_KEY, PROJECT_ID)
-        .put(BuiltinMetricsConstants.INSTANCE_ID_KEY, INSTANCE_ID)
-        .put(BuiltinMetricsConstants.APP_PROFILE_KEY, APP_PROFILE_ID)
-        .build();
+    clientInfo =
+        ClientInfo.builder()
+            .setInstanceName(InstanceName.of(PROJECT_ID, INSTANCE_ID))
+            .setAppProfileId(APP_PROFILE_ID)
+            .build();
+    expectedBaseAttributes =
+        Attributes.builder()
+            .put(BuiltinMetricsConstants.BIGTABLE_PROJECT_ID_KEY, PROJECT_ID)
+            .put(BuiltinMetricsConstants.INSTANCE_ID_KEY, INSTANCE_ID)
+            .put(BuiltinMetricsConstants.APP_PROFILE_KEY, APP_PROFILE_ID)
+            .build();
 
     SdkMeterProviderBuilder meterProvider =
         SdkMeterProvider.builder().registerMetricReader(metricReader);

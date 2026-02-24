@@ -80,7 +80,6 @@ public class Util {
   static final Metadata.Key<String> ATTEMPT_EPOCH_KEY =
       Metadata.Key.of("bigtable-client-attempt-epoch-usec", Metadata.ASCII_STRING_MARSHALLER);
 
-
   public static Status.Code extractStatus(@Nullable Throwable error) {
     if (error == null) {
       return Status.Code.OK;
@@ -88,7 +87,7 @@ public class Util {
     if (error instanceof ApiException) {
       ApiException apiException = (ApiException) error;
       if (apiException.getStatusCode() instanceof GrpcStatusCode) {
-        return ((GrpcStatusCode)apiException.getStatusCode()).getTransportCode();
+        return ((GrpcStatusCode) apiException.getStatusCode()).getTransportCode();
       }
     }
 
@@ -236,9 +235,14 @@ public class Util {
     return new OpencensusTracerFactory(
         ImmutableMap.<String, String>builder()
             // Annotate traces with the same tags as metrics
-            .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID.getName(), clientInfo.getInstanceName().getProject())
-            .put(RpcMeasureConstants.BIGTABLE_INSTANCE_ID.getName(), clientInfo.getInstanceName().getInstance())
-            .put(RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID.getName(), clientInfo.getAppProfileId())
+            .put(
+                RpcMeasureConstants.BIGTABLE_PROJECT_ID.getName(),
+                clientInfo.getInstanceName().getProject())
+            .put(
+                RpcMeasureConstants.BIGTABLE_INSTANCE_ID.getName(),
+                clientInfo.getInstanceName().getInstance())
+            .put(
+                RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID.getName(), clientInfo.getAppProfileId())
             // Also annotate traces with library versions
             .put("gax", GaxGrpcProperties.getGaxGrpcVersion())
             .put("grpc", GaxGrpcProperties.getGrpcVersion())
@@ -252,11 +256,14 @@ public class Util {
     ImmutableMap<TagKey, TagValue> attributes =
         ImmutableMap.<TagKey, TagValue>builder()
             .put(
-                RpcMeasureConstants.BIGTABLE_PROJECT_ID, TagValue.create(clientInfo.getInstanceName().getProject()))
+                RpcMeasureConstants.BIGTABLE_PROJECT_ID,
+                TagValue.create(clientInfo.getInstanceName().getProject()))
             .put(
                 RpcMeasureConstants.BIGTABLE_INSTANCE_ID,
                 TagValue.create(clientInfo.getInstanceName().getInstance()))
-            .put(RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID, TagValue.create(clientInfo.getAppProfileId()))
+            .put(
+                RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID,
+                TagValue.create(clientInfo.getAppProfileId()))
             .build();
     return MetricsTracerFactory.create(tagger, stats, attributes);
   }

@@ -84,10 +84,11 @@ public class BigtableClientContext {
       EnhancedBigtableStubSettings settings, Tagger ocTagger, StatsRecorder ocRecorder)
       throws IOException {
 
-    ClientInfo clientInfo = ClientInfo.builder()
-        .setInstanceName(InstanceName.of(settings.getProjectId(), settings.getInstanceId()))
-        .setAppProfileId(settings.getAppProfileId())
-        .build();
+    ClientInfo clientInfo =
+        ClientInfo.builder()
+            .setInstanceName(InstanceName.of(settings.getProjectId(), settings.getInstanceId()))
+            .setAppProfileId(settings.getAppProfileId())
+            .build();
 
     EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
 
@@ -286,10 +287,7 @@ public class BigtableClientContext {
       throws IOException {
     return new BigtableClientContext(
         true,
-        clientInfo.toBuilder()
-            .setInstanceName(instanceName)
-            .setAppProfileId(appProfileId)
-            .build(),
+        clientInfo.toBuilder().setInstanceName(instanceName).setAppProfileId(appProfileId).build(),
         clientContext,
         userTracerFactory,
         builtinOpenTelemetry,

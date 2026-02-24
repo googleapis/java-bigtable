@@ -27,7 +27,8 @@ public class ClientDpCompatGuage extends MetricWrapper<ClientSchema> {
               .gaugeBuilder(NAME)
               .ofLongs()
               .setDescription(
-                  "Reports 1 if the environment is eligible for DirectPath, 0 otherwise. Based on an attempt at startup.")
+                  "Reports 1 if the environment is eligible for DirectPath, 0 otherwise. Based on"
+                      + " an attempt at startup.")
               .setUnit("1")
               .build();
     }

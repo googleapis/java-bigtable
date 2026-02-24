@@ -74,7 +74,6 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   private final AtomicLong totalClientBlockingTime = new AtomicLong(0);
 
-
   private final AtomicLong grpcMessageSentDelay = new AtomicLong(0);
 
   private Deadline operationDeadline = null;
@@ -289,17 +288,35 @@ class BuiltinMetricsTracer extends BigtableTracer {
     // Only record when retry count is greater than 0 so the retry
     // graph will be less confusing
     if (attemptCount > 1) {
-      recorder.retryCount.record(clientInfo, tableId, methodInfo, sidebandData.getResponseParams(), code, attemptCount - 1);
+      recorder.retryCount.record(
+          clientInfo,
+          tableId,
+          methodInfo,
+          sidebandData.getResponseParams(),
+          code,
+          attemptCount - 1);
     }
 
-    recorder.operationLatency.record(clientInfo, tableId, methodInfo, sidebandData.getResponseParams(), code, operationLatency);
+    recorder.operationLatency.record(
+        clientInfo, tableId, methodInfo, sidebandData.getResponseParams(), code, operationLatency);
 
     // serverLatencyTimer should already be stopped in recordAttemptCompletion
     long applicationLatencyNano = operationLatency.toNanos() - totalServerLatencyNano.get();
-    recorder.applicationBlockingLatency.record(clientInfo, tableId, methodInfo, sidebandData.getResponseParams(), Duration.ofNanos(applicationLatencyNano));
+    recorder.applicationBlockingLatency.record(
+        clientInfo,
+        tableId,
+        methodInfo,
+        sidebandData.getResponseParams(),
+        Duration.ofNanos(applicationLatencyNano));
 
     if (methodInfo.getStreaming() && "ReadRows".equals(methodInfo.getName())) {
-      recorder.firstResponseLantency.record(clientInfo, tableId, methodInfo, sidebandData.getResponseParams(), code, firstResponsePerOpTimer.elapsed());
+      recorder.firstResponseLantency.record(
+          clientInfo,
+          tableId,
+          methodInfo,
+          sidebandData.getResponseParams(),
+          code,
+          firstResponsePerOpTimer.elapsed());
     }
   }
 
@@ -327,26 +344,55 @@ class BuiltinMetricsTracer extends BigtableTracer {
     Status.Code code = extractStatus(status);
 
     totalClientBlockingTime.addAndGet(grpcMessageSentDelay.get());
-    recorder.clientBlockingLatency.record(clientInfo, tableId, methodInfo, sidebandData.getResponseParams(), Duration.ofNanos(totalClientBlockingTime.get()));
+    recorder.clientBlockingLatency.record(
+        clientInfo,
+        tableId,
+        methodInfo,
+        sidebandData.getResponseParams(),
+        Duration.ofNanos(totalClientBlockingTime.get()));
 
-    recorder.attemptLatency.record(clientInfo, tableId, sidebandData.getResponseParams(), methodInfo, code, attemptTimer.elapsed());
+    recorder.attemptLatency.record(
+        clientInfo,
+        tableId,
+        sidebandData.getResponseParams(),
+        methodInfo,
+        code,
+        attemptTimer.elapsed());
 
-    recorder.attemptLatency2.record(clientInfo, tableId, sidebandData.getPeerInfo(), sidebandData.getResponseParams(), methodInfo, code, attemptTimer.elapsed());
-
+    recorder.attemptLatency2.record(
+        clientInfo,
+        tableId,
+        sidebandData.getPeerInfo(),
+        sidebandData.getResponseParams(),
+        methodInfo,
+        code,
+        attemptTimer.elapsed());
 
     // When operationDeadline is set, it's possible that the deadline is passed by the time we send
     // a new attempt. In this case we'll record 0.
     if (operationDeadline != null) {
-      recorder.remainingDeadline.record(clientInfo, tableId, methodInfo, sidebandData.getResponseParams(), code,
+      recorder.remainingDeadline.record(
+          clientInfo,
+          tableId,
+          methodInfo,
+          sidebandData.getResponseParams(),
+          code,
           Duration.ofMillis(Math.max(0, remainingDeadlineAtAttemptStart)));
     }
 
     if (sidebandData.getGfeTiming() != null) {
-      recorder.serverLatency.record(clientInfo, tableId, methodInfo, sidebandData.getResponseParams(), code,
+      recorder.serverLatency.record(
+          clientInfo,
+          tableId,
+          methodInfo,
+          sidebandData.getResponseParams(),
+          code,
           Duration.ofMillis(sidebandData.getGfeTiming()));
-      recorder.connectivityErrorCount.record(clientInfo, tableId, methodInfo, sidebandData.getResponseParams(), code, 0);
+      recorder.connectivityErrorCount.record(
+          clientInfo, tableId, methodInfo, sidebandData.getResponseParams(), code, 0);
     } else {
-      recorder.connectivityErrorCount.record(clientInfo, tableId, methodInfo, sidebandData.getResponseParams(), code, 1);
+      recorder.connectivityErrorCount.record(
+          clientInfo, tableId, methodInfo, sidebandData.getResponseParams(), code, 1);
     }
   }
 
@@ -357,7 +403,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   @Override
   public void setBatchWriteFlowControlTargetQps(double targetQps) {
-    recorder.batchWriteFlowControlTargetQps.record(clientInfo, tableId, methodInfo, sidebandData.getResponseParams(), targetQps);
+    recorder.batchWriteFlowControlTargetQps.record(
+        clientInfo, tableId, methodInfo, sidebandData.getResponseParams(), targetQps);
   }
 
   @Override
@@ -365,6 +412,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
       double factor, @Nullable Throwable status, boolean applied) {
     Status.Code code = Util.extractStatus(status);
 
-    recorder.batchWriteFlowControlFactor.record(clientInfo, tableId, methodInfo, sidebandData.getResponseParams(), code, applied, factor);
+    recorder.batchWriteFlowControlFactor.record(
+        clientInfo, tableId, methodInfo, sidebandData.getResponseParams(), code, applied, factor);
   }
 }

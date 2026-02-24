@@ -131,7 +131,8 @@ public final class BigtableDataClientFactory implements AutoCloseable {
    */
   public BigtableDataClient createForAppProfile(@Nonnull String appProfileId) throws IOException {
     BigtableClientContext ctx =
-        sharedClientContext.createChild(sharedClientContext.getClientInfo().getInstanceName(), appProfileId);
+        sharedClientContext.createChild(
+            sharedClientContext.getClientInfo().getInstanceName(), appProfileId);
 
     return new BigtableDataClient(new EnhancedBigtableStub(perOpSettings, ctx));
   }

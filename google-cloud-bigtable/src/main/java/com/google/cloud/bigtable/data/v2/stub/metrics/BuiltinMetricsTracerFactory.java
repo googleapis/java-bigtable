@@ -47,10 +47,11 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
 
   @Override
   public ApiTracer newTracer(ApiTracer parent, SpanName spanName, OperationType operationType) {
-    MethodInfo methodInfo = MethodInfo.builder()
-        .setName(spanName.getMethodName())
-        .setStreaming(operationType == OperationType.ServerStreaming)
-        .build();
+    MethodInfo methodInfo =
+        MethodInfo.builder()
+            .setName(spanName.getMethodName())
+            .setStreaming(operationType == OperationType.ServerStreaming)
+            .build();
     return new BuiltinMetricsTracer(recorder, clientInfo, methodInfo);
   }
 }
