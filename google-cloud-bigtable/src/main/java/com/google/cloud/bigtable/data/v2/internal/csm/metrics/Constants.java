@@ -17,7 +17,6 @@
 package com.google.cloud.bigtable.data.v2.internal.csm.metrics;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSortedSet;
 import io.opentelemetry.api.common.AttributeKey;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,47 +75,16 @@ public final class Constants {
 
   static final class Buckets {
     static final List<Double> AGGREGATION_WITH_MILLIS_HISTOGRAM =
-        ImmutableSortedSet.<Double>naturalOrder()
-            // Match `bigtable.googleapis.com/frontend_server/handler_latencies` buckets
-            .add(
-                new Double[] {
-                  0d, 1d, 2d, 3d, 4d, 5d, 6d, 8d, 10d,
-                  13d, 16d, 20d, 25d, 30d, 40d, 50d, 65d, 80d,
-                  100d, 130d, 160d, 200d, 250d, 300d, 400d, 500d, 650d,
-                  800d, 900d, 1_000d, 2_000d, 3_000d, 4_000d, 5_000d, 6_000d, 10_000d,
-                  20_000d, 50_000d, 100_000d, 200_000d, 500_000d, 1_000_000d, 2_000_000d, 5_000_000d
-                })
-            // TODO: figure out what actual additional buckets we want to jetstream
-            // add 100us buckets for the first 3ms
-            .addAll(generateLinearSeq(0, 3, 0.1))
-            .build()
-            .asList();
-    static final List<Double> HIGH_RES_AGGREGATION_WITH_MILLIS_HISTOGRAM =
-        ImmutableSortedSet.<Double>naturalOrder()
-            .add(
-                new Double[] {
-                  0d, 1d, 2d, 3d, 4d, 5d, 6d, 8d, 10d,
-                  13d, 16d, 20d, 25d, 30d, 40d, 50d, 65d, 80d,
-                  100d, 130d, 160d, 200d, 250d, 300d, 400d, 500d, 650d,
-                  800d, 900d, 1_000d, 2_000d, 3_000d, 4_000d, 5_000d, 6_000d, 10_000d,
-                  20_000d, 50_000d, 100_000d, 200_000d
-                })
-            // add 50us buckets for the first 3ms
-            .addAll(generateLinearSeq(0, 3, 0.05))
-            .build()
-            .asList();
-    static final List<Long> AGGREGATION_PER_CONNECTION_ERROR_COUNT_HISTOGRAM =
-        ImmutableList.<Long>builder()
-            .add(0L)
-            .addAll(generateGeometricSeq(1, 64))
-            .addAll(generateGeometricSeq(125, 1_000_000L))
-            .build();
-    static final List<Double> PACEMAKER_BUCKET =
         ImmutableList.<Double>builder()
-            // Up to 67,108,864, ~1 minute in microseconds
-            .addAll(generateExponentialSeq(1.0, 13, 4))
+            // Match `bigtable.googleapis.com/frontend_server/handler_latencies` buckets
+            .addAll(generateLinearSeq(0, 3.0, 0.1))
+            .add(4.0, 5.0, 6.0, 8.0, 10.0, 13.0, 16.0, 20.0, 25.0, 30.0, 40.0, 50.0, 65.0, 80.0)
+            .add(100.0, 130.0, 160.0, 200.0, 250.0, 300.0, 400.0, 500.0, 650.0, 800.0, 900.0)
+            .add(1000.0, 2000.0, 3000.0, 4000.0, 5000.0, 6000.0, 10000.0, 20000.0, 50000.0)
+            .add(100000.0, 200000.0, 500000.0, 1000000.0, 2000000.0, 5000000.0)
             .build();
 
+    @SuppressWarnings("SameParameterValue")
     static List<Double> generateLinearSeq(double start, double end, double increment) {
       ImmutableList.Builder<Double> builder = ImmutableList.builder();
       for (int i = 0; true; i++) {
@@ -130,6 +98,7 @@ public final class Constants {
       return builder.build();
     }
 
+    @SuppressWarnings("SameParameterValue")
     static List<Double> generateExponentialSeq(double start, int count, double factor) {
       List<Double> buckets = new ArrayList<>();
 

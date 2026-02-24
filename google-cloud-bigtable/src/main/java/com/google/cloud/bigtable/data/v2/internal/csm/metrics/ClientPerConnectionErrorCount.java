@@ -21,17 +21,26 @@ import com.google.cloud.bigtable.data.v2.internal.csm.attributes.EnvInfo;
 import com.google.cloud.bigtable.data.v2.internal.csm.metrics.Constants.Buckets;
 import com.google.cloud.bigtable.data.v2.internal.csm.metrics.Constants.MetricLabels;
 import com.google.cloud.bigtable.data.v2.internal.csm.schema.ClientSchema;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.LongHistogram;
 import io.opentelemetry.api.metrics.Meter;
+import java.util.List;
 import java.util.Set;
 
 public class ClientPerConnectionErrorCount extends MetricWrapper<ClientSchema> {
   private static final String NAME =
       "bigtable.googleapis.com/internal/client/per_connection_error_count";
+
+  static final List<Long> BUCKETS =
+      ImmutableList.<Long>builder()
+          .add(0L)
+          .addAll(Buckets.generateGeometricSeq(1, 64))
+          .addAll(Buckets.generateGeometricSeq(125, 1_000_000L))
+          .build();
   // This metric migrated from gce/gke schemas to bigtable_client
   // So a lot of the metric labels overlap with the resource labels.
   // we need special handling since the logic in MetricWrapper assumes that there is no
@@ -82,8 +91,7 @@ public class ClientPerConnectionErrorCount extends MetricWrapper<ClientSchema> {
               .ofLongs()
               .setDescription("Distribution of counts of channels per 'error count per minute'.")
               .setUnit("1")
-              .setExplicitBucketBoundariesAdvice(
-                  Buckets.AGGREGATION_PER_CONNECTION_ERROR_COUNT_HISTOGRAM)
+              .setExplicitBucketBoundariesAdvice(BUCKETS)
               .build();
     }
 

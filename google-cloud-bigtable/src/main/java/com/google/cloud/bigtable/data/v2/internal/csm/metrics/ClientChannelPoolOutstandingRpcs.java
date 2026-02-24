@@ -18,15 +18,24 @@ package com.google.cloud.bigtable.data.v2.internal.csm.metrics;
 import com.google.bigtable.v2.PeerInfo.TransportType;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.ClientInfo;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.Util;
+import com.google.cloud.bigtable.data.v2.internal.csm.metrics.Constants.Buckets;
 import com.google.cloud.bigtable.data.v2.internal.csm.metrics.Constants.MetricLabels;
 import com.google.cloud.bigtable.data.v2.internal.csm.schema.ClientSchema;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPoolSettings.LoadBalancingStrategy;
+import com.google.common.collect.ImmutableList;
 import io.opentelemetry.api.metrics.LongHistogram;
 import io.opentelemetry.api.metrics.Meter;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 public class ClientChannelPoolOutstandingRpcs extends MetricWrapper<ClientSchema> {
   private static final String NAME =
       "bigtable.googleapis.com/internal/client/connection_pool/outstanding_rpcs";
+
+  private static final List<Long> BUCKETS = Buckets.generateLinearSeq(0d, 200d, 5)
+          .stream().map(Double::longValue).collect(Collectors.toList());
 
   public ClientChannelPoolOutstandingRpcs() {
     super(ClientSchema.INSTANCE, NAME);
@@ -44,6 +53,7 @@ public class ClientChannelPoolOutstandingRpcs extends MetricWrapper<ClientSchema
           meter
               .histogramBuilder(NAME)
               .ofLongs()
+              .setExplicitBucketBoundariesAdvice(BUCKETS)
               .setDescription(
                   "A distribution of the number of outstanding RPCs per connection in the client"
                       + " pool, sampled periodically.")

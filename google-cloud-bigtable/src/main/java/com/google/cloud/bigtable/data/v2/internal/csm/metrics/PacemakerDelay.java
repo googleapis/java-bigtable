@@ -20,10 +20,12 @@ import com.google.cloud.bigtable.data.v2.internal.csm.metrics.Constants.Buckets;
 import com.google.cloud.bigtable.data.v2.internal.csm.metrics.Constants.MetricLabels;
 import com.google.cloud.bigtable.data.v2.internal.csm.metrics.Constants.Units;
 import com.google.cloud.bigtable.data.v2.internal.csm.schema.ClientSchema;
+import com.google.common.collect.ImmutableList;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.DoubleHistogram;
 import io.opentelemetry.api.metrics.Meter;
 import java.time.Duration;
+import java.util.List;
 
 /**
  * Pacemaker delay records the delta between the pacemaker scheduled time and the actual time. When
@@ -32,6 +34,12 @@ import java.time.Duration;
  */
 public class PacemakerDelay extends MetricWrapper<ClientSchema> {
   private static final String NAME = "bigtable.googleapis.com/internal/client/pacemaker_delays";
+
+  private static final List<Double> BUCKETS =
+      ImmutableList.<Double>builder()
+          // Up to 67,108,864, ~1 minute in microseconds
+          .addAll(Buckets.generateExponentialSeq(1.0, 13, 4))
+          .build();
 
   public PacemakerDelay() {
     super(ClientSchema.INSTANCE, NAME);
@@ -52,7 +60,7 @@ public class PacemakerDelay extends MetricWrapper<ClientSchema> {
                   "Distribution of the delay between the pacemaker firing and the pacemaker task"
                       + " being scheduled.")
               .setUnit(Units.MICROSECOND)
-              .setExplicitBucketBoundariesAdvice(Buckets.PACEMAKER_BUCKET)
+              .setExplicitBucketBoundariesAdvice(BUCKETS)
               .build();
     }
 
