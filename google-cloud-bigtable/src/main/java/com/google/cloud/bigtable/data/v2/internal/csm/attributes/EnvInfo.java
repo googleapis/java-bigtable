@@ -25,11 +25,14 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -49,6 +52,10 @@ public abstract class EnvInfo {
           GCPPlatformDetector.SupportedPlatform.GOOGLE_COMPUTE_ENGINE, "gcp_compute_engine",
           GCPPlatformDetector.SupportedPlatform.GOOGLE_KUBERNETES_ENGINE, "gcp_kubernetes_engine");
 
+  private static final AtomicLong uidSuffix = new AtomicLong(0);
+
+  public abstract String getUid();
+
   /** The Google platform running this client. ie. gcp_compute_engine */
   public abstract String getPlatform();
 
@@ -65,11 +72,13 @@ public abstract class EnvInfo {
   public abstract String getHostName();
 
   public static Builder builder() {
-    return new AutoValue_EnvInfo.Builder();
+    return new AutoValue_EnvInfo.Builder().setUid(computeUid() + "-" + uidSuffix.getAndIncrement());
   }
 
   @AutoValue.Builder
   public abstract static class Builder {
+    protected abstract Builder setUid(String uid);
+
     public abstract Builder setPlatform(String platform);
 
     public abstract Builder setProject(String project);
@@ -81,6 +90,22 @@ public abstract class EnvInfo {
     public abstract Builder setHostName(String hostName);
 
     public abstract EnvInfo build();
+  }
+
+  private static String computeUid() {
+    final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+    // If jvm doesn't have the expected format, fallback to the local hostname
+    if (jvmName.indexOf('@') < 1) {
+      String hostname = "localhost";
+      try {
+        hostname = InetAddress.getLocalHost().getHostName();
+      } catch (UnknownHostException e) {
+        logger.log(Level.INFO, "Unable to get the hostname.", e);
+      }
+      // Generate a random number and use the same format "random_number@hostname".
+      return "java-" + UUID.randomUUID() + "@" + hostname;
+    }
+    return "java-" + UUID.randomUUID() + jvmName;
   }
 
   public static EnvInfo detect() {

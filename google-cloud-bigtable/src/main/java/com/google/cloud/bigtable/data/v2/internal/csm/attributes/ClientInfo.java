@@ -19,13 +19,6 @@ package com.google.cloud.bigtable.data.v2.internal.csm.attributes;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.InstanceName;
 import com.google.cloud.bigtable.Version;
-import java.lang.management.ManagementFactory;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A value class to capture parameters that the client was instantiated with. These parameters will
@@ -33,16 +26,10 @@ import java.util.logging.Logger;
  */
 @AutoValue
 public abstract class ClientInfo {
-  private static final Logger logger = Logger.getLogger(ClientInfo.class.getName());
-
-  private static final AtomicLong uidSuffix = new AtomicLong(0);
-
   /** The name and version of the client. */
   public abstract String getClientName();
 
   /** A unique identifier to disambiguate TimeSeries from multiple processes on the same VM. */
-  public abstract String getUid();
-
   public abstract InstanceName getInstanceName();
 
   public abstract String getAppProfileId();
@@ -50,37 +37,17 @@ public abstract class ClientInfo {
   public abstract Builder toBuilder();
 
   public static Builder builder() {
-    return new AutoValue_ClientInfo.Builder()
-        .setClientName("java-bigtable/" + Version.VERSION)
-        .setUid(computeUid() + "-" + uidSuffix.getAndIncrement());
+    return new AutoValue_ClientInfo.Builder().setClientName("java-bigtable/" + Version.VERSION);
   }
 
   @AutoValue.Builder
   public abstract static class Builder {
     protected abstract Builder setClientName(String name);
 
-    protected abstract Builder setUid(String uid);
-
     public abstract Builder setInstanceName(InstanceName name);
 
     public abstract Builder setAppProfileId(String appProfileId);
 
     public abstract ClientInfo build();
-  }
-
-  private static String computeUid() {
-    final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
-    // If jvm doesn't have the expected format, fallback to the local hostname
-    if (jvmName.indexOf('@') < 1) {
-      String hostname = "localhost";
-      try {
-        hostname = InetAddress.getLocalHost().getHostName();
-      } catch (UnknownHostException e) {
-        logger.log(Level.INFO, "Unable to get the hostname.", e);
-      }
-      // Generate a random number and use the same format "random_number@hostname".
-      return "java-" + UUID.randomUUID() + "@" + hostname;
-    }
-    return "java-" + UUID.randomUUID() + jvmName;
   }
 }

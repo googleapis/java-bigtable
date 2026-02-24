@@ -31,23 +31,4 @@ class ClientInfoTest {
             .build();
     assertThat(clientInfo.getClientName()).containsMatch("java-bigtable/\\d+\\.\\d+\\.\\d+.*");
   }
-
-  @Test
-  void testUid() {
-    ClientInfo info1 =
-        ClientInfo.builder()
-            .setInstanceName(InstanceName.of("fake-project", "fake-instance"))
-            .setAppProfileId("fake-app-profile")
-            .build();
-
-    ClientInfo info2 =
-        ClientInfo.builder()
-            .setInstanceName(InstanceName.of("fake-project", "fake-instance"))
-            .setAppProfileId("fake-app-profile")
-            .build();
-
-    assertThat(info1.getUid()).isNotEmpty();
-    assertThat(info2.getUid()).isNotEmpty();
-    assertThat(info1.getUid()).isNotEqualTo(info2.getUid());
-  }
 }

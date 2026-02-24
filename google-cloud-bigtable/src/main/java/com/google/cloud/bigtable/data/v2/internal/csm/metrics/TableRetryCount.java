@@ -41,7 +41,7 @@ public class TableRetryCount extends MetricWrapper<TableSchema> {
       Attributes metricAttrs, EnvInfo envInfo, ClientInfo clientInfo) {
     return ImmutableMap.<String, String>builder()
         .putAll(super.extractMetricLabels(metricAttrs, envInfo, clientInfo))
-        .put(MetricLabels.CLIENT_UID.getKey(), clientInfo.getUid())
+        .put(MetricLabels.CLIENT_UID.getKey(), envInfo.getUid())
         .build();
   }
 

@@ -64,6 +64,7 @@ public class ClientPerConnectionErrorCount extends MetricWrapper<ClientSchema> {
             builder.put(k.getKey(), v.toString());
           }
         });
+    builder.put(MetricLabels.CLIENT_UID.getKey(), envInfo.getUid());
     return builder.build();
   }
 
@@ -91,7 +92,6 @@ public class ClientPerConnectionErrorCount extends MetricWrapper<ClientSchema> {
           getSchema()
               .createResourceAttrs(clientInfo)
               .put(MetricLabels.BIGTABLE_PROJECT_ID_KEY, clientInfo.getInstanceName().getProject())
-              .put(MetricLabels.CLIENT_UID, clientInfo.getUid())
               .put(MetricLabels.INSTANCE_ID_KEY, clientInfo.getInstanceName().getInstance())
               .put(MetricLabels.CLIENT_NAME, clientInfo.getClientName())
               .put(MetricLabels.APP_PROFILE_KEY, clientInfo.getAppProfileId())

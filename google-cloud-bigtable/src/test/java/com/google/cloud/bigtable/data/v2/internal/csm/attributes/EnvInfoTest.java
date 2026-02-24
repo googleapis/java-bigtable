@@ -41,6 +41,18 @@ class EnvInfoTest {
   @Mock private DetectedPlatform detectedPlatform;
 
   @Test
+  void testUid() {
+    when(detectedPlatform.getSupportedPlatform()).thenReturn(SupportedPlatform.UNKNOWN_PLATFORM);
+
+    EnvInfo info1 = EnvInfo.detect(detectedPlatform, NULL_ENV, NULL_HOST);
+    EnvInfo info2 = EnvInfo.detect(detectedPlatform, NULL_ENV, NULL_HOST);
+
+    assertThat(info1.getUid()).isNotEmpty();
+    assertThat(info2.getUid()).isNotEmpty();
+    assertThat(info1.getUid()).isNotEqualTo(info2.getUid());
+  }
+
+  @Test
   void testUnknown() {
     when(detectedPlatform.getSupportedPlatform()).thenReturn(SupportedPlatform.UNKNOWN_PLATFORM);
     EnvInfo envInfo = EnvInfo.detect(detectedPlatform, NULL_ENV, NULL_HOST);

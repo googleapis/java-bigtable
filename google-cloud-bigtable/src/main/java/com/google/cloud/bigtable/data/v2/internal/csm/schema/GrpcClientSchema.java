@@ -47,7 +47,7 @@ public final class GrpcClientSchema extends Schema {
   private static final DeferredAttr HOST_ID = DeferredAttr.fromEnv("host_id", EnvInfo::getHostId);
   private static final DeferredAttr HOST_NAME =
       DeferredAttr.fromEnv("host_name", EnvInfo::getHostName);
-  private static final DeferredAttr UUID = DeferredAttr.fromClientInfo("uuid", ClientInfo::getUid);
+  private static final DeferredAttr UUID = DeferredAttr.fromEnv("uuid", EnvInfo::getUid);
 
   // Must come after all other static members
   public static final GrpcClientSchema INSTANCE = new GrpcClientSchema();
