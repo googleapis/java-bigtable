@@ -29,6 +29,7 @@ import com.google.cloud.bigtable.data.v2.internal.csm.metrics.TableAttemptLatenc
 import com.google.cloud.bigtable.data.v2.internal.csm.metrics.TableAttemptLatency2;
 import com.google.cloud.bigtable.data.v2.internal.csm.metrics.TableClientBlockingLatency;
 import com.google.cloud.bigtable.data.v2.internal.csm.metrics.TableConnectivityErrorCount;
+import com.google.cloud.bigtable.data.v2.internal.csm.metrics.TableDebugTagCount;
 import com.google.cloud.bigtable.data.v2.internal.csm.metrics.TableFirstResponseLatency;
 import com.google.cloud.bigtable.data.v2.internal.csm.metrics.TableOperationLatency;
 import com.google.cloud.bigtable.data.v2.internal.csm.metrics.TableRemainingDeadline;
@@ -70,6 +71,7 @@ public class MetricRegistry {
   final ClientBatchWriteFlowControlFactor batchWriteFlowControlFactorMetric;
   final ClientBatchWriteFlowControlTargetQps batchWriteFlowControlTargetQpsMetric;
 
+  final TableDebugTagCount debugTagCountMetric;
   final PacemakerDelay pacemakerDelayMetric;
 
   private final Map<String, MetricWrapper<?>> metrics = new HashMap<>();
@@ -92,6 +94,7 @@ public class MetricRegistry {
     batchWriteFlowControlFactorMetric = register(new ClientBatchWriteFlowControlFactor());
     batchWriteFlowControlTargetQpsMetric = register(new ClientBatchWriteFlowControlTargetQps());
 
+    debugTagCountMetric = register(new TableDebugTagCount());
     pacemakerDelayMetric = register(new PacemakerDelay());
 
     // From
@@ -187,6 +190,8 @@ public class MetricRegistry {
     public final ClientBatchWriteFlowControlTargetQps.Recorder batchWriteFlowControlTargetQps;
     public final ClientBatchWriteFlowControlFactor.Recorder batchWriteFlowControlFactor;
 
+    public final TableDebugTagCount.Recorder debugTagCount;
+
     final PacemakerDelay.Recorder pacemakerDelay;
 
     private RecorderRegistry(Meter meter) {
@@ -206,6 +211,7 @@ public class MetricRegistry {
       batchWriteFlowControlTargetQps = batchWriteFlowControlTargetQpsMetric.newRecorder(meter);
       batchWriteFlowControlFactor = batchWriteFlowControlFactorMetric.newRecorder(meter);
 
+      debugTagCount = debugTagCountMetric.newRecorder(meter);
       pacemakerDelay = pacemakerDelayMetric.newRecorder(meter);
     }
   }
