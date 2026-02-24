@@ -280,17 +280,7 @@ public class Util {
   }
 
   public static BuiltinMetricsTracerFactory createOtelMetricsFactory(
-      OpenTelemetry otel, ClientInfo clientInfo) throws IOException {
-    Attributes attributes =
-        Attributes.of(
-            BIGTABLE_PROJECT_ID_KEY,
-            clientInfo.getInstanceName().getProject(),
-            INSTANCE_ID_KEY,
-            clientInfo.getInstanceName().getInstance(),
-            APP_PROFILE_KEY,
-            clientInfo.getAppProfileId(),
-            CLIENT_NAME_KEY,
-            "bigtable-java/" + Version.VERSION);
-    return BuiltinMetricsTracerFactory.create(otel, attributes);
+      OpenTelemetry otel, ClientInfo clientInfo) {
+    return new BuiltinMetricsTracerFactory(otel, clientInfo);
   }
 }

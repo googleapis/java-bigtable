@@ -20,6 +20,7 @@ import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.ApiTracerFactory;
 import com.google.api.gax.tracing.BaseApiTracerFactory;
 import com.google.api.gax.tracing.SpanName;
+import com.google.cloud.bigtable.data.v2.internal.csm.attributes.ClientInfo;
 import com.google.common.collect.ImmutableMap;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.tags.TagKey;
