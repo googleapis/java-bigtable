@@ -165,15 +165,17 @@ public class BuiltinMetricsTracerTest {
 
   private int batchElementCount = 2;
 
-  private ClientInfo clientInfo = ClientInfo.builder()
-      .setInstanceName(InstanceName.of(PROJECT_ID, INSTANCE_ID))
-      .setAppProfileId(APP_PROFILE_ID)
-      .build();
-  private Attributes expectedBaseAttributes = Attributes.builder()
-      .put(BuiltinMetricsConstants.BIGTABLE_PROJECT_ID_KEY, PROJECT_ID)
-      .put(BuiltinMetricsConstants.INSTANCE_ID_KEY, INSTANCE_ID)
-      .put(BuiltinMetricsConstants.APP_PROFILE_KEY, APP_PROFILE_ID)
-      .build();
+  private ClientInfo clientInfo =
+      ClientInfo.builder()
+          .setInstanceName(InstanceName.of(PROJECT_ID, INSTANCE_ID))
+          .setAppProfileId(APP_PROFILE_ID)
+          .build();
+  private Attributes expectedBaseAttributes =
+      Attributes.builder()
+          .put(BuiltinMetricsConstants.BIGTABLE_PROJECT_ID_KEY, PROJECT_ID)
+          .put(BuiltinMetricsConstants.INSTANCE_ID_KEY, INSTANCE_ID)
+          .put(BuiltinMetricsConstants.APP_PROFILE_KEY, APP_PROFILE_ID)
+          .build();
 
   private InMemoryMetricReader metricReader;
 
