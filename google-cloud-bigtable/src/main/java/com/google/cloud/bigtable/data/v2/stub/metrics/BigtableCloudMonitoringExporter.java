@@ -112,10 +112,10 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   private final AtomicBoolean exportFailureLogged = new AtomicBoolean(false);
 
   static BigtableCloudMonitoringExporter create(
+      ClientInfo clientInfo,
       @Nullable Credentials credentials,
       @Nullable String endpoint,
       String universeDomain,
-      List<TimeSeriesConverter> converters,
       @Nullable ScheduledExecutorService executorService)
       throws IOException {
     Preconditions.checkNotNull(universeDomain);
@@ -151,6 +151,13 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     // TODO: createServiceTimeSeries needs special handling if the request failed. Leaving
     // it as not retried for now.
     settingsBuilder.createServiceTimeSeriesSettings().setSimpleTimeoutNoRetriesDuration(timeout);
+
+    ImmutableList<TimeSeriesConverter> converters = ImmutableList.of(
+        new PublicTimeSeriesConverter(),
+        new InternalTimeSeriesConverter(
+            Suppliers.memoize(
+                () ->
+                    BigtableExporterUtils.createInternalMonitoredResource(clientInfo))));
 
     return new BigtableCloudMonitoringExporter(
         MetricServiceClient.create(settingsBuilder.build()), converters);

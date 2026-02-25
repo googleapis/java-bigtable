@@ -274,7 +274,9 @@ public class Util {
   }
 
   public static BuiltinMetricsTracerFactory createOtelMetricsFactory(
-      OpenTelemetry otel, ClientInfo clientInfo) {
-    return new BuiltinMetricsTracerFactory(otel, clientInfo);
+      OpenTelemetry otel, ClientInfo clientInfo) throws IOException {
+
+
+    return BuiltinMetricsTracerFactory.create(otel, clientInfo);
   }
 }
