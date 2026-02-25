@@ -38,7 +38,6 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import com.google.api.Distribution;
 import com.google.api.Metric;
 import com.google.api.MonitoredResource;
-import com.google.bigtable.v2.InstanceName;
 import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.ClientInfo;
 import com.google.cloud.opentelemetry.detection.AttributeKeys;
