@@ -32,7 +32,6 @@ import com.google.cloud.bigtable.data.v2.internal.csm.Metrics;
 import com.google.cloud.bigtable.data.v2.internal.csm.MetricsImpl;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.ClientInfo;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
-import com.google.cloud.bigtable.data.v2.stub.metrics.Util;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableTransportChannelProvider;
 import com.google.cloud.bigtable.gaxx.grpc.ChannelPrimer;
 import io.grpc.ManagedChannelBuilder;
@@ -113,7 +112,7 @@ public class BigtableClientContext {
     try {
       if (settings.areInternalMetricsEnabled()) {
         builtinOtel =
-            Util.createBuiltinOtel(
+            MetricsImpl.createBuiltinOtel(
                 clientInfo,
                 credentials,
                 settings.getMetricsEndpoint(),

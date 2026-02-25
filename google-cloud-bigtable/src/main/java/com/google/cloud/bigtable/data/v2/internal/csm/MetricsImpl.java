@@ -18,8 +18,11 @@ package com.google.cloud.bigtable.data.v2.internal.csm;
 import com.google.api.gax.grpc.GaxGrpcProperties;
 import com.google.api.gax.tracing.ApiTracerFactory;
 import com.google.api.gax.tracing.OpencensusTracerFactory;
+import com.google.auth.Credentials;
 import com.google.cloud.bigtable.Version;
+import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.ClientInfo;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableCloudMonitoringExporter;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.ChannelPoolMetricsTracer;
@@ -37,9 +40,18 @@ import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.metrics.InstrumentSelector;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
+import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
+import io.opentelemetry.sdk.metrics.View;
+import io.opentelemetry.sdk.metrics.export.MetricExporter;
+import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
+import io.opentelemetry.sdk.metrics.export.PeriodicMetricReaderBuilder;
 import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import javax.annotation.Nullable;
@@ -133,6 +145,41 @@ public class MetricsImpl implements Metrics, Closeable {
   @Nullable
   public ChannelPoolMetricsTracer getChannelPoolMetricsTracer() {
     return channelPoolMetricsTracer;
+  }
+
+  public static OpenTelemetrySdk createBuiltinOtel(
+      ClientInfo clientInfo,
+      @Nullable Credentials defaultCredentials,
+      @Nullable String metricsEndpoint,
+      String universeDomain,
+      ScheduledExecutorService executor)
+      throws IOException {
+
+    Credentials credentials =
+        BigtableDataSettings.getMetricsCredentials() != null
+            ? BigtableDataSettings.getMetricsCredentials()
+            : defaultCredentials;
+
+    SdkMeterProviderBuilder meterProvider = SdkMeterProvider.builder();
+
+    for (Map.Entry<InstrumentSelector, View> entry :
+        BuiltinMetricsConstants.getAllViews().entrySet()) {
+      meterProvider.registerView(entry.getKey(), entry.getValue());
+    }
+
+    for (Map.Entry<InstrumentSelector, View> e :
+        BuiltinMetricsConstants.getInternalViews().entrySet()) {
+      meterProvider.registerView(e.getKey(), e.getValue());
+    }
+
+    MetricExporter publicExporter =
+        BigtableCloudMonitoringExporter.create(
+            clientInfo, credentials, metricsEndpoint, universeDomain, executor);
+    PeriodicMetricReaderBuilder readerBuilder =
+        PeriodicMetricReader.builder(publicExporter).setExecutor(executor);
+    meterProvider.registerMetricReader(readerBuilder.build());
+
+    return OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
   }
 
   private static ApiTracerFactory createOCTracingFactory(ClientInfo clientInfo) {
