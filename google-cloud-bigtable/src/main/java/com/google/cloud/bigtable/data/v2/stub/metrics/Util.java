@@ -64,6 +64,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.annotation.Nullable;
 
@@ -78,6 +79,10 @@ public class Util {
   public static Status.Code extractStatus(@Nullable Throwable error) {
     if (error == null) {
       return Status.Code.OK;
+    }
+    // Handle java CancellationException as if it was a gax CancelledException
+    if (error instanceof CancellationException) {
+      return Status.Code.CANCELLED;
     }
     if (error instanceof ApiException) {
       ApiException apiException = (ApiException) error;
