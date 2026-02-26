@@ -118,7 +118,9 @@ public class MetricsImpl implements Metrics, Closeable {
 
   @Override
   public void start() {
-    tasks.add(channelPoolMetricsTracer.start(executor));
+    if (channelPoolMetricsTracer != null) {
+      tasks.add(channelPoolMetricsTracer.start(executor));
+    }
   }
 
   @Override
