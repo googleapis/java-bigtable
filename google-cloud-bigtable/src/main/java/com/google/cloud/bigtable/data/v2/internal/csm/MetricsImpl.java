@@ -64,14 +64,14 @@ public class MetricsImpl implements Metrics, Closeable {
   private final Tagger ocTagger;
   private final StatsRecorder ocRecorder;
 
-  private final GrpcOpenTelemetry grpcOtel;
+  @Nullable private final GrpcOpenTelemetry grpcOtel;
   @Nullable private final ChannelPoolMetricsTracer channelPoolMetricsTracer;
   private final List<ScheduledFuture<?>> tasks = new ArrayList<>();
 
   public MetricsImpl(
       ApiTracerFactory userTracerFactory,
-      OpenTelemetrySdk internalOtel,
-      OpenTelemetry userOtel,
+      @Nullable OpenTelemetrySdk internalOtel,
+      @Nullable OpenTelemetry userOtel,
       Tagger ocTagger,
       StatsRecorder ocRecorder,
       ScheduledExecutorService executor) {
@@ -85,15 +85,17 @@ public class MetricsImpl implements Metrics, Closeable {
 
     this.executor = executor;
 
-    this.grpcOtel =
-        GrpcOpenTelemetry.newBuilder()
-            .sdk(internalOtel)
-            .addOptionalLabel("grpc.lb.locality")
-            // Disable default grpc metrics
-            .disableAllMetrics()
-            // Enable specific grpc metrics
-            .enableMetrics(BuiltinMetricsConstants.GRPC_METRICS.keySet())
-            .build();
+    if (internalOtel != null) {
+      this.grpcOtel =
+          GrpcOpenTelemetry.newBuilder()
+              .sdk(internalOtel)
+              .addOptionalLabel("grpc.lb.locality")
+              // Disable default grpc metrics
+              .disableAllMetrics()
+              // Enable specific grpc metrics
+              .enableMetrics(BuiltinMetricsConstants.GRPC_METRICS.keySet())
+              .build();
+    }
 
     if (internalOtel != null) {
       this.channelPoolMetricsTracer = new ChannelPoolMetricsTracer(internalOtel);
@@ -119,6 +121,9 @@ public class MetricsImpl implements Metrics, Closeable {
 
   @Override
   public <T extends ManagedChannelBuilder<?>> T configureGrpcChannel(T channelBuilder) {
+    if (grpcOtel == null) {
+      return channelBuilder;
+    }
     grpcOtel.configureChannelBuilder(channelBuilder);
     return channelBuilder;
   }
