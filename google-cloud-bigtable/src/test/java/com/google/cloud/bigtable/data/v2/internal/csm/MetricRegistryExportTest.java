@@ -35,8 +35,12 @@ import com.google.cloud.bigtable.data.v2.internal.csm.attributes.ClientInfo;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.EnvInfo;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.MethodInfo;
 import com.google.cloud.bigtable.data.v2.internal.csm.exporter.BigtableCloudMonitoringExporter;
+import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPoolSettings.LoadBalancingStrategy;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.truth.Correspondence;
 import com.google.common.truth.Truth;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
 import com.google.monitoring.v3.MetricServiceGrpc.MetricServiceImplBase;
@@ -48,11 +52,13 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
 import io.grpc.Status;
+import io.grpc.Status.Code;
 import io.grpc.stub.StreamObserver;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -376,6 +382,37 @@ public class MetricRegistryExportTest {
   }
 
   @Test
+  void testChannelPoolOutstandingRpcs() {
+    registry.channelPoolOutstandingRpcs.record(
+        clientInfo,
+        peerInfo.getTransportType(),
+        LoadBalancingStrategy.POWER_OF_TWO_LEAST_IN_FLIGHT,
+        true,
+        1);
+    metricReader.forceFlush().join(1, TimeUnit.MINUTES);
+
+    TimeSeries timeSeries =
+        metricService.getSingleTimeSeriesByName(
+            "bigtable.googleapis.com/internal/client/connection_pool/outstanding_rpcs");
+    Truth.assertThat(timeSeries.getResource()).isEqualTo(expectedClientMonitoredResource);
+
+    assertThat(timeSeries.getMetric().getLabelsMap())
+        .containsExactly(
+            "transport_type", "session_cloudpath",
+            "lb_policy", "POWER_OF_TWO_LEAST_IN_FLIGHT",
+            "streaming", "true");
+
+    assertThat(timeSeries.getPointsList())
+        .comparingExpectedFieldsOnly()
+        .containsExactly(
+            Point.newBuilder()
+                .setValue(
+                    TypedValue.newBuilder()
+                        .setDistributionValue(Distribution.newBuilder().setCount(1).setMean(1)))
+                .build());
+  }
+
+  @Test
   void testConnectivityErrors() {
     registry.connectivityErrorCount.record(
         clientInfo, tableId, methodInfo, clusterInfo, Status.UNAVAILABLE.getCode(), 1);
@@ -399,6 +436,36 @@ public class MetricRegistryExportTest {
         .comparingExpectedFieldsOnly()
         .containsExactly(
             Point.newBuilder().setValue(TypedValue.newBuilder().setInt64Value(1)).build());
+  }
+
+  @Test
+  void testDpCompatGuage() {
+    registry.dpCompatGuage.recordFailure(clientInfo, "something");
+    registry.dpCompatGuage.recordSuccess(clientInfo, "ipv4");
+
+    metricReader.forceFlush().join(1, TimeUnit.MINUTES);
+
+    List<TimeSeries> timeSeriesList =
+        metricService.findTimeSeriesByName(
+            "bigtable.googleapis.com/internal/client/direct_access/compatible");
+
+    assertThat(timeSeriesList).hasSize(2);
+    for (TimeSeries timeSeries : timeSeriesList) {
+      Truth.assertThat(timeSeries.getResource()).isEqualTo(expectedClientMonitoredResource);
+    }
+    assertThat(timeSeriesList)
+        .comparingElementsUsing(
+            Correspondence.transforming(
+                (Function<TimeSeries, Map<String, String>>)
+                    input -> input.getMetric().getLabelsMap(),
+                "metric labels"))
+        .containsExactly(
+            ImmutableMap.of(
+                "reason", "",
+                "ip_preference", "ipv4"),
+            ImmutableMap.of(
+                "reason", "something",
+                "ip_preference", ""));
   }
 
   @Test
@@ -521,6 +588,55 @@ public class MetricRegistryExportTest {
                 .setValue(
                     TypedValue.newBuilder()
                         .setDistributionValue(Distribution.newBuilder().setCount(1).setMean(1)))
+                .build());
+  }
+
+  @Test
+  void testBatchWriteFactor() {
+    registry.batchWriteFlowControlFactor.record(
+        clientInfo, Code.DEADLINE_EXCEEDED, true, MethodInfo.of("Bigtable.MutateRows", false), 0.5);
+    metricReader.forceFlush().join(1, TimeUnit.MINUTES);
+
+    TimeSeries timeSeries =
+        metricService.getSingleTimeSeriesByName(
+            "bigtable.googleapis.com/internal/client/batch_write_flow_control_factor");
+
+    Truth.assertThat(timeSeries.getResource()).isEqualTo(expectedClientMonitoredResource);
+
+    assertThat(timeSeries.getMetric().getLabelsMap())
+        .containsExactly(
+            "status", "DEADLINE_EXCEEDED",
+            "applied", "true",
+            "method", "Bigtable.MutateRows");
+
+    assertThat(timeSeries.getPointsList())
+        .comparingExpectedFieldsOnly()
+        .containsExactly(
+            Point.newBuilder()
+                .setValue(TypedValue.newBuilder().setDoubleValue(0.5).build())
+                .build());
+  }
+
+  @Test
+  void testBatchWriteQps() {
+    registry.batchWriteFlowControlTargetQps.record(
+        clientInfo, MethodInfo.of("Bigtable.MutateRows", false), 123);
+    metricReader.forceFlush().join(1, TimeUnit.MINUTES);
+
+    TimeSeries timeSeries =
+        metricService.getSingleTimeSeriesByName(
+            "bigtable.googleapis.com/internal/client/batch_write_flow_control_target_qps");
+
+    Truth.assertThat(timeSeries.getResource()).isEqualTo(expectedClientMonitoredResource);
+
+    assertThat(timeSeries.getMetric().getLabelsMap())
+        .containsExactly("method", "Bigtable.MutateRows");
+
+    assertThat(timeSeries.getPointsList())
+        .comparingExpectedFieldsOnly()
+        .containsExactly(
+            Point.newBuilder()
+                .setValue(TypedValue.newBuilder().setDoubleValue(123.0).build())
                 .build());
   }
 
