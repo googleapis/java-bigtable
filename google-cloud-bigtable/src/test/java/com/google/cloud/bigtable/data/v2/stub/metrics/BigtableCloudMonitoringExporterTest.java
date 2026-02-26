@@ -31,7 +31,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.api.Distribution;
-import com.google.api.MonitoredResource;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
 import com.google.api.gax.rpc.UnaryCallable;
@@ -94,19 +93,21 @@ public class BigtableCloudMonitoringExporterTest {
   private Resource resource;
   private InstrumentationScopeInfo scope;
 
-  private EnvInfo envInfo = EnvInfo.builder()
-      .setProject("client-project")
-      .setPlatform("gce_instance")
-      .setRegion("cleint-region")
-      .setHostName("harold")
-      .setHostId("1234567890")
-      .setUid(taskId)
-      .build();
-  private ClientInfo clientInfo = ClientInfo.builder()
-      .setInstanceName(InstanceName.of(projectId, instanceId))
-      .setAppProfileId(appProfileId)
-      .setClientName(clientName)
-      .build();
+  private EnvInfo envInfo =
+      EnvInfo.builder()
+          .setProject("client-project")
+          .setPlatform("gce_instance")
+          .setRegion("cleint-region")
+          .setHostName("harold")
+          .setHostId("1234567890")
+          .setUid(taskId)
+          .build();
+  private ClientInfo clientInfo =
+      ClientInfo.builder()
+          .setInstanceName(InstanceName.of(projectId, instanceId))
+          .setAppProfileId(appProfileId)
+          .setClientName(clientName)
+          .build();
 
   @Before
   public void setUp() {

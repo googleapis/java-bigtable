@@ -197,7 +197,12 @@ public class MetricsImpl implements Metrics, Closeable {
 
     MetricExporter publicExporter =
         BigtableCloudMonitoringExporter.create(
-            metricRegistry, EnvInfo::detect, clientInfo, credentials, metricsEndpoint, universeDomain);
+            metricRegistry,
+            EnvInfo::detect,
+            clientInfo,
+            credentials,
+            metricsEndpoint,
+            universeDomain);
     PeriodicMetricReaderBuilder readerBuilder =
         PeriodicMetricReader.builder(publicExporter).setExecutor(executor);
     meterProvider.registerMetricReader(readerBuilder.build());
