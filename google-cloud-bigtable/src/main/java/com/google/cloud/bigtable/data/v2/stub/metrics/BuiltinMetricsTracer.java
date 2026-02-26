@@ -385,7 +385,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
           methodInfo,
           sidebandData.getResponseParams(),
           code,
-          Comparators.min(remainingDeadlineAtAttemptStart, Duration.ZERO));
+          Comparators.max(remainingDeadlineAtAttemptStart, Duration.ZERO));
     }
 
     if (sidebandData.getGfeTiming() != null) {
