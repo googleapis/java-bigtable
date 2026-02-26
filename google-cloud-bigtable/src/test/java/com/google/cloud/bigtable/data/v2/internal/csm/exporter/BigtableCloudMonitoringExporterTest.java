@@ -33,7 +33,6 @@ import com.google.cloud.bigtable.data.v2.internal.csm.attributes.EnvInfo;
 import com.google.cloud.bigtable.data.v2.internal.csm.metrics.Constants.MetricLabels;
 import com.google.cloud.bigtable.data.v2.internal.csm.schema.ClientSchema;
 import com.google.cloud.bigtable.data.v2.internal.csm.schema.TableSchema;
-import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableCloudMonitoringExporter;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.stub.MetricServiceStub;
 import com.google.common.base.Suppliers;
