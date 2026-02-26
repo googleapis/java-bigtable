@@ -62,8 +62,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class MetricRegistryExportTest {
-  private static final InstanceName INSTANCE_NAME =
-      InstanceName.of("my-project", "my-instance");
+  private static final InstanceName INSTANCE_NAME = InstanceName.of("my-project", "my-instance");
   private static final String appProfileId = "my-app-profile";
   private static final String tableId = "my-table";
   private static final String clusterId = "my-cluster";
@@ -73,17 +72,14 @@ public class MetricRegistryExportTest {
   private FakeMetricService metricService;
   private ManagedChannel fakeServiceChannel;
 
-
   private PeriodicMetricReader metricReader;
   private SdkMeterProvider meterProvider;
   private MetricRegistry metricRegistry;
   private RecorderRegistry registry;
 
   private EnvInfo envInfo;
-  private ClientInfo clientInfo = ClientInfo.builder()
-      .setInstanceName(INSTANCE_NAME)
-      .setAppProfileId(appProfileId)
-      .build();
+  private ClientInfo clientInfo =
+      ClientInfo.builder().setInstanceName(INSTANCE_NAME).setAppProfileId(appProfileId).build();
   private MethodInfo methodInfo;
   private ResponseParams clusterInfo;
   private PeerInfo peerInfo;
@@ -174,7 +170,12 @@ public class MetricRegistryExportTest {
   @Test
   void testOpLatency() {
     registry.operationLatency.record(
-        clientInfo, tableId, methodInfo, clusterInfo, Status.UNAVAILABLE.getCode(), Duration.ofMillis(123));
+        clientInfo,
+        tableId,
+        methodInfo,
+        clusterInfo,
+        Status.UNAVAILABLE.getCode(),
+        Duration.ofMillis(123));
     metricReader.forceFlush().join(1, TimeUnit.MINUTES);
 
     TimeSeries timeSeries =
@@ -205,7 +206,12 @@ public class MetricRegistryExportTest {
   @Test
   void testAttemptLatency() {
     registry.attemptLatency.record(
-        clientInfo, tableId, clusterInfo, methodInfo, Status.UNAVAILABLE.getCode(), Duration.ofMillis(123));
+        clientInfo,
+        tableId,
+        clusterInfo,
+        methodInfo,
+        Status.UNAVAILABLE.getCode(),
+        Duration.ofMillis(123));
     metricReader.forceFlush().join(1, TimeUnit.MINUTES);
 
     TimeSeries timeSeries =
@@ -236,7 +242,13 @@ public class MetricRegistryExportTest {
   @Test
   void testAttemptLatency2() {
     registry.attemptLatency2.record(
-        clientInfo, tableId, peerInfo, clusterInfo, methodInfo, Status.UNAVAILABLE.getCode(), Duration.ofMillis(123));
+        clientInfo,
+        tableId,
+        peerInfo,
+        clusterInfo,
+        methodInfo,
+        Status.UNAVAILABLE.getCode(),
+        Duration.ofMillis(123));
     metricReader.forceFlush().join(1, TimeUnit.MINUTES);
 
     TimeSeries timeSeries =
@@ -270,7 +282,8 @@ public class MetricRegistryExportTest {
 
   @Test
   void testRetryCount() {
-    registry.retryCount.record(clientInfo, tableId, methodInfo, clusterInfo, Status.UNAVAILABLE.getCode(), 1);
+    registry.retryCount.record(
+        clientInfo, tableId, methodInfo, clusterInfo, Status.UNAVAILABLE.getCode(), 1);
     metricReader.forceFlush().join(1, TimeUnit.MINUTES);
 
     TimeSeries timeSeries =
@@ -295,7 +308,12 @@ public class MetricRegistryExportTest {
   @Test
   void testFirstByteLatency() {
     registry.firstResponseLantency.record(
-        clientInfo, tableId, methodInfo, clusterInfo, Status.UNAVAILABLE.getCode(), Duration.ofMillis(123));
+        clientInfo,
+        tableId,
+        methodInfo,
+        clusterInfo,
+        Status.UNAVAILABLE.getCode(),
+        Duration.ofMillis(123));
     metricReader.forceFlush().join(1, TimeUnit.MINUTES);
 
     TimeSeries timeSeries =
@@ -325,7 +343,12 @@ public class MetricRegistryExportTest {
   @Test
   void testServerLatencies() {
     registry.serverLatency.record(
-        clientInfo, tableId, methodInfo, clusterInfo, Status.UNAVAILABLE.getCode(), Duration.ofMillis(123));
+        clientInfo,
+        tableId,
+        methodInfo,
+        clusterInfo,
+        Status.UNAVAILABLE.getCode(),
+        Duration.ofMillis(123));
     metricReader.forceFlush().join(1, TimeUnit.MINUTES);
 
     TimeSeries timeSeries =
@@ -439,7 +462,12 @@ public class MetricRegistryExportTest {
   @Test
   void testRemainingDeadline() {
     registry.remainingDeadline.record(
-        clientInfo, tableId, methodInfo, clusterInfo, Status.UNAVAILABLE.getCode(), Duration.ofMillis(123));
+        clientInfo,
+        tableId,
+        methodInfo,
+        clusterInfo,
+        Status.UNAVAILABLE.getCode(),
+        Duration.ofMillis(123));
     metricReader.forceFlush().join(1, TimeUnit.MINUTES);
 
     TimeSeries timeSeries =

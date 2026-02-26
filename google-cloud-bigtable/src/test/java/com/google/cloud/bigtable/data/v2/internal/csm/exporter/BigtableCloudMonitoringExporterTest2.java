@@ -97,13 +97,14 @@ public class BigtableCloudMonitoringExporterTest2 {
     mockMetricServiceStub = new FakeMetricServiceStub();
     fakeMetricServiceClient = new FakeMetricServiceClient(mockMetricServiceStub);
 
-    envInfo = EnvInfo.builder()
-        .setProject("client-project")
-        .setPlatform("gce_instance")
-        .setRegion("cleint-region")
-        .setHostName("harold")
-        .setHostId("1234567890")
-        .build();
+    envInfo =
+        EnvInfo.builder()
+            .setProject("client-project")
+            .setPlatform("gce_instance")
+            .setRegion("cleint-region")
+            .setHostName("harold")
+            .setHostId("1234567890")
+            .build();
 
     clientInfo =
         ClientInfo.builder()
