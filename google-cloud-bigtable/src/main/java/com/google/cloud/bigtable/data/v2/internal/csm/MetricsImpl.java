@@ -95,6 +95,8 @@ public class MetricsImpl implements Metrics, Closeable {
               // Enable specific grpc metrics
               .enableMetrics(BuiltinMetricsConstants.GRPC_METRICS.keySet())
               .build();
+    } else {
+      this.grpcOtel = null;
     }
 
     if (internalOtel != null) {
