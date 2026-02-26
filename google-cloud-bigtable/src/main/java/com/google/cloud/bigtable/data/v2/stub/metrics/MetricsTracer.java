@@ -133,7 +133,7 @@ class MetricsTracer extends BigtableTracer {
         newTagCtxBuilder()
             .putLocal(
                 RpcMeasureConstants.BIGTABLE_STATUS,
-                TagValue.create(Util.extractStatus(throwable)));
+                TagValue.create(Util.extractStatus(throwable).name()));
 
     measures.record(tagCtx.build());
   }
@@ -191,7 +191,7 @@ class MetricsTracer extends BigtableTracer {
 
     if (sidebandData != null && sidebandData.getGfeTiming() != null) {
       measures
-          .put(RpcMeasureConstants.BIGTABLE_GFE_LATENCY, sidebandData.getGfeTiming())
+          .put(RpcMeasureConstants.BIGTABLE_GFE_LATENCY, sidebandData.getGfeTiming().toMillis())
           .put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 0L);
     } else {
       measures.put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 1L);
@@ -216,7 +216,7 @@ class MetricsTracer extends BigtableTracer {
         newTagCtxBuilder()
             .putLocal(
                 RpcMeasureConstants.BIGTABLE_STATUS,
-                TagValue.create(Util.extractStatus(throwable)));
+                TagValue.create(Util.extractStatus(throwable).name()));
 
     measures.record(tagCtx.build());
   }
