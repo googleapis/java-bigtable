@@ -60,13 +60,21 @@ public class BigtableCloudMonitoringExporter implements MetricExporter {
   private static final Logger LOGGER =
       Logger.getLogger(BigtableCloudMonitoringExporter.class.getName());
 
+  // This system property can be used to override the monitoring endpoint
+  // to a different environment. It's meant for internal testing only and
+  // will be removed in future versions. Use settings in EnhancedBigtableStubSettings
+  // to override the endpoint.
+  @Deprecated @Nullable
+  private static final String MONITORING_ENDPOINT_OVERRIDE_SYS_PROP =
+      System.getProperty("bigtable.test-monitoring-endpoint");
+
   // This the quota limit from Cloud Monitoring. More details in
   // https://cloud.google.com/monitoring/quotas#custom_metrics_quotas.
   private static final int EXPORT_BATCH_SIZE_LIMIT = 200;
 
   private final Supplier<EnvInfo> envInfo;
   private final ClientInfo clientInfo;
-  private MetricRegistry metricRegistry;
+  private final MetricRegistry metricRegistry;
   private final MetricServiceClient client;
 
   private final AtomicReference<State> state;
@@ -97,6 +105,13 @@ public class BigtableCloudMonitoringExporter implements MetricExporter {
                 Optional.ofNullable(credentials)
                     .<CredentialsProvider>map(FixedCredentialsProvider::create)
                     .orElse(NoCredentialsProvider.create()));
+
+    if (MONITORING_ENDPOINT_OVERRIDE_SYS_PROP != null) {
+      LOGGER.warning(
+          "Setting the monitoring endpoint through system variable will be removed in future"
+              + " versions");
+      settingsBuilder.setEndpoint(MONITORING_ENDPOINT_OVERRIDE_SYS_PROP);
+    }
 
     if (endpoint != null) {
       settingsBuilder.setEndpoint(endpoint);
@@ -130,12 +145,6 @@ public class BigtableCloudMonitoringExporter implements MetricExporter {
   @Override
   public CompletableResultCode export(Collection<MetricData> metricData) {
     Preconditions.checkState(state.get() != State.Closed, "Exporter is closed");
-
-    if (metricRegistry == null) {
-      String msg = "Bigtable exporter tried to export before fully configured";
-      LOGGER.warning(msg);
-      return CompletableResultCode.ofExceptionalFailure(new IllegalStateException(msg));
-    }
 
     lastExportCode = doExport(metricData);
     return lastExportCode;
