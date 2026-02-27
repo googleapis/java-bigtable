@@ -104,13 +104,30 @@ import javax.annotation.Nonnull;
  * // One instance per application.
  * BigtableTableAdminClient client =  BigtableTableAdminClient.create("[PROJECT]", "[INSTANCE]");
  *
- * CreateTableRequest request =
- *   CreateTableRequest.of("my-table")
- *     .addFamily("cf1")
- *     .addFamily("cf2", GCRULES.maxVersions(10))
- *     .addSplit(ByteString.copyFromUtf8("b"))
- *     .addSplit(ByteString.copyFromUtf8("q"));
- * client.createTable(request);
+ * com.google.bigtable.admin.v2.CreateTableRequest request =
+ *   com.google.bigtable.admin.v2.CreateTableRequest.newBuilder()
+ *     .setParent(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
+ *     .setTableId("my-table")
+ *     .setTable(
+ *       com.google.bigtable.admin.v2.Table.newBuilder()
+ *         .putColumnFamilies("cf1", com.google.bigtable.admin.v2.ColumnFamily.getDefaultInstance())
+ *         .putColumnFamilies(
+ *           "cf2",
+ *           com.google.bigtable.admin.v2.ColumnFamily.newBuilder()
+ *             .setGcRule(GcRuleBuilder.maxVersions(10))
+ *             .build())
+ *         .build())
+ *     .addInitialSplits(
+ *       com.google.bigtable.admin.v2.CreateTableRequest.Split.newBuilder()
+ *         .setKey(ByteString.copyFromUtf8("b"))
+ *         .build())
+ *     .addInitialSplits(
+ *       com.google.bigtable.admin.v2.CreateTableRequest.Split.newBuilder()
+ *         .setKey(ByteString.copyFromUtf8("q"))
+ *         .build())
+ *     .build();
+ *
+ * client.getNewApi().createTable(request);
  *
  * // Cleanup during application shutdown.
  * client.close();
@@ -219,7 +236,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Creates a new table with the specified configuration.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#createTable(com.google.bigtable.admin.v2.CreateTableRequest)}.
+   *
+   * <p>Creates a new table with the specified configuration.
    *
    * <p>Sample code:
    *
@@ -242,8 +262,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *
    * @see CreateTableRequest for available options.
    * @see GCRules for the documentation on available garbage collection rules.
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public Table createTable(CreateTableRequest request) {
@@ -251,7 +269,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously creates a new table with the specified configuration.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#createTableCallable()}.
+   *
+   * <p>Asynchronously creates a new table with the specified configuration.
    *
    * <p>Sample code:
    *
@@ -288,8 +309,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *
    * @see CreateTableRequest for available options.
    * @see GCRules for the documentation on available garbage collection rules.
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -299,7 +318,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Update a table with the specified configuration.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#updateTable(com.google.bigtable.admin.v2.UpdateTableRequest)}.
+   *
+   * <p>Update a table with the specified configuration.
    *
    * <p>Sample code:
    *
@@ -318,8 +340,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * }</pre>
    *
    * @see UpdateTableRequest for available options.
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public Table updateTable(UpdateTableRequest request) {
@@ -327,7 +347,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously update a table with the specified configuration.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#updateTableOperationCallable()}.
+   *
+   * <p>Asynchronously update a table with the specified configuration.
    *
    * <p>Sample code:
    *
@@ -354,8 +377,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * }</pre>
    *
    * @see UpdateTableRequest for available options.
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<Table> updateTableAsync(UpdateTableRequest request) {
@@ -371,7 +392,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Creates, updates and drops column families as specified in the request.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#modifyColumnFamilies(com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest)}.
+   *
+   * <p>Creates, updates and drops column families as specified in the request.
    *
    * <p>Sample code:
    *
@@ -403,8 +427,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * }</pre>
    *
    * @see ModifyColumnFamiliesRequest for available options.
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public Table modifyFamilies(ModifyColumnFamiliesRequest request) {
@@ -412,7 +434,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously creates, updates, and drops column families as specified in the request.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#modifyColumnFamiliesCallable()}.
+   *
+   * <p>Asynchronously creates, updates, and drops column families as specified in the request.
    *
    * <p>Sample code:
    *
@@ -457,8 +482,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * }</pre>
    *
    * @see ModifyColumnFamiliesRequest for available options.
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -470,16 +493,16 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Deletes the table specified by the table ID.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#deleteTable(com.google.bigtable.admin.v2.DeleteTableRequest)}.
+   *
+   * <p>Deletes the table specified by the table ID.
    *
    * <p>Sample code:
    *
    * <pre>{@code
    * client.deleteTable("my-table");
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public void deleteTable(String tableId) {
@@ -487,7 +510,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously deletes the table specified by the table ID.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#deleteTableCallable()}.
+   *
+   * <p>Asynchronously deletes the table specified by the table ID.
    *
    * <p>Sample code:
    *
@@ -508,9 +534,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   MoreExecutors.directExecutor()
    * );
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -522,7 +545,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Checks if the table specified by the table ID exists.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#getTable(com.google.bigtable.admin.v2.GetTableRequest)}.
+   *
+   * <p>Checks if the table specified by the table ID exists.
    *
    * <p>Sample code:
    *
@@ -531,9 +557,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   System.out.println("Table exists");
    * }
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public boolean exists(String tableId) {
@@ -541,7 +564,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously checks if the table specified by the table ID exists.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#getTableCallable()}.
+   *
+   * <p>Asynchronously checks if the table specified by the table ID exists.
    *
    * <p>Sample code:
    *
@@ -566,9 +592,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *  MoreExecutors.directExecutor()
    * );
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<Boolean> existsAsync(String tableId) {
@@ -600,7 +623,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Gets the table metadata by table ID.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#getTable(com.google.bigtable.admin.v2.GetTableRequest)}.
+   *
+   * <p>Gets the table metadata by table ID.
    *
    * <p>Sample code:
    *
@@ -614,9 +640,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   System.out.println(cf.getId());
    * }
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public Table getTable(String tableId) {
@@ -624,7 +647,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously gets the table metadata by table ID.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#getTableCallable()}.
+   *
+   * <p>Asynchronously gets the table metadata by table ID.
    *
    * <p>Sample code:
    *
@@ -649,9 +675,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   MoreExecutors.directExecutor()
    * );
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -668,13 +691,13 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Gets the current encryption info for the table across all of the clusters.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#getTable(com.google.bigtable.admin.v2.GetTableRequest)}.
+   *
+   * <p>Gets the current encryption info for the table across all of the clusters.
    *
    * <p>The returned Map will be keyed by cluster id and contain a status for all of the keys in
    * use.
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public Map<String, List<EncryptionInfo>> getEncryptionInfo(String tableId) {
@@ -682,13 +705,13 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously gets the current encryption info for the table across all of the clusters.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#getTableCallable()}.
+   *
+   * <p>Asynchronously gets the current encryption info for the table across all of the clusters.
    *
    * <p>The returned Map will be keyed by cluster id and contain a status for all of the keys in
    * use.
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<Map<String, List<EncryptionInfo>>> getEncryptionInfoAsync(String tableId) {
@@ -722,7 +745,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Lists all table IDs in the instance.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#listTables(com.google.bigtable.admin.v2.ListTablesRequest)}.
+   *
+   * <p>Lists all table IDs in the instance.
    *
    * <p>Sample code:
    *
@@ -733,9 +759,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   System.out.println(tableId);
    * }
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public List<String> listTables() {
@@ -743,7 +766,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously lists all table IDs in the instance.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#listTablesPagedCallable()}.
+   *
+   * <p>Asynchronously lists all table IDs in the instance.
    *
    * <p>Sample code:
    *
@@ -767,9 +793,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   MoreExecutors.directExecutor()
    * );
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<List<String>> listTablesAsync() {
@@ -835,7 +858,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Drops rows by the specified row key prefix and table ID.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#dropRowRange(com.google.bigtable.admin.v2.DropRowRangeRequest)}.
+   *
+   * <p>Drops rows by the specified row key prefix and table ID.
    *
    * <p>Please note that this method is considered part of the admin API and is rate limited.
    *
@@ -844,9 +870,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * <pre>{@code
    * client.dropRowRange("my-table", "prefix");
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public void dropRowRange(String tableId, String rowKeyPrefix) {
@@ -854,7 +877,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously drops rows by the specified row key prefix and table ID.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#dropRowRangeCallable()}.
+   *
+   * <p>Asynchronously drops rows by the specified row key prefix and table ID.
    *
    * <p>Please note that this method is considered part of the admin API and is rate limited.
    *
@@ -877,9 +903,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   MoreExecutors.directExecutor()
    * );
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -888,7 +911,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Drops rows by the specified row key prefix and table ID.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#dropRowRange(com.google.bigtable.admin.v2.DropRowRangeRequest)}.
+   *
+   * <p>Drops rows by the specified row key prefix and table ID.
    *
    * <p>Please note that this method is considered part of the admin API and is rate limited.
    *
@@ -897,9 +923,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * <pre>{@code
    * client.dropRowRange("my-table", ByteString.copyFromUtf8("prefix"));
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -908,7 +931,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously drops rows by the specified row key prefix and table ID.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#dropRowRangeCallable()}.
+   *
+   * <p>Asynchronously drops rows by the specified row key prefix and table ID.
    *
    * <p>Please note that this method is considered part of the admin API and is rate limited.
    *
@@ -931,9 +957,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   MoreExecutors.directExecutor()
    * );
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -948,16 +971,16 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Drops all data in the table.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#dropRowRange(com.google.bigtable.admin.v2.DropRowRangeRequest)}.
+   *
+   * <p>Drops all data in the table.
    *
    * <p>Sample code:
    *
    * <pre>{@code
    * client.dropAllRows("my-table");
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public void dropAllRows(String tableId) {
@@ -965,7 +988,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously drops all data in the table.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#dropRowRangeCallable()}.
+   *
+   * <p>Asynchronously drops all data in the table.
    *
    * <p>Sample code:
    *
@@ -986,9 +1012,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   MoreExecutors.directExecutor()
    * );
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -1003,7 +1026,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Blocks the current thread until replication has caught up to the point when this method was
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#checkConsistency(com.google.bigtable.admin.v2.CheckConsistencyRequest)}.
+   *
+   * <p>Blocks the current thread until replication has caught up to the point when this method was
    * called. This allows callers to make sure that their mutations have been replicated across all
    * of their clusters.
    *
@@ -1014,8 +1040,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * }</pre>
    *
    * @throws com.google.api.gax.retrying.PollException when polling exceeds the total timeout
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public void awaitReplication(String tableId) {
@@ -1033,7 +1057,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Creates a backup with the specified configuration.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#createBackup(com.google.bigtable.admin.v2.CreateBackupRequest)}.
+   *
+   * <p>Creates a backup with the specified configuration.
    *
    * <p>Sample code
    *
@@ -1044,9 +1071,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *             .setExpireTime(expireTime);
    * Backup response = client.createBackup(request);
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public Backup createBackup(CreateBackupRequest request) {
@@ -1054,7 +1078,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Creates a backup with the specified configuration asynchronously.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#createBackupOperationCallable()}.
+   *
+   * <p>Creates a backup with the specified configuration asynchronously.
    *
    * <p>Sample code
    *
@@ -1079,9 +1106,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   MoreExecutors.directExecutor()
    * );
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<Backup> createBackupAsync(CreateBackupRequest request) {
@@ -1097,16 +1121,16 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Gets a backup with the specified backup ID in the specified cluster.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#getBackup(com.google.bigtable.admin.v2.GetBackupRequest)}.
+   *
+   * <p>Gets a backup with the specified backup ID in the specified cluster.
    *
    * <p>Sample code
    *
    * <pre>{@code
    * Backup backup = client.getBackup(clusterId, backupId);
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public Backup getBackup(String clusterId, String backupId) {
@@ -1114,7 +1138,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Gets a backup with the specified backup ID in the specified cluster asynchronously.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#getBackupCallable()}.
+   *
+   * <p>Gets a backup with the specified backup ID in the specified cluster asynchronously.
    *
    * <p>Sample code
    *
@@ -1135,9 +1162,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   MoreExecutors.directExecutor()
    * );
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<Backup> getBackupAsync(String clusterId, String backupId) {
@@ -1157,16 +1181,16 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Lists backups in the specified cluster.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#listBackups(com.google.bigtable.admin.v2.ListBackupsRequest)}.
+   *
+   * <p>Lists backups in the specified cluster.
    *
    * <p>Sample code
    *
    * <pre>{@code
    * List<String> backups = client.listBackups(clusterId);
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public List<String> listBackups(String clusterId) {
@@ -1174,7 +1198,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Lists backups in the specified cluster asynchronously.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#listBackupsPagedCallable()}.
+   *
+   * <p>Lists backups in the specified cluster asynchronously.
    *
    * <p>Sample code:
    *
@@ -1198,9 +1225,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   MoreExecutors.directExecutor()
    * );
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<List<String>> listBackupsAsync(String clusterId) {
@@ -1266,16 +1290,16 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Deletes a backup with the specified backup ID in the specified cluster.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#deleteBackup(com.google.bigtable.admin.v2.DeleteBackupRequest)}.
+   *
+   * <p>Deletes a backup with the specified backup ID in the specified cluster.
    *
    * <p>Sample code
    *
    * <pre>{@code
    * client.deleteBackup(clusterId, backupId);
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public void deleteBackup(String clusterId, String backupId) {
@@ -1283,7 +1307,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Deletes a backup with the specified backup ID in the specified cluster asynchronously.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#deleteBackupCallable()}.
+   *
+   * <p>Deletes a backup with the specified backup ID in the specified cluster asynchronously.
    *
    * <p>Sample code
    *
@@ -1304,9 +1331,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   MoreExecutors.directExecutor()
    * );
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<Void> deleteBackupAsync(String clusterId, String backupId) {
@@ -1319,16 +1343,16 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Updates a backup with the specified configuration.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#updateBackup(com.google.bigtable.admin.v2.UpdateBackupRequest)}.
+   *
+   * <p>Updates a backup with the specified configuration.
    *
    * <p>Sample code
    *
    * <pre>{@code
    * Backup backup = client.updateBackup(clusterId, backupId);
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public Backup updateBackup(UpdateBackupRequest request) {
@@ -1336,7 +1360,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Updates a backup with the specified configuration asynchronously.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#updateBackupCallable()}.
+   *
+   * <p>Updates a backup with the specified configuration asynchronously.
    *
    * <p>Sample code
    *
@@ -1357,9 +1384,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   MoreExecutors.directExecutor()
    * );
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<Backup> updateBackupAsync(UpdateBackupRequest request) {
@@ -1375,7 +1399,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Restores a backup to a new table with the specified configuration.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#restoreTable(com.google.bigtable.admin.v2.RestoreTableRequest)}.
+   *
+   * <p>Restores a backup to a new table with the specified configuration.
    *
    * <p>Sample code
    *
@@ -1383,9 +1410,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * RestoredTableResult result =
    *     client.restoreTable(RestoreTableRequest.of(clusterId, backupId).setTableId(tableId));
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public RestoredTableResult restoreTable(RestoreTableRequest request)
@@ -1393,7 +1417,12 @@ public final class BigtableTableAdminClient implements AutoCloseable {
     return ApiExceptions.callAndTranslateApiException(restoreTableAsync(request));
   }
 
-  /** Restores a backup to a new table with the specified configuration asynchronously.
+  /**
+   * <p>This method is obsolete. For the recommended proto-based approach, please see
+   * {@link com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#restoreTableAsync(com.google.bigtable.admin.v2.RestoreTableRequest)}.
+   *
+   * <p>Restores a backup to a new table with the specified configuration asynchronously.
+   *
    * <p>Sample code
    *
    * <pre>{@code
@@ -1414,9 +1443,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   MoreExecutors.directExecutor()
    * );
    * </pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<RestoredTableResult> restoreTableAsync(RestoreTableRequest request) {
@@ -1521,7 +1547,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Copy an existing backup to a new backup in a Cloud Bigtable cluster with the specified
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#copyBackup(com.google.bigtable.admin.v2.CopyBackupRequest)}.
+   *
+   * <p>Copy an existing backup to a new backup in a Cloud Bigtable cluster with the specified
    * configuration.
    *
    * <p>Sample code Note: You want to create the client with project and instance where you want the
@@ -1557,9 +1586,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *             .setExpireTime(expireTime);
    * Backup response = client.copyBackup(request);
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public Backup copyBackup(CopyBackupRequest request) {
@@ -1567,7 +1593,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Creates a copy of a backup from an existing backup in a Cloud Bigtable cluster with the
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#copyBackupOperationCallable()}.
+   *
+   * <p>Creates a copy of a backup from an existing backup in a Cloud Bigtable cluster with the
    * specified configuration asynchronously.
    *
    * <p>Sample code
@@ -1593,9 +1622,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   MoreExecutors.directExecutor()
    * );
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<Backup> copyBackupAsync(CopyBackupRequest request) {
@@ -1611,9 +1637,12 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Returns a future that is resolved when replication has caught up to the point when this method
-   * was called. This allows callers to make sure that their mutations have been replicated across
-   * all of their clusters.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#generateConsistencyTokenCallable()}.
+   *
+   * <p>Returns a future that is resolved when replication has caught up to the point when this
+   * method was called. This allows callers to make sure that their mutations have been replicated
+   * across all of their clusters.
    *
    * <p>Sample code:
    *
@@ -1635,9 +1664,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * );
    *
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -1673,7 +1699,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Creates a new authorized view with the specified configuration.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#createAuthorizedView(com.google.bigtable.admin.v2.CreateAuthorizedViewRequest)}.
+   *
+   * <p>Creates a new authorized view with the specified configuration.
    *
    * <p>Sample code:
    *
@@ -1691,8 +1720,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * }</pre>
    *
    * @see CreateAuthorizedViewRequest for available options.
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public AuthorizedView createAuthorizedView(CreateAuthorizedViewRequest request) {
@@ -1700,7 +1727,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously creates a new authorized view with the specified configuration.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#createAuthorizedViewOperationCallable()}.
+   *
+   * <p>Asynchronously creates a new authorized view with the specified configuration.
    *
    * <p>Sample code:
    *
@@ -1732,8 +1762,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * }</pre>
    *
    * @see CreateAuthorizedViewRequest for available options.
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<AuthorizedView> createAuthorizedViewAsync(CreateAuthorizedViewRequest request) {
@@ -1751,7 +1779,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Updates an existing authorized view with the specified configuration.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#updateAuthorizedView(com.google.bigtable.admin.v2.UpdateAuthorizedViewRequest)}.
+   *
+   * <p>Updates an existing authorized view with the specified configuration.
    *
    * <p>Sample code:
    *
@@ -1765,8 +1796,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * }</pre>
    *
    * @see UpdateAuthorizedViewRequest for available options.
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public AuthorizedView updateAuthorizedView(UpdateAuthorizedViewRequest request) {
@@ -1774,7 +1803,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously updates an existing authorized view with the specified configuration.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#updateAuthorizedViewOperationCallable()}.
+   *
+   * <p>Asynchronously updates an existing authorized view with the specified configuration.
    *
    * <p>Sample code:
    *
@@ -1802,8 +1834,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * }</pre>
    *
    * @see UpdateAuthorizedViewRequest for available options.
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<AuthorizedView> updateAuthorizedViewAsync(UpdateAuthorizedViewRequest request) {
@@ -1821,16 +1851,16 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Gets an authorized view with the specified authorized view ID in the specified table.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#getAuthorizedView(com.google.bigtable.admin.v2.GetAuthorizedViewRequest)}.
+   *
+   * <p>Gets an authorized view with the specified authorized view ID in the specified table.
    *
    * <p>Sample code:
    *
    * <pre>{@code
    * AuthorizedView authorizedView = client.getAuthorizedView("my-table", "my-authorized-view");
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public AuthorizedView getAuthorizedView(String tableId, String authorizedViewId) {
@@ -1839,8 +1869,11 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously gets an authorized view with the specified authorized view ID in the specified
-   * table.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#getAuthorizedViewCallable()}.
+   *
+   * <p>Asynchronously gets an authorized view with the specified authorized view ID in the
+   * specified table.
    *
    * <p>Sample code:
    *
@@ -1861,9 +1894,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   MoreExecutors.directExecutor()
    * );
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<AuthorizedView> getAuthorizedViewAsync(String tableId, String authorizedViewId) {
@@ -1885,16 +1915,16 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Lists all authorized view IDs in the specified table.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#listAuthorizedViews(com.google.bigtable.admin.v2.ListAuthorizedViewsRequest)}.
+   *
+   * <p>Lists all authorized view IDs in the specified table.
    *
    * <p>Sample code:
    *
    * <pre>{@code
    * List<String> authorizedViews = client.listAuthorizedViews("my-table");
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public List<String> listAuthorizedViews(String tableId) {
@@ -1902,7 +1932,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously lists all authorized view IDs in the specified table.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#listAuthorizedViewsPagedCallable()}.
+   *
+   * <p>Asynchronously lists all authorized view IDs in the specified table.
    *
    * <p>Sample code:
    *
@@ -1926,9 +1959,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   MoreExecutors.directExecutor()
    * );
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<List<String>> listAuthorizedViewsAsync(String tableId) {
@@ -1996,18 +2026,18 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Deletes an authorized view with the specified authorized view ID in the specified table. Note
-   * that the deletion is prohibited if the authorized view has deletion_protection field set to
-   * true.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#deleteAuthorizedView(com.google.bigtable.admin.v2.DeleteAuthorizedViewRequest)}.
+   *
+   * <p>Deletes an authorized view with the specified authorized view ID in the specified table.
+   * Note that the deletion is prohibited if the authorized view has deletion_protection field set
+   * to true.
    *
    * <p>Sample code:
    *
    * <pre>{@code
    * client.deleteAuthorizedView("my-table", "my-authorized-view");
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public void deleteAuthorizedView(String tableId, String authorizedViewId) {
@@ -2016,7 +2046,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously deletes an authorized view with the specified authorized view ID in the
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#deleteAuthorizedViewCallable()}.
+   *
+   * <p>Asynchronously deletes an authorized view with the specified authorized view ID in the
    * specified table. Note that the deletion is prohibited if the authorized view has
    * deletion_protection field set to true.
    *
@@ -2039,9 +2072,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   MoreExecutors.directExecutor()
    * );
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<Void> deleteAuthorizedViewAsync(String tableId, String authorizedViewId) {
@@ -2055,7 +2085,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Creates a new schema bundle with the specified configuration.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#createSchemaBundle(com.google.bigtable.admin.v2.CreateSchemaBundleRequest)}.
+   *
+   * <p>Creates a new schema bundle with the specified configuration.
    *
    * <p>Sample code:
    *
@@ -2072,8 +2105,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * }</pre>
    *
    * @see CreateSchemaBundleRequest for available options.
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public SchemaBundle createSchemaBundle(CreateSchemaBundleRequest request) {
@@ -2081,7 +2112,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously creates a new schema bundle with the specified configuration.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#createSchemaBundleOperationCallable()}.
+   *
+   * <p>Asynchronously creates a new schema bundle with the specified configuration.
    *
    * <p>Sample code:
    *
@@ -2111,8 +2145,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * }</pre>
    *
    * @see CreateSchemaBundleRequest for available options.
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<SchemaBundle> createSchemaBundleAsync(CreateSchemaBundleRequest request) {
@@ -2129,7 +2161,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Updates an existing schema bundle with the specified configuration.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#updateSchemaBundle(com.google.bigtable.admin.v2.UpdateSchemaBundleRequest)}.
+   *
+   * <p>Updates an existing schema bundle with the specified configuration.
    *
    * <p>Sample code:
    *
@@ -2142,8 +2177,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * }</pre>
    *
    * @see UpdateSchemaBundleRequest for available options.
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public SchemaBundle updateSchemaBundle(UpdateSchemaBundleRequest request) {
@@ -2151,7 +2184,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously updates an existing schema bundle with the specified configuration.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#updateSchemaBundleOperationCallable()}.
+   *
+   * <p>Asynchronously updates an existing schema bundle with the specified configuration.
    *
    * <p>Sample code:
    *
@@ -2177,8 +2213,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * }</pre>
    *
    * @see UpdateSchemaBundleRequest for available options.
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<SchemaBundle> updateSchemaBundleAsync(UpdateSchemaBundleRequest request) {
@@ -2195,16 +2229,16 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Gets an schema bundle with the specified schema bundle ID in the specified table.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#getSchemaBundle(com.google.bigtable.admin.v2.GetSchemaBundleRequest)}.
+   *
+   * <p>Gets an schema bundle with the specified schema bundle ID in the specified table.
    *
    * <p>Sample code:
    *
    * <pre>{@code
    * SchemaBundle schemaBundle = client.getSchemaBundle("my-table", "my-schema-bundle");
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public SchemaBundle getSchemaBundle(String tableId, String schemaBundleId) {
@@ -2213,7 +2247,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously gets an schema bundle with the specified schema bundle ID in the specified
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#getSchemaBundleCallable()}.
+   *
+   * <p>Asynchronously gets an schema bundle with the specified schema bundle ID in the specified
    * table.
    *
    * <p>Sample code:
@@ -2234,9 +2271,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *     },
    *     MoreExecutors.directExecutor());
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<SchemaBundle> getSchemaBundleAsync(String tableId, String schemaBundleId) {
@@ -2257,16 +2291,16 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Lists all schema bundle IDs in the specified table.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#listSchemaBundles(com.google.bigtable.admin.v2.ListSchemaBundlesRequest)}.
+   *
+   * <p>Lists all schema bundle IDs in the specified table.
    *
    * <p>Sample code:
    *
    * <pre>{@code
    * List<String> schemaBundles = client.listSchemaBundles("my-table");
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public List<String> listSchemaBundles(String tableId) {
@@ -2274,7 +2308,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously lists all schema bundle IDs in the specified table.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#listSchemaBundlesPagedCallable()}.
+   *
+   * <p>Asynchronously lists all schema bundle IDs in the specified table.
    *
    * <p>Sample code:
    *
@@ -2297,9 +2334,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *     },
    *     MoreExecutors.directExecutor());
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<List<String>> listSchemaBundlesAsync(String tableId) {
@@ -2368,16 +2402,16 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Deletes an schema bundle with the specified schema bundle ID in the specified table.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#deleteSchemaBundle(com.google.bigtable.admin.v2.DeleteSchemaBundleRequest)}.
+   *
+   * <p>Deletes an schema bundle with the specified schema bundle ID in the specified table.
    *
    * <p>Sample code:
    *
    * <pre>{@code
    * client.deleteSchemaBundle("my-table", "my-schema-bundle");
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public void deleteSchemaBundle(String tableId, String schemaBundleId) {
@@ -2385,7 +2419,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously deletes an schema bundle with the specified schema bundle ID in the specified
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#deleteSchemaBundleCallable()}.
+   *
+   * <p>Asynchronously deletes an schema bundle with the specified schema bundle ID in the specified
    * table.
    *
    * <p>Sample code:
@@ -2407,9 +2444,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   MoreExecutors.directExecutor()
    * );
    * }</pre>
-   *
-   * <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based methods
-   * instead.
    */
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
   public ApiFuture<Void> deleteSchemaBundleAsync(String tableId, String schemaBundleId) {
@@ -2462,7 +2496,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Gets the IAM access control policy for the specified table.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#getIamPolicy(com.google.iam.v1.GetIamPolicyRequest)}.
+   *
+   * <p>Gets the IAM access control policy for the specified table.
    *
    * <p>Sample code:
    *
@@ -2476,8 +2513,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * @see <a
    *     href="https://cloud.google.com/bigtable/docs/access-control#iam-management-table">Table-level
    *     IAM management</a>
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -2486,7 +2521,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously gets the IAM access control policy for the specified table.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#getIamPolicyCallable()}.
+   *
+   * <p>Asynchronously gets the IAM access control policy for the specified table.
    *
    * <p>Sample code:
    *
@@ -2511,8 +2549,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * @see <a
    *     href="https://cloud.google.com/bigtable/docs/access-control#iam-management-table">Table-level
    *     IAM management</a>
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -2522,7 +2558,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Replaces the IAM policy associated with the specified table.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#setIamPolicy(com.google.iam.v1.SetIamPolicyRequest)}.
+   *
+   * <p>Replaces the IAM policy associated with the specified table.
    *
    * <p>Sample code:
    *
@@ -2537,8 +2576,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * @see <a
    *     href="https://cloud.google.com/bigtable/docs/access-control#iam-management-table">Table-level
    *     IAM management</a>
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -2547,7 +2584,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously replaces the IAM policy associated with the specified table.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#setIamPolicyCallable()}.
+   *
+   * <p>Asynchronously replaces the IAM policy associated with the specified table.
    *
    * <p>Sample code:
    *
@@ -2576,8 +2616,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * @see <a
    *     href="https://cloud.google.com/bigtable/docs/access-control#iam-management-table">Table-level
    *     IAM management</a>
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -2587,8 +2625,11 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Tests whether the caller has the given permissions for the specified table. Returns a subset of
-   * the specified permissions that the caller has.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#testIamPermissions(com.google.iam.v1.TestIamPermissionsRequest)}.
+   *
+   * <p>Tests whether the caller has the given permissions for the specified table. Returns a subset
+   * of the specified permissions that the caller has.
    *
    * <p>Sample code:
    *
@@ -2603,8 +2644,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *
    * @see <a href="https://cloud.google.com/bigtable/docs/access-control#permissions">Cloud Bigtable
    *     permissions</a>
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings({"WeakerAccess"})
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -2613,7 +2652,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously tests whether the caller has the given permissions for the specified table.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#testIamPermissionsCallable()}.
+   *
+   * <p>Asynchronously tests whether the caller has the given permissions for the specified table.
    * Returns a subset of the specified permissions that the caller has.
    *
    * <p>Sample code:
@@ -2638,8 +2680,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *
    * @see <a href="https://cloud.google.com/bigtable/docs/access-control#permissions">Cloud Bigtable
    *     permissions</a>
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings({"WeakerAccess"})
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -2649,7 +2689,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Gets the IAM access control policy for the specified backup.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#getIamPolicy(com.google.iam.v1.GetIamPolicyRequest)}.
+   *
+   * <p>Gets the IAM access control policy for the specified backup.
    *
    * <p>Sample code:
    *
@@ -2663,8 +2706,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * @see <a
    *     href="https://cloud.google.com/bigtable/docs/access-control#iam-management-table">Table-level
    *     IAM management</a>
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -2673,7 +2714,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously gets the IAM access control policy for the specified backup.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#getIamPolicyCallable()}.
+   *
+   * <p>Asynchronously gets the IAM access control policy for the specified backup.
    *
    * <p>Sample code:
    *
@@ -2698,8 +2742,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * @see <a
    *     href="https://cloud.google.com/bigtable/docs/access-control#iam-management-table">Table-level
    *     IAM management</a>
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -2709,7 +2751,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Replaces the IAM policy associated with the specified backup.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#setIamPolicy(com.google.iam.v1.SetIamPolicyRequest)}.
+   *
+   * <p>Replaces the IAM policy associated with the specified backup.
    *
    * <p>Sample code:
    *
@@ -2724,8 +2769,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * @see <a
    *     href="https://cloud.google.com/bigtable/docs/access-control#iam-management-table">Table-level
    *     IAM management</a>
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -2735,7 +2778,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously replaces the IAM policy associated with the specified backup.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#setIamPolicyCallable()}.
+   *
+   * <p>Asynchronously replaces the IAM policy associated with the specified backup.
    *
    * <p>Sample code:
    *
@@ -2764,8 +2810,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * @see <a
    *     href="https://cloud.google.com/bigtable/docs/access-control#iam-management-table">Table-level
    *     IAM management</a>
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -2776,8 +2820,11 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Tests whether the caller has the given permissions for the specified backup. Returns a subset
-   * of the specified permissions that the caller has.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#testIamPermissions(com.google.iam.v1.TestIamPermissionsRequest)}.
+   *
+   * <p>Tests whether the caller has the given permissions for the specified backup. Returns a
+   * subset of the specified permissions that the caller has.
    *
    * <p>Sample code:
    *
@@ -2794,8 +2841,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *
    * @see <a href="https://cloud.google.com/bigtable/docs/access-control#permissions">Cloud Bigtable
    *     permissions</a>
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings({"WeakerAccess"})
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -2806,7 +2851,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously tests whether the caller has the given permissions for the specified backup.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#testIamPermissionsCallable()}.
+   *
+   * <p>Asynchronously tests whether the caller has the given permissions for the specified backup.
    * Returns a subset of the specified permissions that the caller has.
    *
    * <p>Sample code:
@@ -2831,8 +2879,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *
    * @see <a href="https://cloud.google.com/bigtable/docs/access-control#permissions">Cloud Bigtable
    *     permissions</a>
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings({"WeakerAccess"})
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -2843,7 +2889,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Gets the IAM access control policy for the specified authorized view.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#getIamPolicy(com.google.iam.v1.GetIamPolicyRequest)}.
+   *
+   * <p>Gets the IAM access control policy for the specified authorized view.
    *
    * <p>Sample code:
    *
@@ -2857,8 +2906,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * @see <a
    *     href="https://cloud.google.com/bigtable/docs/access-control#iam-management-table">Table-level
    *     IAM management</a>
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -2868,7 +2915,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously gets the IAM access control policy for the specified authorized view.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#getIamPolicyCallable()}.
+   *
+   * <p>Asynchronously gets the IAM access control policy for the specified authorized view.
    *
    * <p>Sample code:
    *
@@ -2893,8 +2943,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * @see <a
    *     href="https://cloud.google.com/bigtable/docs/access-control#iam-management-table">Table-level
    *     IAM management</a>
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -2906,7 +2954,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Replaces the IAM policy associated with the specified authorized view.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#setIamPolicy(com.google.iam.v1.SetIamPolicyRequest)}.
+   *
+   * <p>Replaces the IAM policy associated with the specified authorized view.
    *
    * <p>Sample code:
    *
@@ -2921,8 +2972,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * @see <a
    *     href="https://cloud.google.com/bigtable/docs/access-control#iam-management-table">Table-level
    *     IAM management</a>
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -2932,7 +2981,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously replaces the IAM policy associated with the specified authorized view.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#setIamPolicyCallable()}.
+   *
+   * <p>Asynchronously replaces the IAM policy associated with the specified authorized view.
    *
    * <p>Sample code:
    *
@@ -2961,8 +3013,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * @see <a
    *     href="https://cloud.google.com/bigtable/docs/access-control#iam-management-table">Table-level
    *     IAM management</a>
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -2974,8 +3024,11 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Tests whether the caller has the given permissions for the specified authorized view. Returns a
-   * subset of the specified permissions that the caller has.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#testIamPermissions(com.google.iam.v1.TestIamPermissionsRequest)}.
+   *
+   * <p>Tests whether the caller has the given permissions for the specified authorized view.
+   * Returns a subset of the specified permissions that the caller has.
    *
    * <p>Sample code:
    *
@@ -2992,8 +3045,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *
    * @see <a href="https://cloud.google.com/bigtable/docs/access-control#permissions">Cloud Bigtable
    *     permissions</a>
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings({"WeakerAccess"})
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
@@ -3004,14 +3055,17 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously tests whether the caller has the given permissions for the specified authorized
-   * view. Returns a subset of the specified permissions that the caller has.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#testIamPermissionsCallable()}.
+   *
+   * <p>Asynchronously tests whether the caller has the given permissions for the specified
+   * authorized view. Returns a subset of the specified permissions that the caller has.
    *
    * <p>Sample code:
    *
    * <pre>{@code
-   * ApiFuture<List<String>> grantedPermissionsFuture = client.testAuthorizedViewIamPermissionAsync("my-table-id", "my-authorized-view-id",
-   *   "bigtable.authorizedViews.get", "bigtable.authorizedViews.delete");
+   * ApiFuture<List<String>> grantedPermissionsFuture = client.testAuthorizedViewIamPermissionAsync("my-table-id",
+   *   "my-authorized-view-id", "bigtable.authorizedViews.get", "bigtable.authorizedViews.delete");
    *
    * ApiFutures.addCallback(grantedPermissionsFuture,
    *   new ApiFutureCallback<List<String>>() {
@@ -3029,8 +3083,6 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *
    * @see <a href="https://cloud.google.com/bigtable/docs/access-control#permissions">Cloud Bigtable
    *     permissions</a>
-   *     <p>This method is obsolete. Use getNewApi() to access the auto-generated proto-based
-   *     methods instead.
    */
   @SuppressWarnings({"WeakerAccess"})
   @ObsoleteApi("Use getNewApi() to access the auto-generated proto-based methods instead.")
