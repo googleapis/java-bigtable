@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Set;
 
 public class ClientPerConnectionErrorCount extends MetricWrapper<ClientSchema> {
-  private static final String NAME =
+  public static final String NAME =
       "bigtable.googleapis.com/internal/client/per_connection_error_count";
 
   static final List<Long> BUCKETS =
@@ -99,8 +99,9 @@ public class ClientPerConnectionErrorCount extends MetricWrapper<ClientSchema> {
       Attributes attributes =
           getSchema()
               .createResourceAttrs(clientInfo)
-              .put(MetricLabels.BIGTABLE_PROJECT_ID_KEY, clientInfo.getInstanceName().getProject())
-              .put(MetricLabels.INSTANCE_ID_KEY, clientInfo.getInstanceName().getInstance())
+              .put(
+                  MetricLabels.BIGTABLE_PROJECT_ID_KEY, clientInfo.getInstanceName().getProjectId())
+              .put(MetricLabels.INSTANCE_ID_KEY, clientInfo.getInstanceName().getInstanceId())
               .put(MetricLabels.CLIENT_NAME, clientInfo.getClientName())
               .put(MetricLabels.APP_PROFILE_KEY, clientInfo.getAppProfileId())
               .build();

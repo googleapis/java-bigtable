@@ -30,9 +30,10 @@ import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.DoubleHistogram;
 import io.opentelemetry.api.metrics.Meter;
 import java.time.Duration;
+import javax.annotation.Nullable;
 
 public class TableAttemptLatency extends MetricWrapper<TableSchema> {
-  private static final String NAME = "bigtable.googleapis.com/internal/client/attempt_latencies";
+  public static final String NAME = "bigtable.googleapis.com/internal/client/attempt_latencies";
 
   public TableAttemptLatency() {
     super(TableSchema.INSTANCE, NAME);
@@ -67,7 +68,7 @@ public class TableAttemptLatency extends MetricWrapper<TableSchema> {
     public void record(
         ClientInfo clientInfo,
         String tableId,
-        ResponseParams clusterInfo,
+        @Nullable ResponseParams clusterInfo,
         MethodInfo methodInfo,
         Status.Code code,
         Duration latency) {

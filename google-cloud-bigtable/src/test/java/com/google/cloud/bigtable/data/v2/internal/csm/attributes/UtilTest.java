@@ -16,15 +16,41 @@
 
 package com.google.cloud.bigtable.data.v2.internal.csm.attributes;
 
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
+
+import com.google.api.gax.grpc.GrpcStatusCode;
+import com.google.api.gax.rpc.DeadlineExceededException;
 import com.google.bigtable.v2.PeerInfo.TransportType;
+import io.grpc.Status;
+import io.opencensus.tags.TagValue;
 import org.junit.jupiter.api.Test;
 
 class UtilTest {
   @Test
   void ensureAllTransportTypeHaveExpectedPrefix() {
     for (TransportType type : TransportType.values()) {
-      // Ensure that no variant throws an error
-      Util.transportTypeToString(type);
+      assertWithMessage("%s should have a mapping", type)
+          .that(Util.transportTypeToStringWithoutFallback(type))
+          .isNotNull();
     }
+  }
+
+  @Test
+  public void testOk() {
+    TagValue tagValue =
+        TagValue.create(
+            com.google.cloud.bigtable.data.v2.internal.csm.attributes.Util.extractStatus(null)
+                .name());
+    assertThat(tagValue.asString()).isEqualTo("OK");
+  }
+
+  @Test
+  public void testError() {
+    DeadlineExceededException error =
+        new DeadlineExceededException(
+            "Deadline exceeded", null, GrpcStatusCode.of(Status.Code.DEADLINE_EXCEEDED), true);
+    TagValue tagValue = TagValue.create(Util.extractStatus(error).name());
+    assertThat(tagValue.asString()).isEqualTo("DEADLINE_EXCEEDED");
   }
 }

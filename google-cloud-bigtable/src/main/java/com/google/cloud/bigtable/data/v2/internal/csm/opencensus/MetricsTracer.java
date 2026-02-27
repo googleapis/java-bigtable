@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.data.v2.stub.metrics;
+package com.google.cloud.bigtable.data.v2.internal.csm.opencensus;
 
 import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeDuration;
 
@@ -21,7 +21,9 @@ import com.google.api.core.ObsoleteApi;
 import com.google.api.gax.retrying.ServerStreamingAttemptException;
 import com.google.api.gax.tracing.ApiTracerFactory.OperationType;
 import com.google.api.gax.tracing.SpanName;
+import com.google.cloud.bigtable.data.v2.internal.csm.attributes.Util;
 import com.google.cloud.bigtable.data.v2.stub.MetadataExtractorInterceptor;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracer;
 import com.google.common.base.Stopwatch;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.StatsRecorder;
@@ -133,7 +135,7 @@ class MetricsTracer extends BigtableTracer {
         newTagCtxBuilder()
             .putLocal(
                 RpcMeasureConstants.BIGTABLE_STATUS,
-                TagValue.create(Util.extractStatus(throwable)));
+                TagValue.create(Util.extractStatus(throwable).name()));
 
     measures.record(tagCtx.build());
   }
@@ -191,7 +193,7 @@ class MetricsTracer extends BigtableTracer {
 
     if (sidebandData != null && sidebandData.getGfeTiming() != null) {
       measures
-          .put(RpcMeasureConstants.BIGTABLE_GFE_LATENCY, sidebandData.getGfeTiming())
+          .put(RpcMeasureConstants.BIGTABLE_GFE_LATENCY, sidebandData.getGfeTiming().toMillis())
           .put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 0L);
     } else {
       measures.put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 1L);
@@ -216,7 +218,7 @@ class MetricsTracer extends BigtableTracer {
         newTagCtxBuilder()
             .putLocal(
                 RpcMeasureConstants.BIGTABLE_STATUS,
-                TagValue.create(Util.extractStatus(throwable)));
+                TagValue.create(Util.extractStatus(throwable).name()));
 
     measures.record(tagCtx.build());
   }
