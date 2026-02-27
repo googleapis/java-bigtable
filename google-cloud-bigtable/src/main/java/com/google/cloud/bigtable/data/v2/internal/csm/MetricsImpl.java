@@ -23,13 +23,13 @@ import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.internal.csm.MetricRegistry.RecorderRegistry;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.ClientInfo;
-import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableCloudMonitoringExporter;
-import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants;
-import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTracerFactory;
-import com.google.cloud.bigtable.data.v2.stub.metrics.ChannelPoolMetricsTracer;
-import com.google.cloud.bigtable.data.v2.stub.metrics.CompositeTracerFactory;
-import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsTracerFactory;
-import com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants;
+import com.google.cloud.bigtable.data.v2.internal.csm.attributes.EnvInfo;
+import com.google.cloud.bigtable.data.v2.internal.csm.exporter.BigtableCloudMonitoringExporter;
+import com.google.cloud.bigtable.data.v2.internal.csm.opencensus.MetricsTracerFactory;
+import com.google.cloud.bigtable.data.v2.internal.csm.opencensus.RpcMeasureConstants;
+import com.google.cloud.bigtable.data.v2.internal.csm.tracers.BuiltinMetricsTracerFactory;
+import com.google.cloud.bigtable.data.v2.internal.csm.tracers.ChannelPoolMetricsTracer;
+import com.google.cloud.bigtable.data.v2.internal.csm.tracers.CompositeTracerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -41,10 +41,8 @@ import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
-import io.opentelemetry.sdk.metrics.InstrumentSelector;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
-import io.opentelemetry.sdk.metrics.View;
 import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 import io.opentelemetry.sdk.metrics.export.PeriodicMetricReaderBuilder;
@@ -52,7 +50,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import javax.annotation.Nullable;
@@ -72,6 +69,7 @@ public class MetricsImpl implements Metrics, Closeable {
   private final List<ScheduledFuture<?>> tasks = new ArrayList<>();
 
   public MetricsImpl(
+      MetricRegistry metricRegistry,
       ClientInfo clientInfo,
       ApiTracerFactory userTracerFactory,
       @Nullable OpenTelemetrySdk internalOtel,
@@ -79,7 +77,7 @@ public class MetricsImpl implements Metrics, Closeable {
       Tagger ocTagger,
       StatsRecorder ocRecorder,
       ScheduledExecutorService executor) {
-    metricRegistry = new MetricRegistry();
+    this.metricRegistry = metricRegistry;
     this.userTracerFactory = Preconditions.checkNotNull(userTracerFactory);
 
     this.internalOtel = internalOtel;
@@ -98,7 +96,7 @@ public class MetricsImpl implements Metrics, Closeable {
               // Disable default grpc metrics
               .disableAllMetrics()
               // Enable specific grpc metrics
-              .enableMetrics(BuiltinMetricsConstants.GRPC_METRICS.keySet())
+              .enableMetrics(metricRegistry.getGrpcMetricNames())
               .build();
     } else {
       this.grpcOtel = null;
@@ -168,6 +166,7 @@ public class MetricsImpl implements Metrics, Closeable {
   }
 
   public static OpenTelemetrySdk createBuiltinOtel(
+      MetricRegistry metricRegistry,
       ClientInfo clientInfo,
       @Nullable Credentials defaultCredentials,
       @Nullable String metricsEndpoint,
@@ -182,19 +181,14 @@ public class MetricsImpl implements Metrics, Closeable {
 
     SdkMeterProviderBuilder meterProvider = SdkMeterProvider.builder();
 
-    for (Map.Entry<InstrumentSelector, View> entry :
-        BuiltinMetricsConstants.getAllViews().entrySet()) {
-      meterProvider.registerView(entry.getKey(), entry.getValue());
-    }
-
-    for (Map.Entry<InstrumentSelector, View> e :
-        BuiltinMetricsConstants.getInternalViews().entrySet()) {
-      meterProvider.registerView(e.getKey(), e.getValue());
-    }
-
     MetricExporter publicExporter =
         BigtableCloudMonitoringExporter.create(
-            clientInfo, credentials, metricsEndpoint, universeDomain, executor);
+            metricRegistry,
+            EnvInfo::detect,
+            clientInfo,
+            credentials,
+            metricsEndpoint,
+            universeDomain);
     PeriodicMetricReaderBuilder readerBuilder =
         PeriodicMetricReader.builder(publicExporter).setExecutor(executor);
     meterProvider.registerMetricReader(readerBuilder.build());
@@ -208,10 +202,10 @@ public class MetricsImpl implements Metrics, Closeable {
             // Annotate traces with the same tags as metrics
             .put(
                 RpcMeasureConstants.BIGTABLE_PROJECT_ID.getName(),
-                clientInfo.getInstanceName().getProject())
+                clientInfo.getInstanceName().getProjectId())
             .put(
                 RpcMeasureConstants.BIGTABLE_INSTANCE_ID.getName(),
-                clientInfo.getInstanceName().getInstance())
+                clientInfo.getInstanceName().getInstanceId())
             .put(
                 RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID.getName(), clientInfo.getAppProfileId())
             // Also annotate traces with library versions
@@ -228,10 +222,10 @@ public class MetricsImpl implements Metrics, Closeable {
         ImmutableMap.<TagKey, TagValue>builder()
             .put(
                 RpcMeasureConstants.BIGTABLE_PROJECT_ID,
-                TagValue.create(clientInfo.getInstanceName().getProject()))
+                TagValue.create(clientInfo.getInstanceName().getProjectId()))
             .put(
                 RpcMeasureConstants.BIGTABLE_INSTANCE_ID,
-                TagValue.create(clientInfo.getInstanceName().getInstance()))
+                TagValue.create(clientInfo.getInstanceName().getInstanceId()))
             .put(
                 RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID,
                 TagValue.create(clientInfo.getAppProfileId()))
