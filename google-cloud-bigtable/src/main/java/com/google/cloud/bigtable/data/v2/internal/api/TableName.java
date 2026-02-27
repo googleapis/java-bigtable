@@ -60,7 +60,8 @@ public abstract class TableName {
         !parts.get(3).isEmpty(), "Invalid table name %s, must have an instance id", name);
     Preconditions.checkArgument(
         "tables".equals(parts.get(4)),
-        "Invalid table name: %s, must start with projects/$PROJECT_ID/instances/$INSTANCE_ID/tables",
+        "Invalid table name: %s, must start with"
+            + " projects/$PROJECT_ID/instances/$INSTANCE_ID/tables",
         name);
     Preconditions.checkArgument(
         !parts.get(5).isEmpty(), "Invalid table name %s, must have table id", name);
