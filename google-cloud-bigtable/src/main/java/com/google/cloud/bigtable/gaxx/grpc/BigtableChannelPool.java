@@ -17,6 +17,8 @@ package com.google.cloud.bigtable.gaxx.grpc;
 
 import com.google.api.core.InternalApi;
 import com.google.api.gax.grpc.ChannelFactory;
+import com.google.bigtable.v2.PeerInfo;
+import com.google.cloud.bigtable.data.v2.stub.MetadataExtractorInterceptor;
 import com.google.cloud.bigtable.gaxx.grpc.ChannelPoolHealthChecker.ProbeResult;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -543,7 +545,9 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
      * outstanding RPCs has to happen when the ClientCall is closed or the ClientCall failed to
      * start.
      */
-    @VisibleForTesting final AtomicReference<Boolean> isAltsHolder = new AtomicReference<>(null);
+    @VisibleForTesting
+    final AtomicReference<com.google.bigtable.v2.PeerInfo.TransportType> transportChannelHolder =
+        new AtomicReference<>(com.google.bigtable.v2.PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN);
 
     @VisibleForTesting final AtomicInteger errorCount = new AtomicInteger(0);
     @VisibleForTesting final AtomicInteger successCount = new AtomicInteger(0);
@@ -576,10 +580,22 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
       this.channel = channel;
     }
 
-    void checkAndSetIsAlts(ClientCall<?, ?> call) {
-      // TODO(populate ALTS holder)
-      boolean result = false;
-      isAltsHolder.compareAndSet(null, result);
+    void checkAndSetTransportType(Status status, CallOptions callOptions) {
+      // set to UNKNOWN if error
+      if (!status.isOk()) {
+        transportChannelHolder.set(
+            com.google.bigtable.v2.PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN);
+        return;
+      }
+      MetadataExtractorInterceptor.SidebandData sidebandData =
+          MetadataExtractorInterceptor.SidebandData.from(callOptions);
+
+      if (sidebandData != null) {
+        com.google.bigtable.v2.PeerInfo peerInfo = sidebandData.getPeerInfo();
+        if (peerInfo != null) {
+          transportChannelHolder.set(peerInfo.getTransportType());
+        }
+      }
     }
 
     ManagedChannel getManagedChannel() {
@@ -683,9 +699,8 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
     }
 
     @Override
-    public boolean isAltsChannel() {
-      Boolean val = isAltsHolder.get();
-      return val != null && val;
+    public PeerInfo.TransportType getTransportType() {
+      return transportChannelHolder.get();
     }
 
     void incrementErrorCount() {
@@ -717,7 +732,7 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
           methodDescriptor.getType() == MethodDescriptor.MethodType.SERVER_STREAMING;
       Entry entry = getRetainedEntry(index, isStreaming);
       return new ReleasingClientCall<>(
-          entry.channel.newCall(methodDescriptor, callOptions), entry, isStreaming);
+          entry.channel.newCall(methodDescriptor, callOptions), entry, isStreaming, callOptions);
     }
   }
 
@@ -726,13 +741,19 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
     @Nullable private CancellationException cancellationException;
     final Entry entry;
     private final boolean isStreaming;
+    private final CallOptions callOptions;
     private final AtomicBoolean wasClosed = new AtomicBoolean();
     private final AtomicBoolean wasReleased = new AtomicBoolean();
 
-    public ReleasingClientCall(ClientCall<ReqT, RespT> delegate, Entry entry, boolean isStreaming) {
+    public ReleasingClientCall(
+        ClientCall<ReqT, RespT> delegate,
+        Entry entry,
+        boolean isStreaming,
+        CallOptions callOptions) {
       super(delegate);
       this.entry = entry;
       this.isStreaming = isStreaming;
+      this.callOptions = callOptions;
     }
 
     @Override
@@ -741,12 +762,11 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
         throw new IllegalStateException("Call is already cancelled", cancellationException);
       }
       try {
-        entry.checkAndSetIsAlts(delegate());
-
         super.start(
             new SimpleForwardingClientCallListener<RespT>(responseListener) {
               @Override
               public void onClose(Status status, Metadata trailers) {
+                entry.checkAndSetTransportType(status, callOptions);
                 if (!wasClosed.compareAndSet(false, true)) {
                   LOG.log(
                       Level.WARNING,
