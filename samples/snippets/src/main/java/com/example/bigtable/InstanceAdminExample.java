@@ -107,7 +107,8 @@ public class InstanceAdminExample {
           CreateInstanceRequest.of(instanceId)
               .addCluster(clusterId, "us-central1-f", 3, StorageType.SSD)
               .setType(Instance.Type.PRODUCTION)
-              .addLabel("department", "accounting");
+              .addLabel("department", "accounting")
+              .addTag("tagKeys/12345", "tagValues/45678");
       // Creates a production instance with the given request.
       try {
         Instance instance = adminClient.createInstance(createInstanceRequest);
