@@ -548,12 +548,6 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
      * outstanding RPCs has to happen when the ClientCall is closed or the ClientCall failed to
      * start.
      */
-
-    /** this contains the PeerInfo field of the most recent rpc on this channel entry. */
-    @VisibleForTesting
-    volatile PeerInfo.TransportType transportType =
-            TRANSPORT_TYPE_UNKNOWN;
-
     @VisibleForTesting final AtomicInteger errorCount = new AtomicInteger(0);
     @VisibleForTesting final AtomicInteger successCount = new AtomicInteger(0);
     @VisibleForTesting final AtomicInteger outstandingUnaryRpcs = new AtomicInteger(0);
@@ -563,6 +557,11 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
     private final AtomicInteger maxOutstandingUnaryRpcs = new AtomicInteger();
     private final AtomicInteger maxOutstandingStreamingRpcs = new AtomicInteger();
 
+    /** this contains the PeerInfo field of the most recent rpc on this channel entry. */
+    @VisibleForTesting
+    volatile PeerInfo.TransportType transportType =
+            TRANSPORT_TYPE_UNKNOWN;
+    
     /** Queue storing the last 5 minutes of probe results */
     @VisibleForTesting
     final ConcurrentLinkedQueue<ProbeResult> probeHistory = new ConcurrentLinkedQueue<>();
