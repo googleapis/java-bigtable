@@ -697,7 +697,7 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
 
     @Override
     public PeerInfo.TransportType getTransportType() {
-      return transportChannelHolder.get();
+      return transportTypeHolder.get();
     }
 
     void incrementErrorCount() {
