@@ -118,10 +118,13 @@ class Converter {
     return builder.build();
   }
 
-  private Point convertPointData(MetricDataType type, PointData pointData) {
+  private Point convertPointData(MetricDataType type, PointData pointData, MetricKind metricKind) {
+    long startNanos =
+        metricKind == GAUGE ? pointData.getEpochNanos() : pointData.getStartEpochNanos();
+
     TimeInterval timeInterval =
         TimeInterval.newBuilder()
-            .setStartTime(Timestamps.fromNanos(pointData.getStartEpochNanos()))
+            .setStartTime(Timestamps.fromNanos(startNanos))
             .setEndTime(Timestamps.fromNanos(pointData.getEpochNanos()))
             .build();
 
