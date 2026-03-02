@@ -546,7 +546,7 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
      * start.
      */
     @VisibleForTesting
-    final AtomicReference<com.google.bigtable.v2.PeerInfo.TransportType> transportChannelHolder =
+    final AtomicReference<com.google.bigtable.v2.PeerInfo.TransportType> transportTypeHolder =
         new AtomicReference<>(com.google.bigtable.v2.PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN);
 
     @VisibleForTesting final AtomicInteger errorCount = new AtomicInteger(0);
@@ -580,21 +580,18 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
       this.channel = channel;
     }
 
-    void checkAndSetTransportType(Status status, CallOptions callOptions) {
-      // set to UNKNOWN if error
-      if (!status.isOk()) {
-        transportChannelHolder.set(
-            com.google.bigtable.v2.PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN);
-        return;
-      }
+    void checkAndSetTransportType(CallOptions callOptions) {
       MetadataExtractorInterceptor.SidebandData sidebandData =
           MetadataExtractorInterceptor.SidebandData.from(callOptions);
 
-      if (sidebandData != null) {
-        com.google.bigtable.v2.PeerInfo peerInfo = sidebandData.getPeerInfo();
-        if (peerInfo != null) {
-          transportChannelHolder.set(peerInfo.getTransportType());
-        }
+      // Set to the specific transport type if present, otherwise default to UNKNOWN
+      // we could check the Status and set it to unknown, but we might have PeerInfo with some non
+      // OK Status
+      if (sidebandData != null && sidebandData.getPeerInfo() != null) {
+        transportTypeHolder.set(sidebandData.getPeerInfo().getTransportType());
+      } else {
+        transportTypeHolder.set(
+            com.google.bigtable.v2.PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN);
       }
     }
 
@@ -766,7 +763,7 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
             new SimpleForwardingClientCallListener<RespT>(responseListener) {
               @Override
               public void onClose(Status status, Metadata trailers) {
-                entry.checkAndSetTransportType(status, callOptions);
+                entry.checkAndSetTransportType(callOptions);
                 if (!wasClosed.compareAndSet(false, true)) {
                   LOG.log(
                       Level.WARNING,
