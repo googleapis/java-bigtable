@@ -51,8 +51,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
-import static com.google.bigtable.v2.PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN;
-
 /**
  * A {@link ManagedChannel} that will send requests round-robin via a set of channels.
  *
@@ -560,8 +558,8 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
     /** this contains the PeerInfo field of the most recent rpc on this channel entry. */
     @VisibleForTesting
     volatile PeerInfo.TransportType transportType =
-            TRANSPORT_TYPE_UNKNOWN;
-    
+            PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN;
+
     /** Queue storing the last 5 minutes of probe results */
     @VisibleForTesting
     final ConcurrentLinkedQueue<ProbeResult> probeHistory = new ConcurrentLinkedQueue<>();
@@ -594,7 +592,7 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
       transportType = Optional.ofNullable(sidebandData)
               .map(MetadataExtractorInterceptor.SidebandData::getPeerInfo)
               .map(PeerInfo::getTransportType)
-              .orElse(TRANSPORT_TYPE_UNKNOWN);
+              .orElse(PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN);
     }
 
     ManagedChannel getManagedChannel() {
