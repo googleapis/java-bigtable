@@ -762,9 +762,9 @@ public final class BigtableInstanceAdminClient implements AutoCloseable {
    *
    * <p>Modifies the cluster's node count for manual scaling. If autoscaling is already enabled,
    * manual scaling will be silently ignored. If you wish to disable autoscaling and enable manual
-   * scaling, please use {@link BigtableInstanceAdminClient#disableClusterAutoscaling(String, String,
-   * int)} instead. Please note that only clusters that belong to a production instance can be
-   * resized.
+   * scaling, please use {@link BigtableInstanceAdminClient#disableClusterAutoscaling(String,
+   * String, int)} instead. Please note that only clusters that belong to a production instance can
+   * be resized.
    *
    * <p>Sample code:
    *
@@ -899,9 +899,9 @@ public final class BigtableInstanceAdminClient implements AutoCloseable {
    * This method is obsolete. For the recommended proto-based approach, please see {@link
    * com.google.cloud.bigtable.admin.v2.BaseBigtableInstanceAdminClient#partialUpdateClusterAsync(com.google.bigtable.admin.v2.PartialUpdateClusterRequest)}.
    *
-   * <p>Asynchronously disables autoscaling and enables manual scaling by setting a static node count
-   * for the cluster. Please note that only clusters that belong to a production instance can be
-   * resized.
+   * <p>Asynchronously disables autoscaling and enables manual scaling by setting a static node
+   * count for the cluster. Please note that only clusters that belong to a production instance can
+   * be resized.
    *
    * <p>Sample code:
    *
@@ -960,8 +960,8 @@ public final class BigtableInstanceAdminClient implements AutoCloseable {
    * This method is obsolete. For the recommended proto-based approach, please see {@link
    * com.google.cloud.bigtable.admin.v2.BaseBigtableInstanceAdminClient#deleteCluster(com.google.bigtable.admin.v2.DeleteClusterRequest)}.
    *
-   * <p>Asynchronously deletes the specified cluster. Please note that an instance must have at least 1
-   * cluster. To remove the last cluster, please use {@link
+   * <p>Asynchronously deletes the specified cluster. Please note that an instance must have at
+   * least 1 cluster. To remove the last cluster, please use {@link
    * BigtableInstanceAdminClient#deleteInstanceAsync(String)}.
    *
    * <p>Sample code:
@@ -1550,8 +1550,8 @@ public final class BigtableInstanceAdminClient implements AutoCloseable {
    * This method is obsolete. For the recommended proto-based approach, please see {@link
    * com.google.cloud.bigtable.admin.v2.BaseBigtableInstanceAdminClient#testIamPermissions(com.google.iam.v1.TestIamPermissionsRequest)}.
    *
-   * <p>Asynchronously tests whether the caller has the given permissions for the specified instance.
-   * Returns a subset of the specified permissions that the caller has.
+   * <p>Asynchronously tests whether the caller has the given permissions for the specified
+   * instance. Returns a subset of the specified permissions that the caller has.
    *
    * <p>Sample code:
    *

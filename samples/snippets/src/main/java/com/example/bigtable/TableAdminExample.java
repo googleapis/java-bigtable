@@ -160,7 +160,8 @@ public class TableAdminExample {
     // [START bigtable_get_table_metadata]
     // Gets table metadata, and applies a view to the table fields.
     try {
-      String tableName = "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
+      String tableName =
+          "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
       Table table = adminClient.getBaseClient().getTable(tableName);
       System.out.println("Table: " + table.getName());
       for (java.util.Map.Entry<String, ColumnFamily> entry :
@@ -187,7 +188,8 @@ public class TableAdminExample {
 
     // Creates column family with given GC rule.
     try {
-      String tableName = "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
+      String tableName =
+          "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
       ModifyColumnFamiliesRequest request =
           ModifyColumnFamiliesRequest.newBuilder()
               .setName(tableName)
@@ -217,7 +219,8 @@ public class TableAdminExample {
 
     // Creates column family with given GC rule.
     try {
-      String tableName = "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
+      String tableName =
+          "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
       ModifyColumnFamiliesRequest request =
           ModifyColumnFamiliesRequest.newBuilder()
               .setName(tableName)
@@ -251,7 +254,8 @@ public class TableAdminExample {
 
     // Creates column family with given GC rule.
     try {
-      String tableName = "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
+      String tableName =
+          "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
       ModifyColumnFamiliesRequest request =
           ModifyColumnFamiliesRequest.newBuilder()
               .setName(tableName)
@@ -284,7 +288,8 @@ public class TableAdminExample {
 
     // Creates column family with given GC rule.
     try {
-      String tableName = "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
+      String tableName =
+          "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
       ModifyColumnFamiliesRequest request =
           ModifyColumnFamiliesRequest.newBuilder()
               .setName(tableName)
@@ -316,14 +321,12 @@ public class TableAdminExample {
             .add(GcRuleBuilder.maxVersions(2))
             .build();
     GcRule unionRule =
-        GcRuleBuilder.union()
-            .add(intersectionRule)
-            .add(GcRuleBuilder.maxVersions(10))
-            .build();
+        GcRuleBuilder.union().add(intersectionRule).add(GcRuleBuilder.maxVersions(10)).build();
 
     // Creates column family with given GC rule.
     try {
-      String tableName = "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
+      String tableName =
+          "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
       ModifyColumnFamiliesRequest request =
           ModifyColumnFamiliesRequest.newBuilder()
               .setName(tableName)
@@ -347,7 +350,8 @@ public class TableAdminExample {
     // [START bigtable_list_column_families]
     // Lists all families in the table with GC rules.
     try {
-      String tableName = "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
+      String tableName =
+          "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
       Table table = adminClient.getBaseClient().getTable(tableName);
       for (java.util.Map.Entry<String, ColumnFamily> entry :
           table.getColumnFamiliesMap().entrySet()) {
@@ -369,7 +373,8 @@ public class TableAdminExample {
     // Updates a column family GC rule.
     GcRule versionRule = GcRuleBuilder.maxVersions(1);
     try {
-      String tableName = "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
+      String tableName =
+          "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
       ModifyColumnFamiliesRequest request =
           ModifyColumnFamiliesRequest.newBuilder()
               .setName(tableName)
@@ -391,7 +396,8 @@ public class TableAdminExample {
     System.out.printf("%nPrint updated GC rule for column family %s%n", COLUMN_FAMILY_1);
     // [START bigtable_family_get_gc_rule]
     try {
-      String tableName = "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
+      String tableName =
+          "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
       Table table = adminClient.getBaseClient().getTable(tableName);
       if (table.containsColumnFamilies(COLUMN_FAMILY_1)) {
         System.out.printf(
@@ -410,7 +416,8 @@ public class TableAdminExample {
     // [START bigtable_delete_family]
     // Deletes a column family.
     try {
-      String tableName = "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
+      String tableName =
+          "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
       ModifyColumnFamiliesRequest request =
           ModifyColumnFamiliesRequest.newBuilder()
               .setName(tableName)
@@ -433,7 +440,8 @@ public class TableAdminExample {
     // Deletes the entire table.
     System.out.println("\nDelete table: " + tableId);
     try {
-      String tableName = "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
+      String tableName =
+          "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
       adminClient.getBaseClient().deleteTable(tableName);
       System.out.printf("Table: %s deleted successfully%n", tableId);
     } catch (NotFoundException e) {

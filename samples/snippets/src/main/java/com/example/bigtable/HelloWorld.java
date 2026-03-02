@@ -268,7 +268,8 @@ public class HelloWorld {
     // [START bigtable_hw_delete_table]
     System.out.println("\nDeleting table: " + tableId);
     try {
-      String tableName = "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
+      String tableName =
+          "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId;
       adminClient.getBaseClient().deleteTable(tableName);
       System.out.printf("Table %s deleted successfully%n", tableId);
     } catch (NotFoundException e) {
