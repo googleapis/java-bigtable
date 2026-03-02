@@ -90,7 +90,7 @@ public class MetadataExtractorInterceptor implements ClientInterceptor {
 
     @Nullable
     public static SidebandData from(CallOptions callOptions) {
-      return callOptions == null ? null : callOptions.getOption(KEY);
+      return callOptions.getOption(KEY);
     }
 
     private static final Metadata.Key<String> SERVER_TIMING_HEADER_KEY =
