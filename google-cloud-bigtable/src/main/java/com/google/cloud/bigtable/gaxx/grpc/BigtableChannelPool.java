@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -49,6 +50,8 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
+
+import static com.google.bigtable.v2.PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN;
 
 /**
  * A {@link ManagedChannel} that will send requests round-robin via a set of channels.
@@ -545,9 +548,11 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
      * outstanding RPCs has to happen when the ClientCall is closed or the ClientCall failed to
      * start.
      */
+
+    /** this contains the PeerInfo field of the most recent rpc on this channel entry. */
     @VisibleForTesting
-    final AtomicReference<com.google.bigtable.v2.PeerInfo.TransportType> transportTypeHolder =
-        new AtomicReference<>(com.google.bigtable.v2.PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN);
+    volatile PeerInfo.TransportType transportType =
+            TRANSPORT_TYPE_UNKNOWN;
 
     @VisibleForTesting final AtomicInteger errorCount = new AtomicInteger(0);
     @VisibleForTesting final AtomicInteger successCount = new AtomicInteger(0);
@@ -580,19 +585,17 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
       this.channel = channel;
     }
 
-    void checkAndSetTransportType(CallOptions callOptions) {
+    void setTransportType(CallOptions callOptions) {
       MetadataExtractorInterceptor.SidebandData sidebandData =
           MetadataExtractorInterceptor.SidebandData.from(callOptions);
 
       // Set to the specific transport type if present, otherwise default to UNKNOWN
       // we could check the Status and set it to unknown, but we might have PeerInfo with some non
       // OK Status
-      if (sidebandData != null && sidebandData.getPeerInfo() != null) {
-        transportTypeHolder.set(sidebandData.getPeerInfo().getTransportType());
-      } else {
-        transportTypeHolder.set(
-            com.google.bigtable.v2.PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN);
-      }
+      transportType = Optional.ofNullable(sidebandData)
+              .map(MetadataExtractorInterceptor.SidebandData::getPeerInfo)
+              .map(PeerInfo::getTransportType)
+              .orElse(TRANSPORT_TYPE_UNKNOWN);
     }
 
     ManagedChannel getManagedChannel() {
@@ -697,7 +700,7 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
 
     @Override
     public PeerInfo.TransportType getTransportType() {
-      return transportTypeHolder.get();
+      return transportType;
     }
 
     void incrementErrorCount() {
@@ -762,8 +765,12 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
         super.start(
             new SimpleForwardingClientCallListener<RespT>(responseListener) {
               @Override
+              public void onHeaders(Metadata headers) {
+                entry.setTransportType(callOptions);
+                super.onHeaders(headers);
+              }
+              @Override
               public void onClose(Status status, Metadata trailers) {
-                entry.checkAndSetTransportType(callOptions);
                 if (!wasClosed.compareAndSet(false, true)) {
                   LOG.log(
                       Level.WARNING,
