@@ -547,6 +547,7 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
      * start.
      */
     @VisibleForTesting final AtomicInteger errorCount = new AtomicInteger(0);
+
     @VisibleForTesting final AtomicInteger successCount = new AtomicInteger(0);
     @VisibleForTesting final AtomicInteger outstandingUnaryRpcs = new AtomicInteger(0);
 
@@ -557,8 +558,7 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
 
     /** this contains the PeerInfo field of the most recent rpc on this channel entry. */
     @VisibleForTesting
-    volatile PeerInfo.TransportType transportType =
-            PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN;
+    volatile PeerInfo.TransportType transportType = PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN;
 
     /** Queue storing the last 5 minutes of probe results */
     @VisibleForTesting
@@ -589,7 +589,8 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
       // Set to the specific transport type if present, otherwise default to UNKNOWN
       // we could check the Status and set it to unknown, but we might have PeerInfo with some non
       // OK Status
-      transportType = Optional.ofNullable(sidebandData)
+      transportType =
+          Optional.ofNullable(sidebandData)
               .map(MetadataExtractorInterceptor.SidebandData::getPeerInfo)
               .map(PeerInfo::getTransportType)
               .orElse(PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN);
@@ -766,6 +767,7 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
                 entry.setTransportType(callOptions);
                 super.onHeaders(headers);
               }
+
               @Override
               public void onClose(Status status, Metadata trailers) {
                 if (!wasClosed.compareAndSet(false, true)) {
