@@ -33,7 +33,7 @@ public class Pacemaker implements Runnable {
 
   private Instant prev;
 
-  Pacemaker(RecorderRegistry registry, ClientInfo clientInfo, String name) {
+  public Pacemaker(RecorderRegistry registry, ClientInfo clientInfo, String name) {
     this.prev = Instant.now();
     this.registry = registry;
     this.clientInfo = clientInfo;
