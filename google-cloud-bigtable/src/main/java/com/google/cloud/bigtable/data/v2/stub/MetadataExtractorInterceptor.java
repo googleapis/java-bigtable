@@ -35,12 +35,15 @@ import io.grpc.Status;
 import io.grpc.alts.AltsContextUtil;
 import java.time.Duration;
 import java.util.Base64;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
 @InternalApi
 public class MetadataExtractorInterceptor implements ClientInterceptor {
+  static final Logger LOG = Logger.getLogger(MetadataExtractorInterceptor.class.getName());
+
   private final SidebandData sidebandData = new SidebandData();
 
   public GrpcCallContext injectInto(GrpcCallContext ctx) {
@@ -128,9 +131,14 @@ public class MetadataExtractorInterceptor implements ClientInterceptor {
     }
 
     void onResponseHeaders(Metadata md, Attributes attributes) {
+      LOG.info("Raw Response Metadata: " + md);
+      peerInfo = extractPeerInfo(md, gfeTiming, attributes);
+      // 3. Log the final resolved PeerInfo
       responseParams = extractResponseParams(md);
       gfeTiming = extractGfeLatency(md);
+      LOG.info("Extracted GFE Timing (server-timing): " + gfeTiming);
       peerInfo = extractPeerInfo(md, gfeTiming, attributes);
+      LOG.info("Final Resolved PeerInfo: " + peerInfo);
     }
 
     void onClose(Status status, Metadata trailers) {
@@ -157,7 +165,9 @@ public class MetadataExtractorInterceptor implements ClientInterceptor {
     private static PeerInfo extractPeerInfo(
         Metadata metadata, Duration gfeTiming, Attributes attributes) {
       String encodedStr = metadata.get(PEER_INFO_KEY);
+      LOG.info("Raw bigtable-peer-info header value: " + encodedStr);
       if (Strings.isNullOrEmpty(encodedStr)) {
+        LOG.info("bigtable-peer-info header was missing or empty. Returning null.");
         return null;
       }
 
@@ -165,14 +175,18 @@ public class MetadataExtractorInterceptor implements ClientInterceptor {
         byte[] decoded = Base64.getUrlDecoder().decode(encodedStr);
         PeerInfo peerInfo = PeerInfo.parseFrom(decoded);
         PeerInfo.TransportType effectiveTransport = peerInfo.getTransportType();
+        LOG.info("Parsed TransportType straight from protobuf: " + effectiveTransport);
 
         // TODO: remove this once transport_type is being sent by the server
         //  This is a temporary workaround to detect directpath until its available from the server
         if (effectiveTransport == PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN) {
+          LOG.info("TransportType was UNKNOWN. Fallback checking ALTS context: isAlts=" + isAlts);
           boolean isAlts = AltsContextUtil.check(attributes);
           if (isAlts) {
+            LOG.info("Fallback applied: Set to DIRECT_ACCESS based on ALTS.");
             effectiveTransport = PeerInfo.TransportType.TRANSPORT_TYPE_DIRECT_ACCESS;
           } else if (gfeTiming != null) {
+            LOG.info("Fallback applied: Set to CLOUD_PATH based on presence of gfeTiming.");
             effectiveTransport = PeerInfo.TransportType.TRANSPORT_TYPE_CLOUD_PATH;
           }
         }
