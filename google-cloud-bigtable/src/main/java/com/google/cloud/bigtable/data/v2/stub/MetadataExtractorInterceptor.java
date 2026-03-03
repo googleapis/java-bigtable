@@ -180,8 +180,8 @@ public class MetadataExtractorInterceptor implements ClientInterceptor {
         // TODO: remove this once transport_type is being sent by the server
         //  This is a temporary workaround to detect directpath until its available from the server
         if (effectiveTransport == PeerInfo.TransportType.TRANSPORT_TYPE_UNKNOWN) {
-          LOG.info("TransportType was UNKNOWN. Fallback checking ALTS context: isAlts=" + isAlts);
           boolean isAlts = AltsContextUtil.check(attributes);
+          LOG.info("TransportType was UNKNOWN. Fallback checking ALTS context: isAlts=" + isAlts);
           if (isAlts) {
             LOG.info("Fallback applied: Set to DIRECT_ACCESS based on ALTS.");
             effectiveTransport = PeerInfo.TransportType.TRANSPORT_TYPE_DIRECT_ACCESS;
