@@ -764,8 +764,8 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
             new SimpleForwardingClientCallListener<RespT>(responseListener) {
               @Override
               public void onHeaders(Metadata headers) {
-                entry.setTransportType(callOptions);
                 super.onHeaders(headers);
+                entry.setTransportType(callOptions);
               }
 
               @Override
