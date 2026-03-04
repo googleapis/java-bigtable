@@ -30,19 +30,6 @@ import java.util.concurrent.ScheduledExecutorService;
  * <pre>{@code
  * SdkMeterProviderBuilder sdkMeterProvider = SdkMeterProvider.builder();
  *
- * // Set up SdkMeterProvider for client side metrics
- * CustomOpenTelemetryMetricsProvider.setupSdkMeterProvider(sdkMeterProvider);
- *
- * // register other metrics reader and views
- * sdkMeterProvider.registerMetricReader(..);
- * sdkMeterProvider.registerView(..);
- *
- * // create the OTEL instance
- * OpenTelemetry openTelemetry = OpenTelemetrySdk
- *     .builder()
- *     .setMeterProvider(sdkMeterProvider.build())
- *     .build();
- *
  * // Override MetricsProvider in BigtableDataSettings
  * BigtableDataSettings settings = BigtableDataSettings.newBuilder()
  *   .setProjectId("my-project")
@@ -68,43 +55,43 @@ public final class CustomOpenTelemetryMetricsProvider implements MetricsProvider
   }
 
   /**
-   * Convenient method to set up SdkMeterProviderBuilder with the default credential and endpoint.
+   * @deprecated this is no longer needed and is now a no-op
    */
-  public static void setupSdkMeterProvider(SdkMeterProviderBuilder builder) throws IOException {
-    setupSdkMeterProvider(builder, null, null, null);
-  }
-
-  /** Convenient method to set up SdkMeterProviderBuilder with a custom credential. */
-  public static void setupSdkMeterProvider(SdkMeterProviderBuilder builder, Credentials credentials)
-      throws IOException {
-    setupSdkMeterProvider(builder, credentials, null, null);
-  }
-
-  /** Convenient method to set up SdkMeterProviderBuilder with a custom endpoint. */
-  public static void setupSdkMeterProvider(SdkMeterProviderBuilder builder, String endpoint)
-      throws IOException {
-    setupSdkMeterProvider(builder, null, endpoint, null);
-  }
-
-  /** Convenient method to set up SdkMeterProviderBuilder with custom credentials and endpoint. */
-  public static void setupSdkMeterProvider(
-      SdkMeterProviderBuilder builder, Credentials credentials, String endpoint)
-      throws IOException {
-    setupSdkMeterProvider(builder, credentials, endpoint, null);
-  }
+  @Deprecated
+  public static void setupSdkMeterProvider(SdkMeterProviderBuilder builder) throws IOException {}
 
   /**
-   * Convenient method to set up SdkMeterProviderBuilder with custom credentials, endpoint and a
-   * shared executor service.
+   * @deprecated this is no longer needed and is now a no-op
    */
+  @Deprecated
+  public static void setupSdkMeterProvider(SdkMeterProviderBuilder builder, Credentials credentials)
+      throws IOException {}
+
+  /**
+   * @deprecated this is no longer needed and is now a no-op
+   */
+  @Deprecated
+  public static void setupSdkMeterProvider(SdkMeterProviderBuilder builder, String endpoint)
+      throws IOException {}
+
+  /**
+   * @deprecated this is no longer needed and is now a no-op
+   */
+  @Deprecated
+  public static void setupSdkMeterProvider(
+      SdkMeterProviderBuilder builder, Credentials credentials, String endpoint)
+      throws IOException {}
+
+  /**
+   * @deprecated this is no longer needed and is now a no-op
+   */
+  @Deprecated
   public static void setupSdkMeterProvider(
       SdkMeterProviderBuilder builder,
       Credentials credentials,
       String endpoint,
       ScheduledExecutorService executor)
-      throws IOException {
-    BuiltinMetricsView.registerBuiltinMetrics(credentials, builder, endpoint, executor);
-  }
+      throws IOException {}
 
   @Override
   public String toString() {

@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>google-cloud-bigtable</artifactId>
-  <version>2.73.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+  <version>2.74.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
   <packaging>jar</packaging>
   <name>Google Cloud Bigtable</name>
   <url>https://github.com/googleapis/java-bigtable</url>
@@ -12,11 +12,11 @@
   <parent>
     <groupId>com.google.cloud</groupId>
     <artifactId>google-cloud-bigtable-parent</artifactId>
-    <version>2.73.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+    <version>2.74.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
   </parent>
   <properties>
     <!-- The version that will be embedded in the published jar via maven-resources-plugin -->
-    <java-bigtable.version>2.73.1-SNAPSHOT</java-bigtable.version><!-- {x-version-update:google-cloud-bigtable:current} -->
+    <java-bigtable.version>2.74.1-SNAPSHOT</java-bigtable.version><!-- {x-version-update:google-cloud-bigtable:current} -->
 
     <site.installationModule>google-cloud-bigtable</site.installationModule>
 
@@ -45,8 +45,8 @@
     <bigtable.cfe-data-batch-endpoint>batch-bigtable.googleapis.com:443</bigtable.cfe-data-batch-endpoint>
 
     <!-- These are needed to compile the protobuf used by Changestream merging acceptance test. -->
-    <test-protoc-grpc.version>1.65.0</test-protoc-grpc.version>
-    <test-protoc.version>3.25.5</test-protoc.version>
+    <test-protoc-grpc.version>1.76.3</test-protoc-grpc.version>
+    <test-protoc.version>4.33.2</test-protoc.version>
   </properties>
 
   <dependencyManagement>
@@ -54,14 +54,14 @@
       <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-bigtable-deps-bom</artifactId>
-        <version>2.73.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+        <version>2.74.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-bigtable-bom</artifactId>
-        <version>2.73.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+        <version>2.74.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -137,17 +137,12 @@
       <artifactId>protobuf-java-util</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-    </dependency>
-    <dependency>
       <groupId>io.opencensus</groupId>
       <artifactId>opencensus-api</artifactId>
     </dependency>
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-alts</artifactId>
-      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.checkerframework</groupId>
@@ -261,6 +256,11 @@
 
     <!-- Test dependencies -->
     <dependency>
+      <groupId>com.google.api.grpc</groupId>
+      <artifactId>grpc-google-cloud-monitoring-v3</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.google.api</groupId>
       <artifactId>gax</artifactId>
       <classifier>testlib</classifier>
@@ -344,8 +344,23 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

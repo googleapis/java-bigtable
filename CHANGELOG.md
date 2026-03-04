@@ -1,5 +1,36 @@
 # Changelog
 
+## [2.74.0](https://github.com/googleapis/java-bigtable/compare/v2.73.1...v2.74.0) (2026-03-02)
+
+
+### Features
+
+* Add awaitOptimizeRestoredTable helper for Bigtable Admin ([#2781](https://github.com/googleapis/java-bigtable/issues/2781)) ([cf15d45](https://github.com/googleapis/java-bigtable/commit/cf15d45a8f4c0ee385d3e53a0bae153ee1064999))
+* Add TieredStorageConfig to table admin api ([f05a1a3](https://github.com/googleapis/java-bigtable/commit/f05a1a3b0bb730e62c349dc8a7a1a82b0cf00fa7))
+* **Bigtable:** Add support for creating instances with tags ([#2733](https://github.com/googleapis/java-bigtable/issues/2733)) ([bc46174](https://github.com/googleapis/java-bigtable/commit/bc461749a0aa702f65c26774dd4696d47ef88eae))
+* Expose generated GAPIC admin client and freeze legacy surface ([#2806](https://github.com/googleapis/java-bigtable/issues/2806)) ([c620710](https://github.com/googleapis/java-bigtable/commit/c62071092d67f8ccfebe3166ca826fb001c76e28))
+
+
+### Bug Fixes
+
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.67.0 ([f05a1a3](https://github.com/googleapis/java-bigtable/commit/f05a1a3b0bb730e62c349dc8a7a1a82b0cf00fa7))
+* Ensure that per attempt metrics tracer is below the retries ([#2793](https://github.com/googleapis/java-bigtable/issues/2793)) ([1f39032](https://github.com/googleapis/java-bigtable/commit/1f390328b23855ee39e2c3dacf8a0eed8d962b08))
+
+
+### Dependencies
+
+* Update shared dependencies ([#2814](https://github.com/googleapis/java-bigtable/issues/2814)) ([dde68fe](https://github.com/googleapis/java-bigtable/commit/dde68fe0ee5c5a491a5ae5382babea57e901605c))
+
+## [2.73.1](https://github.com/googleapis/java-bigtable/compare/v2.73.0...v2.73.1) (2026-02-17)
+
+
+### Bug Fixes
+
+* **bigtable:** Drop redudant fields from internal otel metrics which are already in monitored resource ([#2783](https://github.com/googleapis/java-bigtable/issues/2783)) ([f45bb0e](https://github.com/googleapis/java-bigtable/commit/f45bb0e30343f08a90b1c7e30107ba7e0ae8e23a))
+* Fix skip large row ([#2785](https://github.com/googleapis/java-bigtable/issues/2785)) ([504bb51](https://github.com/googleapis/java-bigtable/commit/504bb512ff6d7c0ab6dd86785f0b255a2d910dbd))
+* Test proxy doesn't return "http2 excpetion" for long errors ([#2775](https://github.com/googleapis/java-bigtable/issues/2775)) ([dafe647](https://github.com/googleapis/java-bigtable/commit/dafe647ab7877f65b5d73e2a6519f71e6eb03f77))
+* Use StatusProto.fromThrowable for ApiException in test-proxy ([#2778](https://github.com/googleapis/java-bigtable/issues/2778)) ([de1669e](https://github.com/googleapis/java-bigtable/commit/de1669e882b814ff1708d2b74e62540f5bcd3dbf))
+
 ## [2.73.0](https://github.com/googleapis/java-bigtable/compare/v2.72.0...v2.73.0) (2026-02-06)
 
 
