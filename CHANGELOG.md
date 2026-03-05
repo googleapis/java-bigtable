@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.75.0](https://github.com/googleapis/java-bigtable/compare/v2.74.0...v2.75.0) (2026-03-05)
+
+
+### Features
+
+* Expose generated GAPIC instance admin client ([#2828](https://github.com/googleapis/java-bigtable/issues/2828)) ([7c42799](https://github.com/googleapis/java-bigtable/commit/7c42799d45dbefb172c567ab6242f2a6f27a1eba))
+
+
+### Bug Fixes
+
+* **bigtable:** Add gauge handling ([#2830](https://github.com/googleapis/java-bigtable/issues/2830)) ([915733b](https://github.com/googleapis/java-bigtable/commit/915733bbaf21626c87bb868070087c382ba0932e))
+* **bigtable:** Plumb transport type correctly ([#2824](https://github.com/googleapis/java-bigtable/issues/2824)) ([d25f39c](https://github.com/googleapis/java-bigtable/commit/d25f39c1f46263bd635731aa37ba71374c64c31c))
+
+
+### Documentation
+
+* **bigtable:** Expose Base Admin Clients in Javadoc ([#2833](https://github.com/googleapis/java-bigtable/issues/2833)) ([2933ef6](https://github.com/googleapis/java-bigtable/commit/2933ef6419ec6ec6e3220a6bab03bb0c2cf7cd0d))
+
 ## [2.74.0](https://github.com/googleapis/java-bigtable/compare/v2.73.1...v2.74.0) (2026-03-02)
 
 
