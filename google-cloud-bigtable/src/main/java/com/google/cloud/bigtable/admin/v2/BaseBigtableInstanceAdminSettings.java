@@ -194,6 +194,11 @@ public class BaseBigtableInstanceAdminSettings
     return ((BigtableInstanceAdminStubSettings) getStubSettings()).listInstancesSettings();
   }
 
+  /** Returns the object with the settings used for calls to updateInstance. */
+  public UnaryCallSettings<Instance, Instance> updateInstanceSettings() {
+    return ((BigtableInstanceAdminStubSettings) getStubSettings()).updateInstanceSettings();
+  }
+
   /** Returns the object with the settings used for calls to partialUpdateInstance. */
   public UnaryCallSettings<PartialUpdateInstanceRequest, Operation>
       partialUpdateInstanceSettings() {
@@ -524,6 +529,11 @@ public class BaseBigtableInstanceAdminSettings
     public UnaryCallSettings.Builder<ListInstancesRequest, ListInstancesResponse>
         listInstancesSettings() {
       return getStubSettingsBuilder().listInstancesSettings();
+    }
+
+    /** Returns the builder for the settings used for calls to updateInstance. */
+    public UnaryCallSettings.Builder<Instance, Instance> updateInstanceSettings() {
+      return getStubSettingsBuilder().updateInstanceSettings();
     }
 
     /** Returns the builder for the settings used for calls to partialUpdateInstance. */
