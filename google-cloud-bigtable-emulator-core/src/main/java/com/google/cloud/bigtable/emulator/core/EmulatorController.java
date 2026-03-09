@@ -49,7 +49,6 @@ public class EmulatorController {
   private boolean isStopped = true;
   private Thread shutdownHook;
 
-
   private int port;
 
   public static EmulatorController createFromPath(Path path) {
