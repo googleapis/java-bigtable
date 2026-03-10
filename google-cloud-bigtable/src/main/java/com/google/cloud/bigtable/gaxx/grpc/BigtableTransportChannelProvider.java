@@ -206,6 +206,12 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
       selectedProvider = (InstantiatingGrpcChannelProvider) delegate.withHeaders(fallbackHeaders);
     }
 
+
+    if (maybeDirectAccessChannel instanceof ManagedChannel) {
+      // call shutdown
+      ((ManagedChannel) maybeDirectAccessChannel).shutdownNow();
+    }
+
     // This provider's main purpose is to replace the default GAX ChannelPool
     // with a custom BigtableChannelPool, reusing the delegate's configuration.
 
@@ -259,7 +265,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
     InstantiatingGrpcChannelProvider newChannelProvider =
         (InstantiatingGrpcChannelProvider) delegate.withCredentials(credentials);
     return new BigtableTransportChannelProvider(
-        newChannelProvider, channelPrimer, channelPoolMetricsTracer, backgroundExecutor, );
+        newChannelProvider, channelPrimer, channelPoolMetricsTracer, backgroundExecutor, headers);
   }
 
   /** Creates a BigtableTransportChannelProvider. */

@@ -29,10 +29,10 @@ import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
 import io.grpc.Deadline;
-import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.auth.MoreCallCredentials;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
