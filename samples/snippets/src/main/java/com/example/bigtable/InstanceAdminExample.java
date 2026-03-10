@@ -87,7 +87,7 @@ public class InstanceAdminExample {
 
   public void run() {
     createProdInstance();
-    /* * OPTIONAL: Testing with Tags
+    /* * OPTIONAL: Testing with tags
      * If you want to test creating an instance with resource tags, comment out
      * createProdInstance() above and uncomment createProdInstanceWithTags() below.
      */
