@@ -106,7 +106,7 @@ public class InstanceAdminExample {
     adminClient.close();
   }
 
-  /** Demonstrates how to create a Production instance within a provided project. */
+  /** Demonstrates how to create an instance within a provided project. */
   public void createProdInstance() {
     // Checks if instance exists, creates instance if does not exists.
     if (!adminClient.exists(instanceId)) {
@@ -149,17 +149,17 @@ public class InstanceAdminExample {
   /**
    * Demonstrates how to create a Production instance within a provided project with tags.
    *
-   * <p>Tags are a way to organize and govern resources across Google Cloud, see:
-   * https://cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing
+   * <p>Tags are a way to organize and govern resources across Google Cloud, see
+   * [Creating and managing tags](https://cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing)
    *
    *
-   * NOTE: Unlike Labels, a Tag (Key and Value) must be created before it can be
+   * NOTE: Unlike labels, a tag (Key and Value) must be created before it can be
    * attached to a resource.
-   * See: https://cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing and
-   * https://docs.cloud.google.com/bigtable/docs/tags for more information.
+   * See [Creating and managing tags](https://cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing)
+   * and [Tags overview](https://docs.cloud.google.com/bigtable/docs/tags) for more information.
    */
   public void createProdInstanceWithTags() {
-    // Checks if instance exists, creates instance if does not exists.
+    // Creates an instance if it doesn't exist.
     if (!adminClient.exists(instanceId)) {
       System.out.println("Instance does not exist, creating a PRODUCTION instance with tags");
 
