@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,12 @@
  */
 package com.google.cloud.bigtable.gaxx.grpc;
 
-import com.google.api.core.ApiFuture;
 import com.google.api.core.InternalApi;
-import com.google.bigtable.v2.PingAndWarmResponse;
 import io.grpc.Channel;
-import io.grpc.ManagedChannel;
 
-@InternalApi("For internal use by google-cloud-java clients only")
-public interface ChannelPrimer {
-  @Deprecated
-  default void primeChannel(ManagedChannel channel) {
-    primeChannel((Channel) channel);
-  }
-
-  void primeChannel(Channel channel);
-
-  @Deprecated
-  default ApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(ManagedChannel channel) {
-    return sendPrimeRequestsAsync((Channel) channel);
-  }
-  ApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(Channel channel);
+@InternalApi
+/* Evaluates whether a given channel supports Direct Access. */
+public interface DirectAccessChecker {
+    /// Performs a request on the provided channel to check for Direct Access eligibility.
+    boolean check(Channel channel );
 }
