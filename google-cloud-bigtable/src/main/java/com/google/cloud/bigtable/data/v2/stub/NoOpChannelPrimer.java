@@ -16,11 +16,11 @@
 package com.google.cloud.bigtable.data.v2.stub;
 
 import com.google.api.core.ApiFuture;
+import com.google.api.core.ApiFutures;
 import com.google.api.core.InternalApi;
-import com.google.api.core.SettableApiFuture;
 import com.google.bigtable.v2.PingAndWarmResponse;
 import com.google.cloud.bigtable.gaxx.grpc.ChannelPrimer;
-import io.grpc.ManagedChannel;
+import io.grpc.Channel;
 
 @InternalApi
 public class NoOpChannelPrimer implements ChannelPrimer {
@@ -31,14 +31,12 @@ public class NoOpChannelPrimer implements ChannelPrimer {
   private NoOpChannelPrimer() {}
 
   @Override
-  public void primeChannel(ManagedChannel channel) {
+  public void primeChannel(Channel channel) {
     // No op
   }
 
   @Override
-  public ApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(ManagedChannel channel) {
-    SettableApiFuture future = SettableApiFuture.create();
-    future.set(PingAndWarmResponse.getDefaultInstance());
-    return future;
+  public ApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(Channel channel) {
+    return ApiFutures.immediateFuture(PingAndWarmResponse.getDefaultInstance());
   }
 }
