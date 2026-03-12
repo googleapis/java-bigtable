@@ -31,6 +31,8 @@ import com.google.cloud.bigtable.data.v2.internal.csm.opencensus.RpcMeasureConst
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.BuiltinMetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.ChannelPoolMetricsTracer;
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.CompositeTracerFactory;
+import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DefaultDirectPathCompatibleTracer;
+import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DirectPathCompatibleTracer;
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.Pacemaker;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -67,6 +69,7 @@ public class MetricsImpl implements Metrics, Closeable {
 
   @Nullable private final GrpcOpenTelemetry grpcOtel;
   @Nullable private final ChannelPoolMetricsTracer channelPoolMetricsTracer;
+  @Nullable private final DirectPathCompatibleTracer directPathCompatibleTracer;
   @Nullable private final Pacemaker pacemaker;
   private final List<ScheduledFuture<?>> tasks = new ArrayList<>();
 
@@ -94,6 +97,7 @@ public class MetricsImpl implements Metrics, Closeable {
       this.internalRecorder = metricRegistry.newRecorderRegistry(internalOtel.getMeterProvider());
       this.pacemaker = new Pacemaker(internalRecorder, clientInfo, "background");
       this.channelPoolMetricsTracer = new ChannelPoolMetricsTracer(internalRecorder, clientInfo);
+      this.directPathCompatibleTracer = new DefaultDirectPathCompatibleTracer(clientInfo, internalRecorder);
       this.grpcOtel =
           GrpcOpenTelemetry.newBuilder()
               .sdk(internalOtel)
@@ -109,6 +113,7 @@ public class MetricsImpl implements Metrics, Closeable {
       this.grpcOtel = null;
       this.pacemaker = null;
       this.channelPoolMetricsTracer = null;
+      this.directPathCompatibleTracer = null;
     }
 
     if (userOtel != null) {
@@ -169,6 +174,12 @@ public class MetricsImpl implements Metrics, Closeable {
   @Nullable
   public ChannelPoolMetricsTracer getChannelPoolMetricsTracer() {
     return channelPoolMetricsTracer;
+  }
+
+  @Nullable
+  @Override
+  public DirectPathCompatibleTracer getDirectPathCompatibleTracer() {
+    return directPathCompatibleTracer;
   }
 
   public static OpenTelemetrySdk createBuiltinOtel(
