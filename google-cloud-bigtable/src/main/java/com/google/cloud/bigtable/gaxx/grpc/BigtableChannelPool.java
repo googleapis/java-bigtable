@@ -16,8 +16,8 @@
 package com.google.cloud.bigtable.gaxx.grpc;
 
 import com.google.api.core.InternalApi;
-import com.google.api.gax.grpc.ChannelFactory;
 import com.google.bigtable.v2.PeerInfo;
+import com.google.cloud.bigtable.data.v2.stub.BigtableChannelFactory;
 import com.google.cloud.bigtable.data.v2.stub.MetadataExtractorInterceptor;
 import com.google.cloud.bigtable.gaxx.grpc.ChannelPoolHealthChecker.ProbeResult;
 import com.google.common.annotations.VisibleForTesting;
@@ -67,7 +67,7 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
   private static final java.time.Duration REFRESH_PERIOD = java.time.Duration.ofMinutes(50);
 
   private final BigtableChannelPoolSettings settings;
-  private final ChannelFactory channelFactory;
+  private final BigtableChannelFactory channelFactory;
 
   private final ChannelPrimer channelPrimer;
   private final Object entryWriteLock = new Object();
@@ -81,7 +81,7 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
 
   public static BigtableChannelPool create(
       BigtableChannelPoolSettings settings,
-      ChannelFactory channelFactory,
+      BigtableChannelFactory channelFactory,
       ChannelPrimer channelPrimer,
       ScheduledExecutorService backgroundExecutor)
       throws IOException {
@@ -98,7 +98,7 @@ public class BigtableChannelPool extends ManagedChannel implements BigtableChann
   @VisibleForTesting
   BigtableChannelPool(
       BigtableChannelPoolSettings settings,
-      ChannelFactory channelFactory,
+      BigtableChannelFactory channelFactory,
       ChannelPrimer channelPrimer,
       ScheduledExecutorService executor)
       throws IOException {

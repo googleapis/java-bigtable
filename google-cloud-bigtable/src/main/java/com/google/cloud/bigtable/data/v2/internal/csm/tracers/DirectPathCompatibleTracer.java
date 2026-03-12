@@ -13,14 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.gaxx.grpc;
+package com.google.cloud.bigtable.data.v2.internal.csm.tracers;
 
 import com.google.api.core.InternalApi;
-import io.grpc.Channel;
 
+/**
+ * Interface for recording DirectPath/DirectAccess eligibility metrics.
+ */
 @InternalApi
-/* Evaluates whether a given channel supports Direct Access. */
-public interface DirectAccessChecker {
-    /// Performs a request on the provided channel to check for Direct Access eligibility.
-    boolean check(Channel channel );
+public interface DirectPathCompatibleTracer {
+
+    /**
+     * Records that the environment is eligible and successfully connected via DirectPath.
+     *
+     * @param ipPreference The IP preference used (e.g., "ipv6").
+     */
+    void recordSuccess(String ipPreference);
+
+    /**
+     * Records that the environment is not eligible or failed to connect via DirectPath.
+     *
+     * @param reason The reason for the failure (e.g., "routing_check_failed").
+     */
+    void recordFailure(String reason);
 }

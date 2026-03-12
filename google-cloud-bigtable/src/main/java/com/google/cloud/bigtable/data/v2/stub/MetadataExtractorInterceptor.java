@@ -29,10 +29,16 @@ import io.grpc.ClientInterceptor;
 import io.grpc.ClientInterceptors;
 import io.grpc.ForwardingClientCall;
 import io.grpc.ForwardingClientCallListener;
+import io.grpc.Grpc;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
 import io.grpc.alts.AltsContextUtil;
+
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.regex.Matcher;
@@ -85,6 +91,12 @@ public class MetadataExtractorInterceptor implements ClientInterceptor {
   }
 
   public static class SidebandData {
+    public enum IpProtocol {
+      IPV4,
+      IPV6,
+      UNKNOWN
+    }
+
     private static final CallOptions.Key<SidebandData> KEY =
         CallOptions.Key.create("bigtable-sideband");
 
@@ -105,6 +117,7 @@ public class MetadataExtractorInterceptor implements ClientInterceptor {
     @Nullable private volatile ResponseParams responseParams;
     @Nullable private volatile PeerInfo peerInfo;
     @Nullable private volatile Duration gfeTiming;
+    @Nullable private volatile IpProtocol ipProtocol;
 
     @Nullable
     public ResponseParams getResponseParams() {
@@ -121,22 +134,43 @@ public class MetadataExtractorInterceptor implements ClientInterceptor {
       return gfeTiming;
     }
 
+    @Nullable
+    public IpProtocol getIpProtocol() {
+      return ipProtocol;
+    }
+
     private void reset() {
       responseParams = null;
       peerInfo = null;
       gfeTiming = null;
+      ipProtocol = IpProtocol.UNKNOWN;
     }
 
     void onResponseHeaders(Metadata md, Attributes attributes) {
       responseParams = extractResponseParams(md);
       gfeTiming = extractGfeLatency(md);
       peerInfo = extractPeerInfo(md, gfeTiming, attributes);
+      ipProtocol = extractIpProtocol(attributes);
     }
 
     void onClose(Status status, Metadata trailers) {
       if (responseParams == null) {
         responseParams = extractResponseParams(trailers);
       }
+    }
+
+    @Nullable
+    private static IpProtocol extractIpProtocol(Attributes attributes) {
+      SocketAddress remoteAddr = attributes.get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
+      if (remoteAddr instanceof InetSocketAddress) {
+        InetSocketAddress inetAddr = (InetSocketAddress) remoteAddr;
+        if (inetAddr.getAddress() instanceof Inet4Address) {
+          return IpProtocol.IPV4;
+        } else if (inetAddr.getAddress() instanceof Inet6Address) {
+          return IpProtocol.IPV6;
+        }
+      }
+      return IpProtocol.UNKNOWN;
     }
 
     @Nullable

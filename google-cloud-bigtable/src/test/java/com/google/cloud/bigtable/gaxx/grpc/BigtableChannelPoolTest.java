@@ -19,7 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.google.api.gax.grpc.ChannelFactory;
+import com.google.cloud.bigtable.data.v2.stub.BigtableChannelFactory;
 import com.google.common.collect.Iterables;
 import io.grpc.CallOptions;
 import io.grpc.ClientCall;
@@ -48,7 +48,7 @@ import org.mockito.junit.MockitoRule;
 public class BigtableChannelPoolTest {
   @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
-  @Mock private ChannelFactory mockChannelFactory;
+  @Mock private BigtableChannelFactory mockChannelFactory;
   @Mock private ChannelPrimer mockChannelPrimer;
   @Mock private ManagedChannel mockChannel;
   @Mock private ClientCall<String, String> mockClientCall;

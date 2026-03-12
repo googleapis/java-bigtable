@@ -634,12 +634,16 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
       perOpSettings = new ClientOperationSettings.Builder();
 
+      // Note: RouteLookup evaluates and returns directpath targets
+      // only if Traffic Director sends the request (with grpc as target type)
+      // For GFE/CFE, sending setDirectAccessRequested
+      // is fine as GFE/CFE sends with gslb target type
       featureFlags =
           FeatureFlags.newBuilder()
               .setReverseScans(true)
               .setLastScannedRowResponses(true)
-              .setDirectAccessRequested(DIRECT_PATH_ENABLED)
-              .setTrafficDirectorEnabled(DIRECT_PATH_ENABLED)
+              .setDirectAccessRequested(true)
+              .setTrafficDirectorEnabled(true)
               .setPeerInfo(true);
     }
 
