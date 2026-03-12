@@ -166,8 +166,8 @@ public class BigtableClientContext {
               transportProvider.build(),
               channelPrimer,
               metrics.getChannelPoolMetricsTracer(),
-              backgroundExecutor,               metrics.getDirectPathCompatibleTracer()
-                  );
+              backgroundExecutor,
+              metrics.getDirectPathCompatibleTracer());
 
       builder.setTransportChannelProvider(btTransportProvider);
     }

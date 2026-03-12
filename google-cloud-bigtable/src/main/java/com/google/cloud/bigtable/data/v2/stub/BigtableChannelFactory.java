@@ -17,10 +17,9 @@ package com.google.cloud.bigtable.data.v2.stub;
 
 import com.google.api.core.InternalApi;
 import io.grpc.ManagedChannel;
-
 import java.io.IOException;
 
 @InternalApi
 public interface BigtableChannelFactory {
-    ManagedChannel createSingleChannel() throws IOException;
+  ManagedChannel createSingleChannel() throws IOException;
 }
