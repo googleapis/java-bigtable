@@ -34,5 +34,6 @@ public interface ChannelPrimer {
   default ApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(ManagedChannel channel) {
     return sendPrimeRequestsAsync((Channel) channel);
   }
+
   ApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(Channel channel);
 }

@@ -21,22 +21,22 @@ import com.google.cloud.bigtable.data.v2.internal.csm.attributes.ClientInfo;
 
 @InternalApi
 public class DefaultDirectPathCompatibleTracer implements DirectPathCompatibleTracer {
-    private final ClientInfo clientInfo;
-    private final MetricRegistry.RecorderRegistry recorder;
+  private final ClientInfo clientInfo;
+  private final MetricRegistry.RecorderRegistry recorder;
 
-    public DefaultDirectPathCompatibleTracer(
-            ClientInfo clientInfo, MetricRegistry.RecorderRegistry recorder) {
-        this.clientInfo = clientInfo;
-        this.recorder = recorder;
-    }
+  public DefaultDirectPathCompatibleTracer(
+      ClientInfo clientInfo, MetricRegistry.RecorderRegistry recorder) {
+    this.clientInfo = clientInfo;
+    this.recorder = recorder;
+  }
 
-    @Override
-    public void recordSuccess(String ipPreference) {
-        recorder.dpCompatGuage.recordSuccess(clientInfo, ipPreference);
-    }
+  @Override
+  public void recordSuccess(String ipPreference) {
+    recorder.dpCompatGuage.recordSuccess(clientInfo, ipPreference);
+  }
 
-    @Override
-    public void recordFailure(String reason) {
-        recorder.dpCompatGuage.recordFailure(clientInfo, reason);
-    }
+  @Override
+  public void recordFailure(String reason) {
+    recorder.dpCompatGuage.recordFailure(clientInfo, reason);
+  }
 }

@@ -97,7 +97,8 @@ public class MetricsImpl implements Metrics, Closeable {
       this.internalRecorder = metricRegistry.newRecorderRegistry(internalOtel.getMeterProvider());
       this.pacemaker = new Pacemaker(internalRecorder, clientInfo, "background");
       this.channelPoolMetricsTracer = new ChannelPoolMetricsTracer(internalRecorder, clientInfo);
-      this.directPathCompatibleTracer = new DefaultDirectPathCompatibleTracer(clientInfo, internalRecorder);
+      this.directPathCompatibleTracer =
+          new DefaultDirectPathCompatibleTracer(clientInfo, internalRecorder);
       this.grpcOtel =
           GrpcOpenTelemetry.newBuilder()
               .sdk(internalOtel)

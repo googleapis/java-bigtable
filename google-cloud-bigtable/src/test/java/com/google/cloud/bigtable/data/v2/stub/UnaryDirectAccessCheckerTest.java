@@ -37,98 +37,101 @@ import org.mockito.junit.MockitoRule;
 @RunWith(JUnit4.class)
 public class UnaryDirectAccessCheckerTest {
 
-    @Rule public final MockitoRule mockito = MockitoJUnit.rule();
+  @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
-    @Mock private ChannelPrimer mockChannelPrimer;
-    @Mock private BigtableChannelFactory mockChannelFactory;
-    @Mock private DirectPathCompatibleTracer mockTracer;
-    @Mock private ManagedChannel mockChannel;
-    @Mock private MetadataExtractorInterceptor.SidebandData mockSidebandData;
+  @Mock private ChannelPrimer mockChannelPrimer;
+  @Mock private BigtableChannelFactory mockChannelFactory;
+  @Mock private DirectPathCompatibleTracer mockTracer;
+  @Mock private ManagedChannel mockChannel;
+  @Mock private MetadataExtractorInterceptor.SidebandData mockSidebandData;
 
-    private UnaryDirectAccessChecker checker;
+  private UnaryDirectAccessChecker checker;
 
-    @Before
-    public void setUp() throws Exception {
-        checker = UnaryDirectAccessChecker.create(mockChannelPrimer);
-        when(mockChannelFactory.createSingleChannel()).thenReturn(mockChannel);
+  @Before
+  public void setUp() throws Exception {
+    checker = UnaryDirectAccessChecker.create(mockChannelPrimer);
+    when(mockChannelFactory.createSingleChannel()).thenReturn(mockChannel);
+  }
+
+  @Test
+  public void testEligibleForDirectAccess() {
+    PeerInfo peerInfo =
+        PeerInfo.newBuilder()
+            .setTransportType(PeerInfo.TransportType.TRANSPORT_TYPE_DIRECT_ACCESS)
+            .build();
+    when(mockSidebandData.getPeerInfo()).thenReturn(peerInfo);
+
+    when(mockSidebandData.getIpProtocol())
+        .thenReturn(MetadataExtractorInterceptor.SidebandData.IpProtocol.IPV6);
+
+    try (MockedConstruction<MetadataExtractorInterceptor> ignored =
+        mockConstruction(
+            MetadataExtractorInterceptor.class,
+            (mock, context) -> {
+              when(mock.getSidebandData()).thenReturn(mockSidebandData);
+            })) {
+
+      boolean isEligible = checker.check(mockChannelFactory, mockTracer);
+
+      assertThat(isEligible).isFalse();
+      verify(mockChannelPrimer).primeChannel(any(Channel.class));
+      verify(mockTracer).recordSuccess("ipv6");
+      verify(mockChannel).shutdownNow();
     }
+  }
 
-    @Test
-    public void testEligibleForDirectAccess() {
-        PeerInfo peerInfo = PeerInfo.newBuilder()
-                .setTransportType(PeerInfo.TransportType.TRANSPORT_TYPE_DIRECT_ACCESS)
-                .build();
-        when(mockSidebandData.getPeerInfo()).thenReturn(peerInfo);
+  @Test
+  public void testNotEligibleProxiedRouting() {
+    // 1. Setup sideband data to simulate standard CloudPath routing
+    PeerInfo peerInfo =
+        PeerInfo.newBuilder()
+            .setTransportType(PeerInfo.TransportType.TRANSPORT_TYPE_CLOUD_PATH)
+            .build();
+    when(mockSidebandData.getPeerInfo()).thenReturn(peerInfo);
 
-        when(mockSidebandData.getIpProtocol()).thenReturn(MetadataExtractorInterceptor.SidebandData.IpProtocol.IPV6);
+    try (MockedConstruction<MetadataExtractorInterceptor> mocked =
+        mockConstruction(
+            MetadataExtractorInterceptor.class,
+            (mock, context) -> {
+              when(mock.getSidebandData()).thenReturn(mockSidebandData);
+            })) {
 
-        try (MockedConstruction<MetadataExtractorInterceptor> ignored =
-                     mockConstruction(
-                             MetadataExtractorInterceptor.class,
-                             (mock, context) -> {
-                                 when(mock.getSidebandData()).thenReturn(mockSidebandData);
-                             })) {
+      boolean isEligible = checker.check(mockChannelFactory, mockTracer);
 
-            boolean isEligible = checker.check(mockChannelFactory, mockTracer);
-
-            assertThat(isEligible).isFalse();
-            verify(mockChannelPrimer).primeChannel(any(Channel.class));
-            verify(mockTracer).recordSuccess("ipv6");
-            verify(mockChannel).shutdownNow();
-        }
+      assertThat(isEligible).isFalse();
+      verifyNoInteractions(mockTracer);
+      verify(mockChannel).shutdownNow();
     }
+  }
 
-    @Test
-    public void testNotEligibleProxiedRouting() {
-        // 1. Setup sideband data to simulate standard CloudPath routing
-        PeerInfo peerInfo = PeerInfo.newBuilder()
-                .setTransportType(PeerInfo.TransportType.TRANSPORT_TYPE_CLOUD_PATH)
-                .build();
-        when(mockSidebandData.getPeerInfo()).thenReturn(peerInfo);
+  @Test
+  public void testMissingSidebandData() {
+    // Interceptor failed to capture anything (returns null)
+    try (MockedConstruction<MetadataExtractorInterceptor> mocked =
+        mockConstruction(
+            MetadataExtractorInterceptor.class,
+            (mock, context) -> {
+              when(mock.getSidebandData()).thenReturn(null);
+            })) {
 
-        try (MockedConstruction<MetadataExtractorInterceptor> mocked =
-                     mockConstruction(
-                             MetadataExtractorInterceptor.class,
-                             (mock, context) -> {
-                                 when(mock.getSidebandData()).thenReturn(mockSidebandData);
-                             })) {
+      boolean isEligible = checker.check(mockChannelFactory, mockTracer);
 
-            boolean isEligible = checker.check(mockChannelFactory, mockTracer);
-
-            assertThat(isEligible).isFalse();
-            verifyNoInteractions(mockTracer);
-            verify(mockChannel).shutdownNow();
-        }
+      assertThat(isEligible).isFalse();
+      verifyNoInteractions(mockTracer);
+      verify(mockChannel).shutdownNow();
     }
+  }
 
-    @Test
-    public void testMissingSidebandData() {
-        // Interceptor failed to capture anything (returns null)
-        try (MockedConstruction<MetadataExtractorInterceptor> mocked =
-                     mockConstruction(
-                             MetadataExtractorInterceptor.class,
-                             (mock, context) -> {
-                                 when(mock.getSidebandData()).thenReturn(null);
-                             })) {
+  @Test
+  public void testExceptionSafetyAndCleanup() {
+    doThrow(new RuntimeException("Simulated primer failure"))
+        .when(mockChannelPrimer)
+        .primeChannel(any(Channel.class));
 
-            boolean isEligible = checker.check(mockChannelFactory, mockTracer);
+    boolean isEligible = checker.check(mockChannelFactory, mockTracer);
 
-            assertThat(isEligible).isFalse();
-            verifyNoInteractions(mockTracer);
-            verify(mockChannel).shutdownNow();
-        }
-    }
-
-    @Test
-    public void testExceptionSafetyAndCleanup() {
-        doThrow(new RuntimeException("Simulated primer failure"))
-                .when(mockChannelPrimer)
-                .primeChannel(any(Channel.class));
-
-        boolean isEligible = checker.check(mockChannelFactory, mockTracer);
-
-        assertThat(isEligible).isFalse();
-        verifyNoInteractions(mockTracer);
-        verify(mockChannel).shutdownNow();
-    }
+    assertThat(isEligible).isFalse();
+    verifyNoInteractions(mockTracer);
+    verify(mockChannel).shutdownNow();
+  }
 }
