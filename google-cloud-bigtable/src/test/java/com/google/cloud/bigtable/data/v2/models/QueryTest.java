@@ -533,7 +533,8 @@ public class QueryTest {
     assertThat(e)
         .hasMessageThat()
         .startsWith(
-            "Only one of table name, authorized view name and materialized view name can be specified at the same time");
+            "Only one of table name, authorized view name and materialized view name can be"
+                + " specified at the same time");
   }
 
   @Test
