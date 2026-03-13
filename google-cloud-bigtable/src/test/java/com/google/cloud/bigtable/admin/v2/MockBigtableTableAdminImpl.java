@@ -71,8 +71,8 @@ import com.google.longrunning.Operation;
 import com.google.protobuf.AbstractMessage;
 import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import javax.annotation.Generated;
@@ -85,7 +85,7 @@ public class MockBigtableTableAdminImpl extends BigtableTableAdminImplBase {
 
   public MockBigtableTableAdminImpl() {
     requests = new ArrayList<>();
-    responses = new LinkedList<>();
+    responses = new ArrayDeque<>();
   }
 
   public List<AbstractMessage> getRequests() {
@@ -97,7 +97,7 @@ public class MockBigtableTableAdminImpl extends BigtableTableAdminImplBase {
   }
 
   public void setResponses(List<AbstractMessage> responses) {
-    this.responses = new LinkedList<Object>(responses);
+    this.responses = new ArrayDeque<>(responses);
   }
 
   public void addException(Exception exception) {
@@ -106,7 +106,7 @@ public class MockBigtableTableAdminImpl extends BigtableTableAdminImplBase {
 
   public void reset() {
     requests = new ArrayList<>();
-    responses = new LinkedList<>();
+    responses = new ArrayDeque<>();
   }
 
   @Override

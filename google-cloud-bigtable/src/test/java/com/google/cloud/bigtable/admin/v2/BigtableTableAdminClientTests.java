@@ -91,7 +91,6 @@ import com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.BaseEncoding;
-import com.google.longrunning.Operation;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Duration;
 import com.google.protobuf.Empty;
@@ -103,6 +102,7 @@ import io.grpc.Status.Code;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -123,12 +123,12 @@ import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
 import org.threeten.bp.Instant;
 
-@RunWith(JUnit4.class)
 /**
  * Tests for {@link BigtableTableAdminClient}. This test class uses Mockito so it has been
  * explicitly excluded from Native Image testing by not following the naming convention of (IT* and
  * *ClientTest).
  */
+@RunWith(JUnit4.class)
 public class BigtableTableAdminClientTests {
   @Rule public final MockitoRule mockitoRule = MockitoJUnit.rule();
 
@@ -198,10 +198,6 @@ public class BigtableTableAdminClientTests {
 
   @Mock private UnaryCallable<ListBackupsRequest, ListBackupsPagedResponse> mockListBackupCallable;
   @Mock private UnaryCallable<DeleteBackupRequest, Empty> mockDeleteBackupCallable;
-
-  @Mock
-  private UnaryCallable<com.google.bigtable.admin.v2.RestoreTableRequest, Operation>
-      mockRestoreTableCallable;
 
   @Mock
   private OperationCallable<
@@ -1587,7 +1583,7 @@ public class BigtableTableAdminClientTests {
         .isEqualTo(
             Policy.newBuilder()
                 .addIdentity(Role.of("bigtable.viewer"), Identity.user("someone@example.com"))
-                .setEtag(BaseEncoding.base64().encode("my-etag".getBytes()))
+                .setEtag(BaseEncoding.base64().encode("my-etag".getBytes(StandardCharsets.UTF_8)))
                 .build());
   }
 

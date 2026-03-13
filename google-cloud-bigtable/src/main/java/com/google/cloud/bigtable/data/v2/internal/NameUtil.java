@@ -48,10 +48,23 @@ public class NameUtil {
     return formatInstanceName(projectId, instanceId) + "/tables/" + tableId;
   }
 
+  public static String formatTableName(
+      @Nonnull String projectId, @Nonnull String instanceId, @Nonnull TableId tableId) {
+    return formatInstanceName(projectId, instanceId) + "/tables/" + tableId.getTableId();
+  }
+
   public static String formatAuthorizedViewName(
       @Nonnull String projectId,
       @Nonnull String instanceId,
       @Nonnull String tableId,
+      @Nonnull String authorizedViewId) {
+    return formatTableName(projectId, instanceId, tableId) + "/authorizedViews/" + authorizedViewId;
+  }
+
+  public static String formatAuthorizedViewName(
+      @Nonnull String projectId,
+      @Nonnull String instanceId,
+      @Nonnull TableId tableId,
       @Nonnull String authorizedViewId) {
     return formatTableName(projectId, instanceId, tableId) + "/authorizedViews/" + authorizedViewId;
   }

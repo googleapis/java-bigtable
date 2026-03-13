@@ -35,7 +35,7 @@ import org.junit.runners.JUnit4;
 public class ReadModifyWriteRowTest {
   private static final String PROJECT_ID = "fake-project";
   private static final String INSTANCE_ID = "fake-instance";
-  private static final String TABLE_ID = "fake-table";
+  private static final TableId TABLE_ID = TableId.of("fake-table");
   private static final String AUTHORIZED_VIEW_ID = "fake-authorized-view";
   private static final String APP_PROFILE_ID = "fake-profile";
   private static final RequestContext REQUEST_CONTEXT =

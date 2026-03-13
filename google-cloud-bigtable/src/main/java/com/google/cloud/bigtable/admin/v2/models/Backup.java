@@ -223,6 +223,7 @@ public class Backup {
     return EncryptionInfo.fromProto(proto.getEncryptionInfo());
   }
 
+  @SuppressWarnings("EqualsIncompatibleType")
   @Override
   public boolean equals(Object o) {
     if (this == o) {

@@ -36,6 +36,12 @@ public abstract class AuthorizedViewId implements TargetId {
     return new AutoValue_AuthorizedViewId(tableId, authorizedViewId);
   }
 
+  public static AuthorizedViewId of(TableId tableId, String authorizedViewId) {
+    Preconditions.checkNotNull(tableId, "table id can't be null.");
+    Preconditions.checkNotNull(authorizedViewId, "authorized view id can't be null.");
+    return new AutoValue_AuthorizedViewId(tableId.getTableId(), authorizedViewId);
+  }
+
   abstract String getTableId();
 
   abstract String getAuthorizedViewId();
