@@ -259,7 +259,8 @@ public class BigtableDataClientFactoryTest {
         BigtableDataSettings.newBuilderForEmulator(server.getPort())
             .setProjectId(DEFAULT_PROJECT_ID)
             .setInstanceId(DEFAULT_INSTANCE_ID)
-            .setAppProfileId(DEFAULT_APP_PROFILE_ID);
+            .setAppProfileId(DEFAULT_APP_PROFILE_ID)
+            .setRefreshingChannel(true);
     builder
         .stubSettings()
         .setCredentialsProvider(credentialsProvider)

@@ -508,9 +508,11 @@ public class BuiltinMetricsTracerTest {
   public void testReadRowsApplicationLatencyWithManualFlowControl() throws Exception {
     int counter = 0;
 
-    for (Row ignored : stub.readRowsCallable().call(Query.create(TableId.of(TABLE)))) {
+    Iterator<Row> rows = stub.readRowsCallable().call(Query.create(TableId.of(TABLE))).iterator();
+    while (rows.hasNext()) {
       counter++;
       Thread.sleep(APPLICATION_LATENCY);
+      rows.next();
     }
 
     MetricData applicationLatency =
