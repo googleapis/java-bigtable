@@ -104,7 +104,7 @@ public class ExecuteQueryIT {
   public void selectStar() {
     PreparedStatement preparedStatement =
         dataClient.prepareStatement(
-            "SELECT * FROM " + tableId + " WHERE _key LIKE '" + uniquePrefix + "%'",
+            "SELECT * FROM " + tableId.getTableId() + " WHERE _key LIKE '" + uniquePrefix + "%'",
             new HashMap<>());
     BoundStatement statement = preparedStatement.bind().build();
     try (ResultSet rs = dataClient.executeQuery(statement)) {
@@ -131,7 +131,7 @@ public class ExecuteQueryIT {
     PreparedStatement preparedStatement =
         dataClient.prepareStatement(
             "SELECT * FROM `"
-                + tableId
+                + tableId.getTableId()
                 + "`(with_history => true) WHERE _key LIKE '"
                 + uniquePrefix
                 + "%'",
@@ -191,7 +191,7 @@ public class ExecuteQueryIT {
                     + " `"
                     + schemaBundleId
                     + ".com.google.cloud.bigtable.data.v2.test.Genre`) as enumCol FROM `"
-                    + tableId
+                    + tableId.getTableId()
                     + "` WHERE _key='"
                     + uniquePrefix
                     + "a' LIMIT 1",
@@ -401,7 +401,7 @@ public class ExecuteQueryIT {
     PreparedStatement preparedStatement =
         dataClient.prepareStatement(
             "SELECT cf['qual'] AS neverNull, cf['qual3'] AS maybeNull FROM "
-                + tableId
+                + tableId.getTableId()
                 + " WHERE _key LIKE '"
                 + uniquePrefix
                 + "%'",
