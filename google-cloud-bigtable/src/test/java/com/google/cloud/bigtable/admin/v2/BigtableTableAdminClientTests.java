@@ -1629,7 +1629,7 @@ public class BigtableTableAdminClientTests {
         .isEqualTo(
             Policy.newBuilder()
                 .addIdentity(Role.of("bigtable.viewer"), Identity.user("someone@example.com"))
-                .setEtag(BaseEncoding.base64().encode("my-etag".getBytes()))
+                .setEtag(BaseEncoding.base64().encode("my-etag".getBytes(StandardCharsets.UTF_8)))
                 .build());
   }
 
