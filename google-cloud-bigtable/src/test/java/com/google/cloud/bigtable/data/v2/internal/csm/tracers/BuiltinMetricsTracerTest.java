@@ -21,6 +21,7 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTestU
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTestUtils.verifyAttributes;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
+import static org.junit.Assert.assertThrows;
 
 import com.google.api.client.util.Lists;
 import com.google.api.core.ApiFunction;
@@ -119,7 +120,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -367,6 +367,7 @@ public class BuiltinMetricsTracerTest {
                 try {
                   Thread.sleep(100);
                 } catch (InterruptedException ignored) {
+                  // dont really care
                 }
               }
 
@@ -455,10 +456,11 @@ public class BuiltinMetricsTracerTest {
 
               @Override
               public void onResponse(Row row) {
+                counter.getAndIncrement();
                 try {
-                  counter.getAndIncrement();
                   Thread.sleep(APPLICATION_LATENCY);
                 } catch (InterruptedException ignored) {
+                  // dont really care
                 }
               }
 
@@ -603,7 +605,7 @@ public class BuiltinMetricsTracerTest {
       batcher.add(RowMutationEntry.create(key).setCell("f", "q", "v"));
     }
 
-    Assert.assertThrows(BatchingException.class, batcher::close);
+    assertThrows(BatchingException.class, batcher::close);
 
     MetricData metricData = getMetricData(metricReader, TableAttemptLatency.NAME);
 
@@ -631,7 +633,7 @@ public class BuiltinMetricsTracerTest {
       batcher.add(RowMutationEntry.create(key).setCell("f", "q", "v"));
     }
 
-    Assert.assertThrows(BatchingException.class, batcher::close);
+    assertThrows(BatchingException.class, batcher::close);
 
     MetricData metricData = getMetricData(metricReader, TableAttemptLatency.NAME);
 
@@ -767,12 +769,11 @@ public class BuiltinMetricsTracerTest {
 
   @Test
   public void testPermanentFailure() {
-    try {
-      Lists.newArrayList(
-          stub.readRowsCallable().call(Query.create(TableId.of(BAD_TABLE_ID))).iterator());
-      Assert.fail("Request should throw not found error");
-    } catch (NotFoundException ignored) {
-    }
+    assertThrows(
+        NotFoundException.class,
+        () ->
+            Lists.newArrayList(
+                stub.readRowsCallable().call(Query.create(TableId.of(BAD_TABLE_ID))).iterator()));
 
     MetricData attemptLatency = getMetricData(metricReader, TableAttemptLatency.NAME);
 
@@ -1054,6 +1055,7 @@ public class BuiltinMetricsTracerTest {
       try {
         Thread.sleep(SERVER_LATENCY);
       } catch (InterruptedException ignored) {
+        // dont care
       }
       if (attemptCounter.getAndIncrement() == 0) {
         target.onError(new StatusRuntimeException(Status.UNAVAILABLE));
@@ -1096,6 +1098,7 @@ public class BuiltinMetricsTracerTest {
       try {
         Thread.sleep(SERVER_LATENCY);
       } catch (InterruptedException ignored) {
+        // dont care
       }
       MutateRowsResponse.Builder builder = MutateRowsResponse.newBuilder();
       String receivedRowkey = "";
@@ -1208,7 +1211,7 @@ public class BuiltinMetricsTracerTest {
       try {
         Thread.sleep(CHANNEL_BLOCKING_LATENCY.toMillis());
       } catch (InterruptedException ignored) {
-
+        // dont care
       }
       return null;
     }

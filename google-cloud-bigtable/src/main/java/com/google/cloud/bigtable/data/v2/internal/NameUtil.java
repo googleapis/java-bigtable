@@ -50,7 +50,7 @@ public class NameUtil {
 
   public static String formatTableName(
       @Nonnull String projectId, @Nonnull String instanceId, @Nonnull TableId tableId) {
-    return formatInstanceName(projectId, instanceId) + "/tables/" + tableId.getTableId();
+    return formatTableName(projectId, instanceId, tableId.getTableId());
   }
 
   public static String formatAuthorizedViewName(
@@ -64,14 +64,24 @@ public class NameUtil {
   public static String formatAuthorizedViewName(
       @Nonnull String projectId,
       @Nonnull String instanceId,
-      @Nonnull TableId tableId,
-      @Nonnull String authorizedViewId) {
-    return formatTableName(projectId, instanceId, tableId) + "/authorizedViews/" + authorizedViewId;
+      @Nonnull AuthorizedViewId authorizedViewId) {
+    return formatTableName(projectId, instanceId, authorizedViewId.getTableId())
+        + "/authorizedViews/"
+        + authorizedViewId.getAuthorizedViewId();
   }
 
   public static String formatMaterializedViewName(
       @Nonnull String projectId, @Nonnull String instanceId, @Nonnull String materializedViewId) {
     return formatInstanceName(projectId, instanceId) + "/materializedViews/" + materializedViewId;
+  }
+
+  public static String formatMaterializedViewName(
+      @Nonnull String projectId,
+      @Nonnull String instanceId,
+      @Nonnull MaterializedViewId materializedViewId) {
+    return formatInstanceName(projectId, instanceId)
+        + "/materializedViews/"
+        + materializedViewId.getMaterializedViewId();
   }
 
   public static String extractTableIdFromTableName(@Nonnull String fullTableName) {

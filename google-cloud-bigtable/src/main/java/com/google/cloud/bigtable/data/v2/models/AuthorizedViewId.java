@@ -42,9 +42,9 @@ public abstract class AuthorizedViewId implements TargetId {
     return new AutoValue_AuthorizedViewId(tableId.getTableId(), authorizedViewId);
   }
 
-  abstract String getTableId();
+  public abstract String getTableId();
 
-  abstract String getAuthorizedViewId();
+  public abstract String getAuthorizedViewId();
 
   @Override
   @InternalApi

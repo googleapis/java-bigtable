@@ -48,7 +48,8 @@ public class QueryTest {
   private static final String PROJECT_ID = "fake-project";
   private static final String INSTANCE_ID = "fake-instance";
   private static final TableId TABLE_ID = TableId.of("fake-table");
-  private static final String AUTHORIZED_VIEW_ID = "fake-authorized-view";
+  private static final AuthorizedViewId AUTHORIZED_VIEW_ID =
+      AuthorizedViewId.of(TABLE_ID, "fake-authorized-view");
   private static final String APP_PROFILE_ID = "fake-profile-id";
   private RequestContext requestContext;
 
@@ -65,7 +66,7 @@ public class QueryTest {
     assertThat(proto).isEqualTo(expectedReadFromTableProtoBuilder().build());
 
     // AuthorizedView query test.
-    query = Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID));
+    query = Query.create(AUTHORIZED_VIEW_ID);
     proto = query.toProto(requestContext);
     assertThat(proto).isEqualTo(expectedReadFromAuthorizedViewProtoBuilder().build());
   }
@@ -89,7 +90,7 @@ public class QueryTest {
 
     // AuthorizedView query test.
     query =
-        Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID))
+        Query.create(AUTHORIZED_VIEW_ID)
             .rowKey("simple-string")
             .rowKey(ByteString.copyFromUtf8("byte-string"));
 
@@ -133,7 +134,7 @@ public class QueryTest {
 
     // AuthorizedView query test.
     query =
-        Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID))
+        Query.create(AUTHORIZED_VIEW_ID)
             .range("simple-begin", "simple-end")
             .range(ByteString.copyFromUtf8("byte-begin"), ByteString.copyFromUtf8("byte-end"))
             .range(ByteStringRange.create("range-begin", "range-end"));
@@ -183,7 +184,7 @@ public class QueryTest {
     // AuthorizedView query test.
     actualException = null;
     try {
-      Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID)).filter(null);
+      Query.create(AUTHORIZED_VIEW_ID).filter(null);
     } catch (Exception ex) {
       actualException = ex;
     }
@@ -191,8 +192,7 @@ public class QueryTest {
 
     actualException = null;
     try {
-      Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID))
-          .filter(FILTERS.value().exactMatch(largeValue));
+      Query.create(AUTHORIZED_VIEW_ID).filter(FILTERS.value().exactMatch(largeValue));
     } catch (Exception ex) {
       actualException = ex;
     }
@@ -212,9 +212,7 @@ public class QueryTest {
     assertThat(actualProto).isEqualTo(expectedProto.build());
 
     // AuthorizedView query test.
-    query =
-        Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID))
-            .filter(FILTERS.key().regex(".*"));
+    query = Query.create(AUTHORIZED_VIEW_ID).filter(FILTERS.key().regex(".*"));
 
     expectedProto =
         expectedReadFromAuthorizedViewProtoBuilder()
@@ -235,7 +233,7 @@ public class QueryTest {
     assertThat(actualProto).isEqualTo(expectedProto.build());
 
     // AuthorizedView query test.
-    query = Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID)).limit(10);
+    query = Query.create(AUTHORIZED_VIEW_ID).limit(10);
 
     expectedProto = expectedReadFromAuthorizedViewProtoBuilder().setRowsLimit(10);
 
@@ -259,9 +257,7 @@ public class QueryTest {
     assertThat(actual.toProto(requestContext)).isEqualTo(expected.toProto(requestContext));
 
     // AuthorizedView query test.
-    expected =
-        Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID))
-            .filter(FILTERS.key().regex(".*"));
+    expected = Query.create(AUTHORIZED_VIEW_ID).filter(FILTERS.key().regex(".*"));
 
     bos = new ByteArrayOutputStream();
     oos = new ObjectOutputStream(bos);
@@ -312,7 +308,7 @@ public class QueryTest {
                 .build());
 
     // AuthorizedView query test.
-    query = Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID)).range("a", "z");
+    query = Query.create(AUTHORIZED_VIEW_ID).range("a", "z");
 
     subQueries = query.shard(splitPoints);
 
@@ -321,8 +317,7 @@ public class QueryTest {
         .isEqualTo(
             ReadRowsRequest.newBuilder()
                 .setAuthorizedViewName(
-                    NameUtil.formatAuthorizedViewName(
-                        PROJECT_ID, INSTANCE_ID, TABLE_ID, AUTHORIZED_VIEW_ID))
+                    NameUtil.formatAuthorizedViewName(PROJECT_ID, INSTANCE_ID, AUTHORIZED_VIEW_ID))
                 .setAppProfileId(APP_PROFILE_ID)
                 .setRows(
                     RowSet.newBuilder()
@@ -335,8 +330,7 @@ public class QueryTest {
         .isEqualTo(
             ReadRowsRequest.newBuilder()
                 .setAuthorizedViewName(
-                    NameUtil.formatAuthorizedViewName(
-                        PROJECT_ID, INSTANCE_ID, TABLE_ID, AUTHORIZED_VIEW_ID))
+                    NameUtil.formatAuthorizedViewName(PROJECT_ID, INSTANCE_ID, AUTHORIZED_VIEW_ID))
                 .setAppProfileId(APP_PROFILE_ID)
                 .setRows(
                     RowSet.newBuilder()
@@ -386,7 +380,7 @@ public class QueryTest {
                 .build());
 
     // AuthorizedView query test.
-    query = Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID)).range("a", "z");
+    query = Query.create(AUTHORIZED_VIEW_ID).range("a", "z");
 
     subQueries = query.shard(keyOffsets);
 
@@ -395,8 +389,7 @@ public class QueryTest {
         .isEqualTo(
             ReadRowsRequest.newBuilder()
                 .setAuthorizedViewName(
-                    NameUtil.formatAuthorizedViewName(
-                        PROJECT_ID, INSTANCE_ID, TABLE_ID, AUTHORIZED_VIEW_ID))
+                    NameUtil.formatAuthorizedViewName(PROJECT_ID, INSTANCE_ID, AUTHORIZED_VIEW_ID))
                 .setAppProfileId(APP_PROFILE_ID)
                 .setRows(
                     RowSet.newBuilder()
@@ -409,8 +402,7 @@ public class QueryTest {
         .isEqualTo(
             ReadRowsRequest.newBuilder()
                 .setAuthorizedViewName(
-                    NameUtil.formatAuthorizedViewName(
-                        PROJECT_ID, INSTANCE_ID, TABLE_ID, AUTHORIZED_VIEW_ID))
+                    NameUtil.formatAuthorizedViewName(PROJECT_ID, INSTANCE_ID, AUTHORIZED_VIEW_ID))
                 .setAppProfileId(APP_PROFILE_ID)
                 .setRows(
                     RowSet.newBuilder()
@@ -430,8 +422,7 @@ public class QueryTest {
   private static ReadRowsRequest.Builder expectedReadFromAuthorizedViewProtoBuilder() {
     return ReadRowsRequest.newBuilder()
         .setAuthorizedViewName(
-            NameUtil.formatAuthorizedViewName(
-                PROJECT_ID, INSTANCE_ID, TABLE_ID, AUTHORIZED_VIEW_ID))
+            NameUtil.formatAuthorizedViewName(PROJECT_ID, INSTANCE_ID, AUTHORIZED_VIEW_ID))
         .setAppProfileId(APP_PROFILE_ID);
   }
 
@@ -459,8 +450,7 @@ public class QueryTest {
     request =
         ReadRowsRequest.newBuilder()
             .setAuthorizedViewName(
-                NameUtil.formatAuthorizedViewName(
-                    PROJECT_ID, INSTANCE_ID, TABLE_ID, AUTHORIZED_VIEW_ID))
+                NameUtil.formatAuthorizedViewName(PROJECT_ID, INSTANCE_ID, AUTHORIZED_VIEW_ID))
             .setAppProfileId(APP_PROFILE_ID)
             .setFilter(RowFilter.newBuilder().setRowKeyRegexFilter(ByteString.copyFromUtf8(".*")))
             .setRows(
@@ -527,7 +517,7 @@ public class QueryTest {
                         .setTableName(NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID))
                         .setAuthorizedViewName(
                             NameUtil.formatAuthorizedViewName(
-                                PROJECT_ID, INSTANCE_ID, TABLE_ID, AUTHORIZED_VIEW_ID))
+                                PROJECT_ID, INSTANCE_ID, AUTHORIZED_VIEW_ID))
                         .build()));
 
     assertThat(e)
@@ -567,7 +557,7 @@ public class QueryTest {
 
     // AuthorizedView query test.
     request =
-        Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID))
+        Query.create(AUTHORIZED_VIEW_ID)
             .rowKey("row-key")
             .range("a", "z")
             .limit(3)
@@ -577,29 +567,23 @@ public class QueryTest {
     request.toProto(requestContext);
     assertThat(request)
         .isEqualTo(
-            Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID))
+            Query.create(AUTHORIZED_VIEW_ID)
                 .rowKey("row-key")
                 .range("a", "z")
                 .limit(3)
                 .filter(FILTERS.family().exactMatch("test")));
 
-    assertThat(Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID)).rowKey("row-key"))
+    assertThat(Query.create(AUTHORIZED_VIEW_ID).rowKey("row-key"))
+        .isNotEqualTo(Query.create(AUTHORIZED_VIEW_ID).rowKey("row-key-1"));
+    assertThat(Query.create(AUTHORIZED_VIEW_ID).range("a", "z"))
+        .isNotEqualTo(Query.create(AUTHORIZED_VIEW_ID).range("a", "s"));
+    assertThat(Query.create(AUTHORIZED_VIEW_ID).filter(FILTERS.family().regex("test")))
         .isNotEqualTo(
-            Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID)).rowKey("row-key-1"));
-    assertThat(Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID)).range("a", "z"))
-        .isNotEqualTo(
-            Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID)).range("a", "s"));
-    assertThat(
-            Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID))
-                .filter(FILTERS.family().regex("test")))
-        .isNotEqualTo(
-            Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID))
-                .filter(FILTERS.family().exactMatch("test-one")));
-    assertThat(Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID)).limit(4))
-        .isNotEqualTo(Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID)).limit(5));
+            Query.create(AUTHORIZED_VIEW_ID).filter(FILTERS.family().exactMatch("test-one")));
+    assertThat(Query.create(AUTHORIZED_VIEW_ID).limit(4))
+        .isNotEqualTo(Query.create(AUTHORIZED_VIEW_ID).limit(5));
 
-    assertThat(Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID)))
-        .isNotEqualTo(Query.create(TABLE_ID));
+    assertThat(Query.create(AUTHORIZED_VIEW_ID)).isNotEqualTo(Query.create(TABLE_ID));
   }
 
   @Test
@@ -622,15 +606,11 @@ public class QueryTest {
     assertThat(clonedReq.toProto(requestContext)).isEqualTo(request);
 
     // AuthorizedView query test.
-    query =
-        Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID))
-            .filter(FILTERS.key().regex("temp"))
-            .limit(10);
+    query = Query.create(AUTHORIZED_VIEW_ID).filter(FILTERS.key().regex("temp")).limit(10);
     request =
         ReadRowsRequest.newBuilder()
             .setAuthorizedViewName(
-                NameUtil.formatAuthorizedViewName(
-                    PROJECT_ID, INSTANCE_ID, TABLE_ID, AUTHORIZED_VIEW_ID))
+                NameUtil.formatAuthorizedViewName(PROJECT_ID, INSTANCE_ID, AUTHORIZED_VIEW_ID))
             .setAppProfileId(APP_PROFILE_ID)
             .setRowsLimit(10)
             .setFilter(
@@ -683,10 +663,7 @@ public class QueryTest {
     assertThat(paginator.advance(ByteString.copyFromUtf8("d"))).isFalse();
 
     // AuthorizedView query test.
-    query =
-        Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID))
-            .range("a", "z")
-            .limit(limit);
+    query = Query.create(AUTHORIZED_VIEW_ID).range("a", "z").limit(limit);
     paginator = query.createPaginator(chunkSize);
 
     nextQuery = paginator.getNextQuery();
@@ -760,10 +737,7 @@ public class QueryTest {
     assertThat(paginator.advance(ByteString.copyFromUtf8("d"))).isFalse();
 
     // AuthorizedView query test.
-    query =
-        Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID))
-            .range("a", "z")
-            .limit(limit);
+    query = Query.create(AUTHORIZED_VIEW_ID).range("a", "z").limit(limit);
     paginator = query.createPaginator(chunkSize);
 
     nextQuery = paginator.getNextQuery();
@@ -835,7 +809,7 @@ public class QueryTest {
     assertThat(paginator.advance(ByteString.copyFromUtf8("z"))).isFalse();
 
     // AuthorizedView query test.
-    query = Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID)).range("a", "z");
+    query = Query.create(AUTHORIZED_VIEW_ID).range("a", "z");
     paginator = query.createPaginator(chunkSize);
 
     nextQuery = paginator.getNextQuery();
@@ -900,11 +874,7 @@ public class QueryTest {
     assertThat(paginator.advance(ByteString.copyFromUtf8("c"))).isFalse();
 
     // AuthorizedView query test.
-    query =
-        Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID))
-            .rowKey("a")
-            .rowKey("b")
-            .rowKey("c");
+    query = Query.create(AUTHORIZED_VIEW_ID).rowKey("a").rowKey("b").rowKey("c");
 
     paginator = query.createPaginator(chunkSize);
 
@@ -957,7 +927,7 @@ public class QueryTest {
     assertThat(queryPaginator.advance(ByteString.copyFromUtf8("a"))).isFalse();
 
     // AuthorizedView query test.
-    query = Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID));
+    query = Query.create(AUTHORIZED_VIEW_ID);
     queryPaginator = query.createPaginator(chunkSize);
 
     expectedProto = expectedReadFromAuthorizedViewProtoBuilder().setRowsLimit(chunkSize);
