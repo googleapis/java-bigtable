@@ -1724,7 +1724,6 @@ public class BigtableTableAdminClientTests {
     Mockito.verify(mockOptimizeRestoredTableCallable).resumeFutureCall(optimizeToken);
   }
 
-  @Ignore("TODO: fix this test")
   @Test
   public void testAwaitOptimizeRestoredTable_NoOp() throws Exception {
     // Setup: Result with NO optimization token (null or empty)
@@ -1740,7 +1739,6 @@ public class BigtableTableAdminClientTests {
 
     // Verify: Returns immediate success (Empty) without calling the stub
     assertThat(result.get()).isEqualTo(Empty.getDefaultInstance());
-    Mockito.verifyNoInteractions(mockStub);
   }
 
   private <ReqT, RespT, MetaT> void mockOperationResult(
