@@ -42,6 +42,7 @@ import javax.annotation.Nonnull;
  */
 @BetaApi
 @InternalApi
+@SuppressWarnings({"SameNameButDifferent", "JavaLangClash"})
 public interface Type {
 
   @AutoValue
