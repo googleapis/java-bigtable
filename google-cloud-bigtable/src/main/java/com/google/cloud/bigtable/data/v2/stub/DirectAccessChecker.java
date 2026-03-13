@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,18 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
-import com.google.api.core.ApiFuture;
-import com.google.api.core.ApiFutures;
 import com.google.api.core.InternalApi;
-import com.google.bigtable.v2.PingAndWarmResponse;
-import com.google.cloud.bigtable.gaxx.grpc.ChannelPrimer;
-import io.grpc.Channel;
+import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DirectPathCompatibleTracer;
+import javax.annotation.Nullable;
 
 @InternalApi
-public class NoOpChannelPrimer implements ChannelPrimer {
-  static NoOpChannelPrimer create() {
-    return new NoOpChannelPrimer();
-  }
-
-  private NoOpChannelPrimer() {}
-
-  @Override
-  public void primeChannel(Channel channel) {
-    // No op
-  }
-
-  @Override
-  public ApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(Channel channel) {
-    return ApiFutures.immediateFuture(PingAndWarmResponse.getDefaultInstance());
-  }
+/* Evaluates whether a given channel supports Direct Access. */
+public interface DirectAccessChecker {
+  /**
+   * Evaluates if Direct Access is available by creating a test channel.
+   *
+   * @param channelFactory A factory to create the test channel
+   * @return true if the channel is eligible for Direct Access
+   */
+  boolean check(BigtableChannelFactory channelFactory, @Nullable DirectPathCompatibleTracer tracer);
 }
