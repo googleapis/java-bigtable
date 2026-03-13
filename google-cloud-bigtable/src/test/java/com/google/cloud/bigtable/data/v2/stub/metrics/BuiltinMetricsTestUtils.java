@@ -103,7 +103,7 @@ public class BuiltinMetricsTestUtils {
 
   public static double getAggregatedDoubleValue(MetricData metricData, Attributes attributes) {
     assertThat(metricData.getData().getPoints().stream().map(PointData::getAttributes))
-        .contains(attributes);
+      .contains(attributes);
 
     switch (metricData.getType()) {
       case HISTOGRAM:
