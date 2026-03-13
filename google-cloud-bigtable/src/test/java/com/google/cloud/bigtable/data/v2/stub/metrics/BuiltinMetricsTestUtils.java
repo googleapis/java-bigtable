@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import com.google.api.core.InternalApi;
 import com.google.common.truth.Correspondence;
-import com.google.common.truth.Truth;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import io.opentelemetry.api.common.Attributes;
@@ -35,7 +34,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.junit.Assert;
 
 @InternalApi
 public class BuiltinMetricsTestUtils {
@@ -105,7 +103,7 @@ public class BuiltinMetricsTestUtils {
 
   public static double getAggregatedDoubleValue(MetricData metricData, Attributes attributes) {
     assertThat(metricData.getData().getPoints().stream().map(PointData::getAttributes))
-      .contains(attributes);
+        .contains(attributes);
 
     switch (metricData.getType()) {
       case HISTOGRAM:

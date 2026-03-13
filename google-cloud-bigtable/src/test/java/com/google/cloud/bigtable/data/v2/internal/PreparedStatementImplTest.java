@@ -95,9 +95,7 @@ public class PreparedStatementImplTest {
         .setRefreshingChannel(false)
         .build();
     // Remove log noise from client side metrics
-    settings
-        .setMetricsProvider(NoopMetricsProvider.INSTANCE)
-        .disableInternalMetrics();
+    settings.setMetricsProvider(NoopMetricsProvider.INSTANCE).disableInternalMetrics();
     prepareAttempts =
         settings.stubSettings().prepareQuerySettings().retrySettings().getMaxAttempts();
     client = BigtableDataClient.create(settings.build());
