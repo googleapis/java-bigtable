@@ -87,6 +87,11 @@ public class InstanceAdminExample {
 
   public void run() {
     createProdInstance();
+    /* * OPTIONAL: Testing with tags
+     * If you want to test creating an instance with resource tags, comment out
+     * createProdInstance() above and uncomment createProdInstanceWithTags() below.
+     */
+    // createProdInstanceWithTags();
     listInstances();
     getInstance();
     listClusters();
@@ -101,7 +106,7 @@ public class InstanceAdminExample {
     adminClient.close();
   }
 
-  /** Demonstrates how to create a Production instance within a provided project. */
+  /** Demonstrates how to create an instance within a provided project. */
   public void createProdInstance() {
     // Checks if instance exists, creates instance if does not exists.
     if (!adminClient.exists(instanceId)) {
@@ -138,6 +143,63 @@ public class InstanceAdminExample {
         throw new RuntimeException(e);
       }
       // [END bigtable_create_prod_instance]
+    }
+  }
+
+  /**
+   * Demonstrates how to create a Production instance within a provided project with tags.
+   *
+   * <p>Tags are a way to organize and govern resources across Google Cloud, see
+   * [Creating and managing tags](https://cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing)
+   *
+   *
+   * NOTE: Unlike labels, a tag (Key and Value) must be created before it can be
+   * attached to a resource.
+   * See [Creating and managing tags](https://cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing)
+   * and [Tags overview](https://docs.cloud.google.com/bigtable/docs/tags) for more information.
+   */
+  public void createProdInstanceWithTags() {
+    // Creates an instance if it doesn't exist.
+    if (!adminClient.exists(instanceId)) {
+      System.out.println("Instance does not exist, creating a PRODUCTION instance with tags");
+
+      // These are placeholders. You must create these in your GCP Organization/Project first.
+      String tagKey = "tagKeys/12345";
+      String tagValue = "tagValues/6789";
+
+      // [START bigtable_create_prod_instance_with_tags]
+      // Creates a Production Instance with the ID "ssd-instance",
+      // cluster id "ssd-cluster", 3 nodes and location "us-central1-f".
+      String parent = "projects/" + projectId;
+      Instance instanceObj =
+          Instance.newBuilder()
+              .setDisplayName(instanceId)
+              .setType(Instance.Type.PRODUCTION)
+              .putLabels("department", "accounting")
+              .putTags(tagKey, tagValue)
+              .build();
+      Cluster clusterObj =
+          Cluster.newBuilder()
+              .setLocation("projects/" + projectId + "/locations/us-central1-f")
+              .setServeNodes(3)
+              .setDefaultStorageType(StorageType.SSD)
+              .build();
+      CreateInstanceRequest request =
+          CreateInstanceRequest.newBuilder()
+              .setParent(parent)
+              .setInstanceId(instanceId)
+              .setInstance(instanceObj)
+              .putClusters(clusterId, clusterObj)
+              .build();
+      // Creates a production instance with the given request.
+      try {
+        Instance instance = adminClient.getBaseClient().createInstanceAsync(request).get();
+        System.out.printf("PRODUCTION type instance %s with tags created successfully%n", instance.getName());
+      } catch (Exception e) {
+        System.err.println("Failed to create instance: " + e.getMessage());
+        throw new RuntimeException(e);
+      }
+      // [END bigtable_create_prod_instance_with_tags]
     }
   }
 
