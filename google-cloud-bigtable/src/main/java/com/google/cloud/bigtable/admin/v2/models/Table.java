@@ -111,6 +111,7 @@ public final class Table {
     @InternalApi
     public static AutomatedBackupPolicy fromProto(
         com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy proto) {
+      Preconditions.checkNotNull(proto);
       return new AutomatedBackupPolicy(proto);
     }
 
@@ -143,7 +144,7 @@ public final class Table {
 
   private final Duration changeStreamRetention;
   private final boolean deletionProtection;
-  private static AutomatedBackupPolicy automatedBackupPolicy;
+  private final AutomatedBackupPolicy automatedBackupPolicy;
 
   @InternalApi
   public static Table fromProto(@Nonnull com.google.bigtable.admin.v2.Table proto) {
@@ -170,10 +171,9 @@ public final class Table {
               proto.getChangeStreamConfig().getRetentionPeriod().getNanos());
     }
 
+    AutomatedBackupPolicy automatedBackupPolicy = null;
     if (proto.hasAutomatedBackupPolicy()) {
       automatedBackupPolicy = AutomatedBackupPolicy.fromProto(proto.getAutomatedBackupPolicy());
-    } else {
-      automatedBackupPolicy = null;
     }
 
     return new Table(
@@ -198,7 +198,7 @@ public final class Table {
     this.columnFamilies = columnFamilies;
     this.changeStreamRetention = changeStreamRetention;
     this.deletionProtection = deletionProtection;
-    Table.automatedBackupPolicy = automatedBackupPolicy;
+    this.automatedBackupPolicy = automatedBackupPolicy;
   }
 
   /** Gets the table's id. */
@@ -253,7 +253,7 @@ public final class Table {
         && Objects.equal(columnFamilies, table.columnFamilies)
         && Objects.equal(changeStreamRetention, table.changeStreamRetention)
         && Objects.equal(deletionProtection, table.deletionProtection)
-        && Objects.equal(automatedBackupPolicy, Table.automatedBackupPolicy);
+        && Objects.equal(automatedBackupPolicy, table.automatedBackupPolicy);
   }
 
   @Override
