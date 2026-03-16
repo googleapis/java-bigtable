@@ -21,6 +21,7 @@ import com.google.cloud.bigtable.admin.v2.models.AuthorizedView;
 import com.google.cloud.bigtable.admin.v2.models.CreateAuthorizedViewRequest;
 import com.google.cloud.bigtable.admin.v2.models.FamilySubsets;
 import com.google.cloud.bigtable.admin.v2.models.SubsetView;
+import com.google.cloud.bigtable.data.v2.models.TableId;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -36,10 +37,10 @@ public class AuthorizedViewTestHelper {
 
   public static AuthorizedView createTestAuthorizedView(TestEnvRule testEnvRule)
       throws InterruptedException {
-    String tableId = testEnvRule.env().getTableId();
+    TableId tableId = testEnvRule.env().getTableId();
     String authorizedViewId = UUID.randomUUID().toString();
     CreateAuthorizedViewRequest request =
-        CreateAuthorizedViewRequest.of(tableId, authorizedViewId)
+        CreateAuthorizedViewRequest.of(tableId.getTableId(), authorizedViewId)
             .setAuthorizedViewType(
                 SubsetView.create()
                     .addRowPrefix(AUTHORIZED_VIEW_ROW_PREFIX)
@@ -67,7 +68,7 @@ public class AuthorizedViewTestHelper {
                 + retryCount);
         // Exponential backoff delay starting at 100ms.
         double expSleep = 100 * Math.pow(2, retryCount);
-        Thread.sleep((long) Math.min(expSleep, TimeUnit.MINUTES.toMillis(1)));
+        Thread.sleep(Math.min((long) expSleep, TimeUnit.MINUTES.toMillis(1)));
       }
     }
   }

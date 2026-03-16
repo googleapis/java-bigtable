@@ -1783,10 +1783,9 @@ public class BigtableDataClient implements AutoCloseable {
    *     GrpcCallContext)} instead.
    */
   @Deprecated
-  @BetaApi("This surface is likely to change as the batching surface evolves.")
   public Batcher<RowMutationEntry, Void> newBulkMutationBatcher(
       @Nonnull String tableId, @Nullable GrpcCallContext ctx) {
-    return stub.newMutateRowsBatcher(tableId, ctx);
+    return stub.newMutateRowsBatcher(TableId.of(tableId), ctx);
   }
 
   /**
@@ -2698,8 +2697,8 @@ public class BigtableDataClient implements AutoCloseable {
    * Executes a SQL Query and returns a ResultSet to iterate over the results. The returned
    * ResultSet instance is not threadsafe, it can only be used from single thread.
    *
-   * <p> The {@link BoundStatement} must be built from a {@link PreparedStatement} created using
-   * the same instance and app profile.
+   * <p>The {@link BoundStatement} must be built from a {@link PreparedStatement} created using the
+   * same instance and app profile.
    *
    * <p>Sample code:
    *
@@ -2720,9 +2719,11 @@ public class BigtableDataClient implements AutoCloseable {
    *    } catch (RuntimeException e) {
    *        e.printStackTrace();
    *   }
+   * }
    * }</pre>
    *
-   * @see {@link PreparedStatement} & {@link BoundStatement} for query options.
+   * @see PreparedStatement for query options.
+   * @see BoundStatement for query options.
    */
   public ResultSet executeQuery(BoundStatement boundStatement) {
     boundStatement.assertUsingSameStub(stub);

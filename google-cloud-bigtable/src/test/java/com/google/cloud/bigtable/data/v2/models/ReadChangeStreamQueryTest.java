@@ -16,9 +16,9 @@
 package com.google.cloud.bigtable.data.v2.models;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.bigtable.v2.ReadChangeStreamRequest;
-import com.google.bigtable.v2.ReadChangeStreamRequest.Builder;
 import com.google.bigtable.v2.RowRange;
 import com.google.bigtable.v2.StreamContinuationToken;
 import com.google.bigtable.v2.StreamContinuationTokens;
@@ -37,9 +37,7 @@ import java.io.ObjectOutputStream;
 import java.time.Instant;
 import java.util.Collections;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -52,8 +50,6 @@ public class ReadChangeStreamQueryTest {
   private RequestContext requestContext;
   private static final Instant FAKE_START_TIME = Instant.ofEpochSecond(1L, 1000L);
   private static final Instant FAKE_END_TIME = Instant.ofEpochSecond(1L, 2000L);
-
-  @Rule public ExpectedException expect = ExpectedException.none();
 
   @Before
   public void setUp() {
@@ -74,7 +70,7 @@ public class ReadChangeStreamQueryTest {
     ReadChangeStreamQuery query1 =
         ReadChangeStreamQuery.create(TABLE_ID).streamPartition("simple-begin", "simple-end");
     ReadChangeStreamRequest actualProto1 = query1.toProto(requestContext);
-    Builder expectedProto1 = expectedProtoBuilder();
+    ReadChangeStreamRequest.Builder expectedProto1 = expectedProtoBuilder();
     expectedProto1.setPartition(
         StreamPartition.newBuilder()
             .setRowRange(
@@ -91,7 +87,7 @@ public class ReadChangeStreamQueryTest {
             .streamPartition(
                 ByteString.copyFromUtf8("byte-begin"), ByteString.copyFromUtf8("byte-end"));
     ReadChangeStreamRequest actualProto2 = query2.toProto(requestContext);
-    Builder expectedProto2 = expectedProtoBuilder();
+    ReadChangeStreamRequest.Builder expectedProto2 = expectedProtoBuilder();
     expectedProto2.setPartition(
         StreamPartition.newBuilder()
             .setRowRange(
@@ -107,7 +103,7 @@ public class ReadChangeStreamQueryTest {
         ReadChangeStreamQuery.create(TABLE_ID)
             .streamPartition(ByteStringRange.create("range-begin", "range-end"));
     ReadChangeStreamRequest actualProto3 = query3.toProto(requestContext);
-    Builder expectedProto3 = expectedProtoBuilder();
+    ReadChangeStreamRequest.Builder expectedProto3 = expectedProtoBuilder();
     expectedProto3.setPartition(
         StreamPartition.newBuilder()
             .setRowRange(
@@ -123,7 +119,7 @@ public class ReadChangeStreamQueryTest {
   public void startTimeTest() {
     ReadChangeStreamQuery query = ReadChangeStreamQuery.create(TABLE_ID).startTime(FAKE_START_TIME);
 
-    Builder expectedProto =
+    ReadChangeStreamRequest.Builder expectedProto =
         expectedProtoBuilder()
             .setStartTime(
                 Timestamp.newBuilder()
@@ -138,7 +134,7 @@ public class ReadChangeStreamQueryTest {
   public void endTimeTest() {
     ReadChangeStreamQuery query = ReadChangeStreamQuery.create(TABLE_ID).endTime(FAKE_END_TIME);
 
-    Builder expectedProto =
+    ReadChangeStreamRequest.Builder expectedProto =
         expectedProtoBuilder()
             .setEndTime(
                 Timestamp.newBuilder()
@@ -154,7 +150,7 @@ public class ReadChangeStreamQueryTest {
     ReadChangeStreamQuery query =
         ReadChangeStreamQuery.create(TABLE_ID).heartbeatDuration(java.time.Duration.ofSeconds(5));
 
-    Builder expectedProto =
+    ReadChangeStreamRequest.Builder expectedProto =
         expectedProtoBuilder().setHeartbeatDuration(Duration.newBuilder().setSeconds(5).build());
 
     ReadChangeStreamRequest actualProto = query.toProto(requestContext);
@@ -179,7 +175,7 @@ public class ReadChangeStreamQueryTest {
     ReadChangeStreamQuery query =
         ReadChangeStreamQuery.create(TABLE_ID).continuationTokens(Collections.singletonList(token));
 
-    Builder expectedProto =
+    ReadChangeStreamRequest.Builder expectedProto =
         expectedProtoBuilder()
             .setContinuationTokens(
                 StreamContinuationTokens.newBuilder().addTokens(tokenProto).build());
@@ -188,7 +184,7 @@ public class ReadChangeStreamQueryTest {
     assertThat(actualProto).isEqualTo(expectedProto.build());
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void createWithStartTimeAndContinuationTokensTest() {
     StreamContinuationToken tokenProto =
         StreamContinuationToken.newBuilder()
@@ -203,12 +199,16 @@ public class ReadChangeStreamQueryTest {
             .setToken("random-token")
             .build();
     ChangeStreamContinuationToken token = ChangeStreamContinuationToken.fromProto(tokenProto);
-    ReadChangeStreamQuery query =
-        ReadChangeStreamQuery.create(TABLE_ID)
-            .startTime(FAKE_START_TIME)
-            .continuationTokens(Collections.singletonList(token));
-    expect.expect(IllegalArgumentException.class);
-    expect.expectMessage("startTime and continuationTokens can't be specified together");
+    IllegalStateException e =
+        assertThrows(
+            IllegalStateException.class,
+            () ->
+                ReadChangeStreamQuery.create(TABLE_ID)
+                    .startTime(FAKE_START_TIME)
+                    .continuationTokens(Collections.singletonList(token)));
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo("startTime and continuationTokens can't be specified together");
   }
 
   @Test
@@ -286,12 +286,14 @@ public class ReadChangeStreamQueryTest {
     assertThat(query.toProto(requestContext)).isEqualTo(request);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testFromProtoWithEmptyTableId() {
-    ReadChangeStreamQuery.fromProto(ReadChangeStreamRequest.getDefaultInstance());
+    IllegalArgumentException e =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> ReadChangeStreamQuery.fromProto(ReadChangeStreamRequest.getDefaultInstance()));
 
-    expect.expect(IllegalArgumentException.class);
-    expect.expectMessage("Invalid table name:");
+    assertThat(e).hasMessageThat().startsWith("Invalid table name:");
   }
 
   @Test

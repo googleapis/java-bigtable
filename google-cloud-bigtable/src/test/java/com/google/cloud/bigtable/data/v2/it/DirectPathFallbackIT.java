@@ -18,7 +18,7 @@ package com.google.cloud.bigtable.data.v2.it;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static com.google.common.truth.TruthJUnit.assume;
 
-import com.google.api.core.ApiFunction;
+import com.google.api.gax.grpc.ChannelPoolSettings;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
@@ -36,6 +36,7 @@ import io.grpc.netty.shaded.io.netty.channel.EventLoopGroup;
 import io.grpc.netty.shaded.io.netty.channel.nio.NioEventLoopGroup;
 import io.grpc.netty.shaded.io.netty.channel.socket.nio.NioSocketChannel;
 import io.grpc.netty.shaded.io.netty.util.ReferenceCountUtil;
+import io.grpc.netty.shaded.io.netty.util.concurrent.Future;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -72,12 +73,12 @@ public class DirectPathFallbackIT {
 
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
 
-  private AtomicBoolean blackholeDpAddr = new AtomicBoolean();
-  private AtomicInteger numBlocked = new AtomicInteger();
-  private AtomicInteger numDpAddrRead = new AtomicInteger();
+  private final AtomicBoolean blackholeDpAddr = new AtomicBoolean();
+  private final AtomicInteger numBlocked = new AtomicInteger();
+  private final AtomicInteger numDpAddrRead = new AtomicInteger();
 
-  private ChannelFactory<NioSocketChannel> channelFactory;
-  private EventLoopGroup eventLoopGroup;
+  private final ChannelFactory<NioSocketChannel> channelFactory;
+  private final EventLoopGroup eventLoopGroup;
   private BigtableDataClient instrumentedClient;
 
   public DirectPathFallbackIT() {
@@ -103,18 +104,15 @@ public class DirectPathFallbackIT {
     InstantiatingGrpcChannelProvider instrumentedTransportChannelProvider =
         defaultTransportProvider.toBuilder()
             .setAttemptDirectPath(true)
-            .setPoolSize(1)
+            .setChannelPoolSettings(ChannelPoolSettings.staticallySized(1))
             .setChannelConfigurator(
-                new ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder>() {
-                  @Override
-                  public ManagedChannelBuilder apply(ManagedChannelBuilder builder) {
-                    injectNettyChannelHandler(builder);
+                builder -> {
+                  injectNettyChannelHandler(builder);
 
-                    // Fail fast when blackhole is active
-                    builder.keepAliveTime(1, TimeUnit.SECONDS);
-                    builder.keepAliveTimeout(1, TimeUnit.SECONDS);
-                    return builder;
-                  }
+                  // Fail fast when blackhole is active
+                  builder.keepAliveTime(1, TimeUnit.SECONDS);
+                  builder.keepAliveTimeout(1, TimeUnit.SECONDS);
+                  return builder;
                 })
             .build();
 
@@ -135,7 +133,7 @@ public class DirectPathFallbackIT {
       instrumentedClient.close();
     }
     if (eventLoopGroup != null) {
-      eventLoopGroup.shutdownGracefully();
+      Future<?> ignored = eventLoopGroup.shutdownGracefully();
     }
   }
 
@@ -228,7 +226,8 @@ public class DirectPathFallbackIT {
         super.connect(ctx, remoteAddress, localAddress, promise);
       } else {
         // Fail the connection fast
-        promise.setFailure(new IOException("fake error"));
+        @SuppressWarnings("UnusedVariable")
+        ChannelPromise ignored = promise.setFailure(new IOException("fake error"));
       }
     }
 

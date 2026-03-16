@@ -64,6 +64,7 @@ public class TypeTest {
   }
 
   @Test
+  @SuppressWarnings("TruthIncompatibleType")
   public void simpleTypes_equals() {
     assertThat(Type.String.create()).isEqualTo(Type.String.create());
     assertThat(Type.Bytes.create()).isEqualTo(Type.Bytes.create());
@@ -87,6 +88,7 @@ public class TypeTest {
   }
 
   @Test
+  @SuppressWarnings("TruthIncompatibleType")
   public void array_equals() {
     assertThat(Type.Array.create(Type.String.create()))
         .isEqualTo(Type.Array.create(Type.String.create()));
@@ -100,6 +102,7 @@ public class TypeTest {
   }
 
   @Test
+  @SuppressWarnings("TruthIncompatibleType")
   public void map_equals() {
     assertThat(Type.Map.create(Type.Bytes.create(), Type.String.create()))
         .isEqualTo(Type.Map.create(Type.Bytes.create(), Type.String.create()));
@@ -123,6 +126,7 @@ public class TypeTest {
   }
 
   @Test
+  @SuppressWarnings("TruthIncompatibleType")
   public void proto_equals() {
     assertThat(Type.SchemalessProto.create("MyMessage", "my_bundle"))
         .isEqualTo(Type.SchemalessProto.create("MyMessage", "my_bundle"));
@@ -147,6 +151,7 @@ public class TypeTest {
   }
 
   @Test
+  @SuppressWarnings("TruthIncompatibleType")
   public void enum_equals() {
     assertThat(Type.SchemalessEnum.create("MyEnum", "my_bundle"))
         .isEqualTo(Type.SchemalessEnum.create("MyEnum", "my_bundle"));

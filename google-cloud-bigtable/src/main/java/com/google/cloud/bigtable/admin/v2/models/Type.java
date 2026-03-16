@@ -27,6 +27,7 @@ import javax.annotation.Nonnull;
  * @see com.google.bigtable.admin.v2.Type
  */
 @BetaApi
+@SuppressWarnings("SameNameButDifferent")
 public interface Type {
   /**
    * These types are marker types that allow types to be used as the input to aggregate function.
@@ -51,8 +52,9 @@ public interface Type {
         return Aggregate.fromProto(source.getAggregateType());
       case KIND_NOT_SET:
         return Raw.create();
+      default:
+        throw new UnsupportedOperationException();
     }
-    throw new UnsupportedOperationException();
   }
 
   /** The raw type denotes the absence of a type. */
@@ -203,8 +205,9 @@ public interface Type {
             return BigEndianBytes.create();
           case ENCODING_NOT_SET:
             return BigEndianBytes.create();
+          default:
+            throw new UnsupportedOperationException();
         }
-        throw new UnsupportedOperationException();
       }
 
       @AutoValue

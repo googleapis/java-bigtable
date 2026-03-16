@@ -1042,6 +1042,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * @throws com.google.api.gax.retrying.PollException when polling exceeds the total timeout
    */
   @ObsoleteApi("Use getBaseClient() to access the auto-generated proto-based methods instead.")
+  @Deprecated
   public void awaitReplication(String tableId) {
     // TODO(igorbernstein2): remove usage of typesafe names
     com.google.bigtable.admin.v2.TableName tableName =
@@ -1418,8 +1419,8 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * <p>This method is obsolete. For the recommended proto-based approach, please see
-   * {@link com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#restoreTableAsync(com.google.bigtable.admin.v2.RestoreTableRequest)}.
+   * This method is obsolete. For the recommended proto-based approach, please see {@link
+   * com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient#restoreTableAsync(com.google.bigtable.admin.v2.RestoreTableRequest)}.
    *
    * <p>Restores a backup to a new table with the specified configuration asynchronously.
    *
@@ -1442,7 +1443,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   },
    *   MoreExecutors.directExecutor()
    * );
-   * </pre>
+   * }</pre>
    */
   @ObsoleteApi("Use getBaseClient() to access the auto-generated proto-based methods instead.")
   public ApiFuture<RestoredTableResult> restoreTableAsync(RestoreTableRequest request) {
@@ -1667,6 +1668,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    */
   @SuppressWarnings("WeakerAccess")
   @ObsoleteApi("Use getBaseClient() to access the auto-generated proto-based methods instead.")
+  @Deprecated
   public ApiFuture<Void> awaitReplicationAsync(final String tableId) {
     // TODO(igorbernstein2): remove usage of typesafe names
     com.google.bigtable.admin.v2.TableName tableName =

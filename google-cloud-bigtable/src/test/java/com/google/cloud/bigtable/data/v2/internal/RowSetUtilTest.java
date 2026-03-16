@@ -21,9 +21,9 @@ import com.google.bigtable.v2.RowRange;
 import com.google.bigtable.v2.RowSet;
 import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
 import com.google.protobuf.ByteString;
 import java.util.Arrays;
-import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -170,7 +170,7 @@ public class RowSetUtilTest {
   private static RowSet parse(String encodedRowSet) {
     RowSet.Builder builder = RowSet.newBuilder();
 
-    for (String s : encodedRowSet.split(",")) {
+    for (String s : Splitter.on(",").split(encodedRowSet)) {
       if (s.contains("-")) {
         builder.addRowRanges(parseRange(s));
       } else {
@@ -343,11 +343,5 @@ public class RowSetUtilTest {
             .build();
     RowSet actual = RowSetUtil.eraseLargeRow(rowSet, key);
     assertThat(actual).isNull();
-  }
-
-  // Helpers
-  private static void verifyShard(RowSet input, SortedSet<ByteString> splits, RowSet... expected) {
-    List<RowSet> actualWithNull = RowSetUtil.shard(input, splits);
-    assertThat(actualWithNull).containsExactlyElementsIn(Arrays.asList(expected)).inOrder();
   }
 }

@@ -22,6 +22,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.TruthJUnit.assume;
 import static org.junit.Assert.fail;
 
+import com.google.api.core.ApiFuture;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.rpc.ServerStream;
 import com.google.cloud.bigtable.admin.v2.models.AuthorizedView;
@@ -31,6 +32,7 @@ import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowCell;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
+import com.google.cloud.bigtable.data.v2.models.TableId;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.common.collect.ImmutableList;
@@ -51,15 +53,17 @@ public class RowMutationEntryBatcherIT {
   @Test
   public void testNewBatcher() throws Exception {
     BigtableDataClient client = testEnvRule.env().getDataClient();
-    String tableId = testEnvRule.env().getTableId();
+    TableId tableId = testEnvRule.env().getTableId();
     String family = testEnvRule.env().getFamilyId();
     String rowPrefix = UUID.randomUUID().toString();
 
     try (Batcher<RowMutationEntry, Void> batcher = client.newBulkMutationBatcher(tableId)) {
       for (int i = 0; i < 10; i++) {
-        batcher.add(
-            RowMutationEntry.create(rowPrefix + "-" + i)
-                .setCell(family, "qualifier", 10_000L, "value-" + i));
+        @SuppressWarnings("UnusedVariable")
+        ApiFuture<Void> ignored =
+            batcher.add(
+                RowMutationEntry.create(rowPrefix + "-" + i)
+                    .setCell(family, "qualifier", 10_000L, "value-" + i));
       }
     }
 
@@ -91,16 +95,18 @@ public class RowMutationEntryBatcherIT {
     AuthorizedView testAuthorizedView = createTestAuthorizedView(testEnvRule);
 
     BigtableDataClient client = testEnvRule.env().getDataClient();
-    String tableId = testEnvRule.env().getTableId();
+    TableId tableId = testEnvRule.env().getTableId();
     String family = testEnvRule.env().getFamilyId();
     String rowPrefix = AUTHORIZED_VIEW_ROW_PREFIX + UUID.randomUUID();
 
     try (Batcher<RowMutationEntry, Void> batcher =
         client.newBulkMutationBatcher(AuthorizedViewId.of(tableId, testAuthorizedView.getId()))) {
       for (int i = 0; i < 10; i++) {
-        batcher.add(
-            RowMutationEntry.create(rowPrefix + "-" + i)
-                .setCell(family, AUTHORIZED_VIEW_COLUMN_QUALIFIER, 10_000L, "value-" + i));
+        @SuppressWarnings("UnusedVariable")
+        ApiFuture<Void> ignored =
+            batcher.add(
+                RowMutationEntry.create(rowPrefix + "-" + i)
+                    .setCell(family, AUTHORIZED_VIEW_COLUMN_QUALIFIER, 10_000L, "value-" + i));
       }
     }
 
@@ -126,9 +132,11 @@ public class RowMutationEntryBatcherIT {
     try {
       try (Batcher<RowMutationEntry, Void> batcher =
           client.newBulkMutationBatcher(AuthorizedViewId.of(tableId, testAuthorizedView.getId()))) {
-        batcher.add(
-            RowMutationEntry.create(rowKeyOutsideAuthorizedView)
-                .setCell(family, AUTHORIZED_VIEW_COLUMN_QUALIFIER, 10_000L, "value"));
+        @SuppressWarnings("UnusedVariable")
+        ApiFuture<Void> ignored =
+            batcher.add(
+                RowMutationEntry.create(rowKeyOutsideAuthorizedView)
+                    .setCell(family, AUTHORIZED_VIEW_COLUMN_QUALIFIER, 10_000L, "value"));
       }
       fail("Should not be able to apply bulk mutation on rows outside authorized view");
     } catch (Exception e) {
@@ -138,6 +146,7 @@ public class RowMutationEntryBatcherIT {
     testEnvRule
         .env()
         .getTableAdminClient()
-        .deleteAuthorizedView(testEnvRule.env().getTableId(), testAuthorizedView.getId());
+        .deleteAuthorizedView(
+            testEnvRule.env().getTableId().getTableId(), testAuthorizedView.getId());
   }
 }

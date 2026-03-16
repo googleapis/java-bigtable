@@ -15,6 +15,8 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.readrows;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.grpc.GrpcStatusCode;
 import com.google.api.gax.grpc.GrpcTransportChannel;
@@ -29,13 +31,13 @@ import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.ReadRowsResponse.CellChunk;
 import com.google.bigtable.v2.RowRange;
-import com.google.bigtable.v2.RowSet;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.cloud.bigtable.data.v2.models.Row;
+import com.google.cloud.bigtable.data.v2.models.TableId;
 import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -53,6 +55,7 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcServerRule;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -70,7 +73,7 @@ import org.junit.runners.JUnit4;
 public class ReadRowsRetryTest {
   private static final String PROJECT_ID = "fake-project";
   private static final String INSTANCE_ID = "fake-instance";
-  private static final String TABLE_ID = "fake-table";
+  private static final TableId TABLE_ID = TableId.of("fake-table");
   private static final Metadata.Key<? super byte[]> ERROR_DETAILS_KEY =
       Metadata.Key.of("grpc-status-details-bin", Metadata.BINARY_BYTE_MARSHALLER);
 
@@ -119,7 +122,7 @@ public class ReadRowsRetryTest {
             .respondWith("k1", "r1", "r2"));
 
     List<String> actualResults = getResults(Query.create(TABLE_ID).rowKey("k1").range("r1", "r3"));
-    Truth.assertThat(actualResults).containsExactly("k1", "r1", "r2").inOrder();
+    assertThat(actualResults).containsExactly("k1", "r1", "r2").inOrder();
   }
 
   @Test
@@ -136,7 +139,7 @@ public class ReadRowsRetryTest {
             .respondWith("k1", "r1", "r2"));
 
     List<String> actualResults = getResults(Query.create(TABLE_ID).rowKey("k1").range("r1", "r3"));
-    Truth.assertThat(actualResults).containsExactly("k1", "r1", "r2").inOrder();
+    assertThat(actualResults).containsExactly("k1", "r1", "r2").inOrder();
   }
 
   public ApiException createLargeRowException(String rowKey) {
@@ -145,7 +148,8 @@ public class ReadRowsRetryTest {
             .setReason("LargeRowReadError")
             .setDomain("bigtable.googleapis.com")
             .putMetadata(
-                "rowKeyBase64Encoded", Base64.getEncoder().encodeToString(rowKey.getBytes()))
+                "rowKeyBase64Encoded",
+                Base64.getEncoder().encodeToString(rowKey.getBytes(StandardCharsets.UTF_8)))
             .build();
 
     Any packedErrorInfo = Any.pack(errorInfo);
@@ -157,11 +161,11 @@ public class ReadRowsRetryTest {
     byte[] status =
         com.google.rpc.Status.newBuilder().addDetails(Any.pack(errorInfo)).build().toByteArray();
     trailers.put(ERROR_DETAILS_KEY, status);
-    return (new UnavailableException(
+    return new UnavailableException(
         new StatusRuntimeException(Status.FAILED_PRECONDITION, trailers),
         GrpcStatusCode.of(Code.FAILED_PRECONDITION),
         false,
-        errorDetails));
+        errorDetails);
   }
 
   @Test
@@ -169,7 +173,6 @@ public class ReadRowsRetryTest {
     // Large rows is r2 for range r1 to r8
     ApiException largeRowExceptionWithTrailersR2 = createLargeRowException("r2");
 
-    List<Range<String>> rangeList;
     List<String> actualResults;
 
     // TEST - range end is large row || row limit
@@ -181,7 +184,7 @@ public class ReadRowsRetryTest {
             .respondWithException(Code.INTERNAL, largeRowExceptionWithTrailersR2));
 
     actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r1", "r3").limit(2));
-    Truth.assertThat(actualResults).containsExactly("r1").inOrder();
+    assertThat(actualResults).containsExactly("r1").inOrder();
 
     service.expectations.add(
         RpcExpectation.create()
@@ -190,7 +193,7 @@ public class ReadRowsRetryTest {
             .respondWith("r4", "r5"));
 
     actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r4", "r7").limit(2));
-    Truth.assertThat(actualResults).containsExactly("r4", "r5").inOrder();
+    assertThat(actualResults).containsExactly("r4", "r5").inOrder();
   }
 
   @Test
@@ -209,7 +212,7 @@ public class ReadRowsRetryTest {
     actualResults =
         getSkipLargeRowsResults(
             Query.create(TABLE_ID).rowKey("r1").rowKey("r7").rowKey("r4").rowKey("r8"));
-    Truth.assertThat(actualResults).containsExactly("r1", "r4", "r8").inOrder();
+    assertThat(actualResults).containsExactly("r1", "r4", "r8").inOrder();
   }
 
   /**
@@ -238,7 +241,7 @@ public class ReadRowsRetryTest {
             .expectRequest(Range.open("r2", "r4"))
             .respondWithException(Code.INTERNAL, largeRowExceptionWithTrailersR3));
 
-    rangeList = new ArrayList<Range<String>>();
+    rangeList = new ArrayList<>();
     rangeList.add(Range.open("r2", "r3"));
     rangeList.add(Range.open("r3", "r4"));
     service.expectations.add(
@@ -247,7 +250,7 @@ public class ReadRowsRetryTest {
             .respondWithStatus(Code.OK));
 
     actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r2", "r4"));
-    Truth.assertThat(actualResults.size()).isEqualTo(0);
+    assertThat(actualResults.size()).isEqualTo(0);
 
     // TEST - range start is large row
     service.expectations.add(
@@ -259,7 +262,7 @@ public class ReadRowsRetryTest {
         RpcExpectation.create().expectRequest(Range.open("r3", "r5")).respondWith("r4"));
 
     actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r3", "r5"));
-    Truth.assertThat(actualResults).containsExactly("r4").inOrder();
+    assertThat(actualResults).containsExactly("r4").inOrder();
 
     // TEST - range end is large row
     service.expectations.add(
@@ -268,7 +271,7 @@ public class ReadRowsRetryTest {
             .respondWith("r1")
             .respondWithException(Code.INTERNAL, largeRowExceptionWithTrailersR2));
 
-    rangeList = new ArrayList<Range<String>>();
+    rangeList = new ArrayList<>();
     rangeList.add(Range.open("r1", "r2"));
     rangeList.add(Range.open("r2", "r3"));
     service.expectations.add(
@@ -277,7 +280,7 @@ public class ReadRowsRetryTest {
             .respondWithStatus(Code.OK));
 
     actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r1", "r3"));
-    Truth.assertThat(actualResults).containsExactly("r1").inOrder();
+    assertThat(actualResults).containsExactly("r1").inOrder();
 
     // r2 faulty
     service.expectations.add(
@@ -287,7 +290,7 @@ public class ReadRowsRetryTest {
             .respondWithException(Code.INTERNAL, largeRowExceptionWithTrailersR2));
 
     // r3 faulty
-    rangeList = new ArrayList<Range<String>>();
+    rangeList = new ArrayList<>();
     rangeList.add(Range.open("r1", "r2"));
     rangeList.add(Range.open("r2", "r9"));
     service.expectations.add(
@@ -295,7 +298,7 @@ public class ReadRowsRetryTest {
             .expectRequestForMultipleRowRanges(rangeList)
             .respondWithException(Code.INTERNAL, largeRowExceptionWithTrailersR3));
 
-    rangeList = new ArrayList<Range<String>>();
+    rangeList = new ArrayList<>();
     rangeList.add(Range.open("r1", "r2"));
     rangeList.add(Range.open("r2", "r3"));
     rangeList.add(Range.open("r3", "r9"));
@@ -305,7 +308,7 @@ public class ReadRowsRetryTest {
             .respondWith("r4", "r5")
             .respondWithException(Code.INTERNAL, largeRowExceptionWithTrailersR7));
 
-    rangeList = new ArrayList<Range<String>>();
+    rangeList = new ArrayList<>();
     rangeList.add(Range.open("r5", "r7"));
     rangeList.add(Range.open("r7", "r9"));
 
@@ -315,7 +318,7 @@ public class ReadRowsRetryTest {
             .respondWith("r6", "r8"));
 
     actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r1", "r9"));
-    Truth.assertThat(actualResults).containsExactly("r1", "r4", "r5", "r6", "r8").inOrder();
+    assertThat(actualResults).containsExactly("r1", "r4", "r5", "r6", "r8").inOrder();
 
     // TEST - reverse query with large rows
     service.expectations.add(
@@ -333,7 +336,7 @@ public class ReadRowsRetryTest {
 
     actualResults =
         getSkipLargeRowsResults(Query.create(TABLE_ID).range("r3", "r7").reversed(true));
-    Truth.assertThat(actualResults).containsExactly("r6", "r5", "r4").inOrder();
+    assertThat(actualResults).containsExactly("r6", "r5", "r4").inOrder();
   }
 
   @Test
@@ -355,7 +358,7 @@ public class ReadRowsRetryTest {
             .respondWithStatus(Code.OK));
 
     List<String> actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID));
-    Truth.assertThat(actualResults).containsExactly("r1", "r2", "r4").inOrder();
+    assertThat(actualResults).containsExactly("r1", "r2", "r4").inOrder();
 
     // Test case 2: Unbounded end
     service.expectations.add(
@@ -373,7 +376,7 @@ public class ReadRowsRetryTest {
     actualResults =
         getSkipLargeRowsResults(
             Query.create(TABLE_ID).range(ByteStringRange.unbounded().startClosed("r2")));
-    Truth.assertThat(actualResults).containsExactly("r2", "r4").inOrder();
+    assertThat(actualResults).containsExactly("r2", "r4").inOrder();
 
     // Test case 3: Unbounded start
     service.expectations.add(
@@ -392,7 +395,7 @@ public class ReadRowsRetryTest {
     actualResults =
         getSkipLargeRowsResults(
             Query.create(TABLE_ID).range(ByteStringRange.unbounded().endClosed("r4")));
-    Truth.assertThat(actualResults).containsExactly("r1", "r2", "r4").inOrder();
+    assertThat(actualResults).containsExactly("r1", "r2", "r4").inOrder();
   }
 
   @Test
@@ -416,7 +419,7 @@ public class ReadRowsRetryTest {
             .respondWithStatus(Code.OK));
 
     List<String> actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).reversed(true));
-    Truth.assertThat(actualResults).containsExactly("r5", "r4", "r2", "r1").inOrder();
+    assertThat(actualResults).containsExactly("r5", "r4", "r2", "r1").inOrder();
 
     // Test case 2: Unbounded start reversed
     service.expectations.add(
@@ -437,7 +440,7 @@ public class ReadRowsRetryTest {
             Query.create(TABLE_ID)
                 .range(ByteStringRange.unbounded().startClosed("r2"))
                 .reversed(true));
-    Truth.assertThat(actualResults).containsExactly("r5", "r4", "r2").inOrder();
+    assertThat(actualResults).containsExactly("r5", "r4", "r2").inOrder();
 
     // Test case 3: Unbounded end reversed
     service.expectations.add(
@@ -459,7 +462,7 @@ public class ReadRowsRetryTest {
             Query.create(TABLE_ID)
                 .range(ByteStringRange.unbounded().endClosed("r4"))
                 .reversed(true));
-    Truth.assertThat(actualResults).containsExactly("r4", "r2", "r1").inOrder();
+    assertThat(actualResults).containsExactly("r4", "r2", "r1").inOrder();
   }
 
   @Test
@@ -482,7 +485,7 @@ public class ReadRowsRetryTest {
         RpcExpectation.create().expectRequest(Range.open("r7", "r9")).respondWith("r8"));
 
     List<String> actualResults = getResults(Query.create(TABLE_ID).range("r1", "r9"));
-    Truth.assertThat(actualResults)
+    assertThat(actualResults)
         .containsExactly("r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8")
         .inOrder();
   }
@@ -502,7 +505,7 @@ public class ReadRowsRetryTest {
             .respondWith("r2"));
 
     List<String> actualResults = getResults(Query.create(TABLE_ID).range("r1", "r3").limit(2));
-    Truth.assertThat(actualResults).containsExactly("r1", "r2").inOrder();
+    assertThat(actualResults).containsExactly("r1", "r2").inOrder();
   }
 
   @Test
@@ -518,7 +521,7 @@ public class ReadRowsRetryTest {
 
     List<String> actualResults = getResults(Query.create(TABLE_ID).range("r1", "r3").limit(2));
 
-    Truth.assertThat(actualResults).containsExactly("r1", "r2");
+    assertThat(actualResults).containsExactly("r1", "r2");
   }
 
   @Test
@@ -534,7 +537,7 @@ public class ReadRowsRetryTest {
 
     List<String> actualResults = getResults(Query.create(TABLE_ID).range("r1", "r3").rowKey("r4"));
 
-    Truth.assertThat(actualResults).containsExactly("r2", "r4");
+    assertThat(actualResults).containsExactly("r2", "r4");
   }
 
   @Test
@@ -547,7 +550,7 @@ public class ReadRowsRetryTest {
     service.expectations.add(RpcExpectation.create().expectRequest("r2").respondWith("r2"));
 
     List<String> actualResults = getResults(Query.create(TABLE_ID).rowKey("r1").rowKey("r2"));
-    Truth.assertThat(actualResults).containsExactly("r1", "r2").inOrder();
+    assertThat(actualResults).containsExactly("r1", "r2").inOrder();
   }
 
   @Test
@@ -557,7 +560,7 @@ public class ReadRowsRetryTest {
     service.expectations.add(
         RpcExpectation.create().expectRequest(Range.greaterThan("r1")).respondWith("r2"));
     List<String> actualResults = getResults(Query.create(TABLE_ID));
-    Truth.assertThat(actualResults).containsExactly("r1", "r2").inOrder();
+    assertThat(actualResults).containsExactly("r1", "r2").inOrder();
   }
 
   @Test
@@ -572,7 +575,7 @@ public class ReadRowsRetryTest {
 
     List<String> actualResults =
         getResults(Query.create(TABLE_ID).range(ByteStringRange.unbounded().endOpen("r9")));
-    Truth.assertThat(actualResults).containsExactly("r1", "r2").inOrder();
+    assertThat(actualResults).containsExactly("r1", "r2").inOrder();
   }
 
   @Test
@@ -587,7 +590,7 @@ public class ReadRowsRetryTest {
 
     List<String> actualResults =
         getResults(Query.create(TABLE_ID).range(ByteStringRange.unbounded().startClosed("r1")));
-    Truth.assertThat(actualResults).containsExactly("r1", "r2").inOrder();
+    assertThat(actualResults).containsExactly("r1", "r2").inOrder();
   }
 
   @Test
@@ -601,7 +604,7 @@ public class ReadRowsRetryTest {
         RpcExpectation.create().expectRequest(Range.open("r5", "r9")).respondWith("r7"));
     List<String> actualResults =
         getResults(Query.create(TABLE_ID).range(ByteStringRange.create("r1", "r9")));
-    Truth.assertThat(actualResults).containsExactly("r7").inOrder();
+    assertThat(actualResults).containsExactly("r7").inOrder();
   }
 
   @Test
@@ -625,7 +628,7 @@ public class ReadRowsRetryTest {
             .respondWith("k1", "r1", "r2"));
 
     List<String> actualResults = getResults(Query.create(TABLE_ID).rowKey("k1").range("r1", "r3"));
-    Truth.assertThat(actualResults).containsExactly("k1", "r1", "r2").inOrder();
+    assertThat(actualResults).containsExactly("k1", "r1", "r2").inOrder();
   }
 
   private List<String> getResults(Query query) {
@@ -638,12 +641,9 @@ public class ReadRowsRetryTest {
   }
 
   private List<String> getSkipLargeRowsResults(Query query) {
-    List<String> actualRowKeys =
-        client.skipLargeRowsCallable().all().call(query).stream()
-            .map(row -> row.getKey().toStringUtf8())
-            .collect(Collectors.toList());
-
-    return actualRowKeys;
+    return client.skipLargeRowsCallable().all().call(query).stream()
+        .map(row -> row.getKey().toStringUtf8())
+        .collect(Collectors.toList());
   }
 
   private static class TestBigtableService extends BigtableGrpc.BigtableImplBase {
@@ -655,6 +655,7 @@ public class ReadRowsRetryTest {
         ReadRowsRequest request, StreamObserver<ReadRowsResponse> responseObserver) {
 
       RpcExpectation expectedRpc = expectations.poll();
+      assertThat(expectedRpc).isNotNull();
       i++;
 
       Truth.assertWithMessage("Unexpected request#" + i + ":" + request.toString())
@@ -708,19 +709,13 @@ public class ReadRowsRetryTest {
     }
 
     RpcExpectation expectRequestForMultipleRowRanges(List<Range<String>> rowRanges) {
-      RowSet.Builder rowRange = requestBuilder.getRowsBuilder();
       for (Range<String> range : rowRanges) {
         rowRangeBuilder(range);
       }
       return this;
     }
 
-    /**
-     * Build Row Range
-     *
-     * @param range
-     * @return
-     */
+    /** Build Row Range */
     RowRange rowRangeBuilder(Range<String> range) {
 
       RowRange.Builder rowRange = requestBuilder.getRowsBuilder().addRowRangesBuilder();

@@ -42,6 +42,7 @@ import javax.annotation.Nonnull;
  */
 @BetaApi
 @InternalApi
+@SuppressWarnings({"SameNameButDifferent", "JavaLangClash"})
 public interface Type {
 
   @AutoValue
@@ -57,7 +58,7 @@ public interface Type {
     }
 
     @Override
-    public java.lang.String toString() {
+    public final java.lang.String toString() {
       return getCode().name();
     }
   }
@@ -74,7 +75,7 @@ public interface Type {
     }
 
     @Override
-    public java.lang.String toString() {
+    public final java.lang.String toString() {
       return getCode().name();
     }
   }
@@ -91,7 +92,7 @@ public interface Type {
     }
 
     @Override
-    public java.lang.String toString() {
+    public final java.lang.String toString() {
       return getCode().name();
     }
   }
@@ -108,7 +109,7 @@ public interface Type {
     }
 
     @Override
-    public java.lang.String toString() {
+    public final java.lang.String toString() {
       return getCode().name();
     }
   }
@@ -125,7 +126,7 @@ public interface Type {
     }
 
     @Override
-    public java.lang.String toString() {
+    public final java.lang.String toString() {
       return getCode().name();
     }
   }
@@ -142,7 +143,7 @@ public interface Type {
     }
 
     @Override
-    public java.lang.String toString() {
+    public final java.lang.String toString() {
       return getCode().name();
     }
   }
@@ -159,7 +160,7 @@ public interface Type {
     }
 
     @Override
-    public java.lang.String toString() {
+    public final java.lang.String toString() {
       return getCode().name();
     }
   }
@@ -176,7 +177,7 @@ public interface Type {
     }
 
     @Override
-    public java.lang.String toString() {
+    public final java.lang.String toString() {
       return getCode().name();
     }
   }
@@ -241,7 +242,7 @@ public interface Type {
     }
 
     @Override
-    public java.lang.String toString() {
+    public final java.lang.String toString() {
       return getCode().name();
     }
   }
@@ -305,6 +306,7 @@ public interface Type {
     }
 
     @Override
+    @SuppressWarnings("EqualsGetClass")
     public boolean equals(Object obj) {
       if (this == obj) {
         return true;
@@ -324,7 +326,7 @@ public interface Type {
     }
 
     @Override
-    public java.lang.String toString() {
+    public final java.lang.String toString() {
       return getCode().name() + "{fields=" + fields.toString() + "}";
     }
   }
@@ -349,7 +351,7 @@ public interface Type {
     }
 
     @Override
-    public java.lang.String toString() {
+    public final java.lang.String toString() {
       return getCode().name() + "{elementType=" + getElementType().getCode() + "}";
     }
   }
@@ -381,7 +383,7 @@ public interface Type {
     }
 
     @Override
-    public java.lang.String toString() {
+    public final java.lang.String toString() {
       return getCode().name()
           + "{keyType="
           + getKeyType().toString()
@@ -422,7 +424,7 @@ public interface Type {
     }
 
     @Override
-    public java.lang.String toString() {
+    public final java.lang.String toString() {
       return getCode().name() + "{message=" + getMessageName() + "}";
     }
   }
@@ -456,12 +458,12 @@ public interface Type {
     }
 
     @Override
-    public java.lang.String toString() {
+    public final java.lang.String toString() {
       return getCode().name() + "{enum=" + getEnumName() + "}";
     }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
       if (this == o) {
         return true;
       }
@@ -485,7 +487,7 @@ public interface Type {
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
       T thisEnum = getForNumber().apply(0);
       if (thisEnum == null) {
         return getForNumber().hashCode();
@@ -531,7 +533,7 @@ public interface Type {
     }
 
     @Override
-    public java.lang.String toString() {
+    public final java.lang.String toString() {
       return getCode().name()
           + "{messageName="
           + getMessageName()
@@ -560,6 +562,7 @@ public interface Type {
       return new AutoValue_Type_SchemalessEnum(enumName, schemaBundleId);
     }
 
+    @Override
     public abstract java.lang.String getEnumName();
 
     public abstract java.lang.String schemaBundleId();
@@ -577,7 +580,7 @@ public interface Type {
     }
 
     @Override
-    public java.lang.String toString() {
+    public final java.lang.String toString() {
       return getCode().name()
           + "{enumName="
           + getEnumName()

@@ -28,7 +28,6 @@ import com.google.api.gax.rpc.ApiExceptionFactory;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.bigtable.v2.MutateRowsRequest;
-import com.google.bigtable.v2.MutateRowsRequest.Builder;
 import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.bigtable.v2.MutateRowsResponse.Entry;
 import com.google.cloud.bigtable.data.v2.models.MutateRowsException;
@@ -39,7 +38,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.google.rpc.Code;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -93,7 +91,7 @@ class MutateRowsAttemptCallable implements Callable<MutateRowsAttemptResult> {
   private static final StatusCode LOCAL_UNKNOWN_STATUS =
       new StatusCode() {
         @Override
-        public Code getCode() {
+        public StatusCode.Code getCode() {
           return Code.UNKNOWN;
         }
 
@@ -111,7 +109,7 @@ class MutateRowsAttemptCallable implements Callable<MutateRowsAttemptResult> {
   // Everything needed to build a retry request
   @Nullable private List<Integer> originalIndexes;
   @Nonnull private final Set<StatusCode.Code> retryableCodes;
-  @Nullable private final List<FailedMutation> permanentFailures;
+  @Nonnull private final List<FailedMutation> permanentFailures;
   @Nonnull private final RetryAlgorithm<MutateRowsRequest> retryAlgorithm;
   @Nonnull private TimedAttemptSettings attemptSettings;
 
@@ -148,7 +146,8 @@ class MutateRowsAttemptCallable implements Callable<MutateRowsAttemptResult> {
     this.callContext = Preconditions.checkNotNull(callContext, "callContext");
     this.retryableCodes = Preconditions.checkNotNull(retryableCodes, "retryableCodes");
     this.retryAlgorithm = retryAlgorithm;
-    this.attemptSettings = retryAlgorithm.createFirstAttempt();
+    // TODO: pass in the callContext so that the retry setting can be overridden per call
+    this.attemptSettings = retryAlgorithm.createFirstAttempt(null);
 
     permanentFailures = Lists.newArrayList();
   }
@@ -233,7 +232,7 @@ class MutateRowsAttemptCallable implements Callable<MutateRowsAttemptResult> {
 
     allFailures.addAll(permanentFailures);
 
-    Builder builder = lastRequest.toBuilder().clearEntries();
+    MutateRowsRequest.Builder builder = lastRequest.toBuilder().clearEntries();
     List<Integer> newOriginalIndexes = Lists.newArrayList();
 
     attemptSettings = retryAlgorithm.createNextAttempt(null, entryError, null, attemptSettings);
@@ -272,7 +271,7 @@ class MutateRowsAttemptCallable implements Callable<MutateRowsAttemptResult> {
     List<FailedMutation> allFailures = Lists.newArrayList(permanentFailures);
     MutateRowsRequest lastRequest = currentRequest;
 
-    Builder builder = lastRequest.toBuilder().clearEntries();
+    MutateRowsRequest.Builder builder = lastRequest.toBuilder().clearEntries();
     List<Integer> newOriginalIndexes = Lists.newArrayList();
     boolean[] seenIndices = new boolean[currentRequest.getEntriesCount()];
 
@@ -280,7 +279,7 @@ class MutateRowsAttemptCallable implements Callable<MutateRowsAttemptResult> {
       for (Entry entry : response.getEntriesList()) {
         seenIndices[Ints.checkedCast(entry.getIndex())] = true;
 
-        if (entry.getStatus().getCode() == Code.OK_VALUE) {
+        if (entry.getStatus().getCode() == com.google.rpc.Code.OK_VALUE) {
           continue;
         }
 
