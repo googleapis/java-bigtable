@@ -229,14 +229,11 @@ public class BuiltinMetricsTracerTest {
 
     server = FakeServiceBuilder.create(fakeService).intercept(trailersInterceptor).start();
 
-    // TODO: remove the suppression once setRefreshingChannel can be removed
-    @SuppressWarnings("deprecation")
     BigtableDataSettings settings =
         BigtableDataSettings.newBuilderForEmulator(server.getPort())
             .setProjectId(PROJECT_ID)
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
-            .setRefreshingChannel(false)
             .build();
     EnhancedBigtableStubSettings.Builder stubSettingsBuilder =
         settings.getStubSettings().toBuilder();
