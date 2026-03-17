@@ -63,7 +63,6 @@ public class EmulatorEnv extends AbstractTestEnv {
         BigtableDataSettings.newBuilderForEmulator(emulator.getPort())
             .setProjectId("fake-project")
             .setInstanceId("fake-instance")
-            .setRefreshingChannel(false)
             .setMetricsProvider(NoopMetricsProvider.INSTANCE)
             .disableInternalMetrics()
             .build();
@@ -140,6 +139,7 @@ public class EmulatorEnv extends AbstractTestEnv {
     throw new UnsupportedOperationException("InstanceAdminClient is not supported with emulator");
   }
 
+  @Override
   public String getKmsKeyName() {
     throw new UnsupportedOperationException("CMEK is not supported with emulator");
   }
