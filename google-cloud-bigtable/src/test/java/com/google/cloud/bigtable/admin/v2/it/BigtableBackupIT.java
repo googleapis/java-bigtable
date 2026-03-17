@@ -99,10 +99,12 @@ public class BigtableBackupIT {
     String newInstanceId = PrefixGenerator.newPrefix("backupIT");
     targetClusterHot = newInstanceId + "-c1";
 
-    testInstance = instanceAdmin.createInstance(
-        CreateInstanceRequest.of(newInstanceId)
-            .setDisplayName("BigtableBackupIT")
-            .addCluster(targetClusterHot, testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD));
+    testInstance =
+        instanceAdmin.createInstance(
+            CreateInstanceRequest.of(newInstanceId)
+                .setDisplayName("BigtableBackupIT")
+                .addCluster(
+                    targetClusterHot, testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD));
 
     tableAdminHot =
         BigtableTableAdminClient.create(
