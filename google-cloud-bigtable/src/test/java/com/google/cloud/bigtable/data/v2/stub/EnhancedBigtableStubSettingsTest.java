@@ -55,6 +55,7 @@ import org.mockito.Mockito;
 import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
+@SuppressWarnings("deprecation") // TODO: remove this
 public class EnhancedBigtableStubSettingsTest {
   @Test
   public void instanceNameIsRequiredTest() {
@@ -80,8 +81,6 @@ public class EnhancedBigtableStubSettingsTest {
     CredentialsProvider credentialsProvider = Mockito.mock(CredentialsProvider.class);
     WatchdogProvider watchdogProvider = Mockito.mock(WatchdogProvider.class);
     Duration watchdogInterval = Duration.ofSeconds(12);
-    boolean enableRoutingCookie = false;
-    boolean enableRetryInfo = false;
     String metricsEndpoint = "test-endpoint:443";
 
     EnhancedBigtableStubSettings.Builder builder =
@@ -106,8 +105,6 @@ public class EnhancedBigtableStubSettingsTest {
         credentialsProvider,
         watchdogProvider,
         watchdogInterval,
-        enableRoutingCookie,
-        enableRetryInfo,
         metricsEndpoint);
     verifySettings(
         builder.build(),
@@ -119,8 +116,6 @@ public class EnhancedBigtableStubSettingsTest {
         credentialsProvider,
         watchdogProvider,
         watchdogInterval,
-        enableRoutingCookie,
-        enableRetryInfo,
         metricsEndpoint);
     verifyBuilder(
         builder.build().toBuilder(),
@@ -132,8 +127,6 @@ public class EnhancedBigtableStubSettingsTest {
         credentialsProvider,
         watchdogProvider,
         watchdogInterval,
-        enableRoutingCookie,
-        enableRetryInfo,
         metricsEndpoint);
   }
 
@@ -147,8 +140,6 @@ public class EnhancedBigtableStubSettingsTest {
       CredentialsProvider credentialsProvider,
       WatchdogProvider watchdogProvider,
       Duration watchdogInterval,
-      boolean enableRoutingCookie,
-      boolean enableRetryInfo,
       String metricsEndpoint) {
     assertThat(builder.getProjectId()).isEqualTo(projectId);
     assertThat(builder.getInstanceId()).isEqualTo(instanceId);
@@ -171,8 +162,6 @@ public class EnhancedBigtableStubSettingsTest {
       CredentialsProvider credentialsProvider,
       WatchdogProvider watchdogProvider,
       Duration watchdogInterval,
-      boolean enableRoutingCookie,
-      boolean enableRetryInfo,
       String metricsEndpoint) {
     assertThat(settings.getProjectId()).isEqualTo(projectId);
     assertThat(settings.getInstanceId()).isEqualTo(instanceId);
@@ -198,7 +187,7 @@ public class EnhancedBigtableStubSettingsTest {
     InstantiatingGrpcChannelProvider provider =
         (InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider();
 
-    assertThat(provider.toBuilder().getPoolSize()).isGreaterThan(1);
+    assertThat(provider.getChannelPoolSettings().getInitialChannelCount()).isGreaterThan(1);
   }
 
   @Test
