@@ -637,6 +637,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       // only if Traffic Director sends the request (with grpc as target type)
       // For GFE/CFE, sending setDirectAccessRequested
       // is fine as GFE/CFE sends with gslb target type
+      // TODO: flip the bit setDirectAccessRequested and setTrafficDirectorEnabled  once we make
+      // client compatible by default.
       featureFlags =
           FeatureFlags.newBuilder()
               .setReverseScans(true)
