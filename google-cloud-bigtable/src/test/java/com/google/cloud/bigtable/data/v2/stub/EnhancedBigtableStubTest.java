@@ -552,7 +552,8 @@ public class EnhancedBigtableStubTest {
         defaultSettings.toBuilder().setRefreshingChannel(true).build();
 
     try (EnhancedBigtableStub ignored = EnhancedBigtableStub.create(settings)) {
-      assertThat(fakeDataService.pingRequests).hasSize(1);
+      // direct access checker ping
+      assertThat(fakeDataService.pingRequests).hasSize(2);
     }
   }
 

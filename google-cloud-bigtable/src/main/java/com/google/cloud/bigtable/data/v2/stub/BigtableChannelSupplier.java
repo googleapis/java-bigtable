@@ -16,17 +16,8 @@
 package com.google.cloud.bigtable.data.v2.stub;
 
 import com.google.api.core.InternalApi;
-import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DirectPathCompatibleTracer;
-import javax.annotation.Nullable;
+import io.grpc.ManagedChannel;
+import java.util.function.Supplier;
 
 @InternalApi
-/* Evaluates whether a given channel supports Direct Access. */
-public interface DirectAccessChecker {
-  /**
-   * Evaluates if Direct Access is available by creating a test channel.
-   *
-   * @param channelFactory A factory to create the test channel
-   * @return true if the channel is eligible for Direct Access
-   */
-  boolean check(BigtableChannelFactory channelFactory, @Nullable DirectPathCompatibleTracer tracer);
-}
+public interface BigtableChannelSupplier extends Supplier<ManagedChannel> {}

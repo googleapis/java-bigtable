@@ -285,8 +285,9 @@ public class BigtableDataClientFactoryTest {
     Mockito.verify(credentialsProvider, Mockito.times(2)).getCredentials();
     Mockito.verify(executorProvider, Mockito.times(1)).getExecutor();
     Mockito.verify(watchdogProvider, Mockito.times(1)).getWatchdog();
-
-    assertThat(warmedChannels).hasSize(poolSize);
+    // +1 accounts for the temporary channel created by UnaryDirectAccessChecker
+    int expectedChannelCount = poolSize + 1;
+    assertThat(warmedChannels).hasSize(expectedChannelCount);
     assertThat(warmedChannels.values()).doesNotContain(false);
 
     // Wait for all the connections to close asynchronously
@@ -294,7 +295,7 @@ public class BigtableDataClientFactoryTest {
     long sleepTimeMs = 1000;
     Thread.sleep(sleepTimeMs);
     // Verify that all the channels are closed
-    assertThat(terminateAttributes).hasSize(poolSize);
+    assertThat(terminateAttributes).hasSize(expectedChannelCount);
   }
 
   @Test

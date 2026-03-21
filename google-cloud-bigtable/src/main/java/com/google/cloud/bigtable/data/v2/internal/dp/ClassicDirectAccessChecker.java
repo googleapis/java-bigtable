@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.data.v2.stub;
+package com.google.cloud.bigtable.data.v2.internal.dp;
 
 import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.PeerInfo;
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DirectPathCompatibleTracer;
+import com.google.cloud.bigtable.data.v2.stub.MetadataExtractorInterceptor;
 import com.google.cloud.bigtable.gaxx.grpc.ChannelPrimer;
+import com.google.common.annotations.VisibleForTesting;
 import io.grpc.Channel;
 import io.grpc.ClientInterceptors;
 import io.grpc.ManagedChannel;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
@@ -32,25 +35,30 @@ import javax.annotation.Nullable;
  * inspecting the response headers.
  */
 @InternalApi
-public class UnaryDirectAccessChecker implements DirectAccessChecker {
-  private static final Logger LOG = Logger.getLogger(UnaryDirectAccessChecker.class.getName());
+public class ClassicDirectAccessChecker implements DirectAccessChecker {
+  private static final Logger LOG = Logger.getLogger(ClassicDirectAccessChecker.class.getName());
   private final ChannelPrimer channelPrimer;
 
-  private UnaryDirectAccessChecker(ChannelPrimer channelPrimer) {
+  private ClassicDirectAccessChecker(ChannelPrimer channelPrimer) {
     this.channelPrimer = channelPrimer;
   }
 
-  public static UnaryDirectAccessChecker create(ChannelPrimer channelPrimer) {
-    return new UnaryDirectAccessChecker(channelPrimer);
+  public static ClassicDirectAccessChecker create(ChannelPrimer channelPrimer) {
+    return new ClassicDirectAccessChecker(channelPrimer);
+  }
+
+  @VisibleForTesting
+  MetadataExtractorInterceptor createInterceptor() {
+    return new MetadataExtractorInterceptor();
   }
 
   @Override
   public boolean check(
-      BigtableChannelFactory channelFactory, @Nullable DirectPathCompatibleTracer tracer) {
+      Supplier<ManagedChannel> channelSupplier, @Nullable DirectPathCompatibleTracer tracer) {
     ManagedChannel channel = null;
     try {
-      channel = channelFactory.createSingleChannel();
-      MetadataExtractorInterceptor interceptor = new MetadataExtractorInterceptor();
+      channel = channelSupplier.get();
+      MetadataExtractorInterceptor interceptor = createInterceptor();
       Channel interceptedChannel = ClientInterceptors.intercept(channel, interceptor);
       channelPrimer.primeChannel(interceptedChannel);
 
@@ -64,16 +72,16 @@ public class UnaryDirectAccessChecker implements DirectAccessChecker {
               .map(type -> type == PeerInfo.TransportType.TRANSPORT_TYPE_DIRECT_ACCESS)
               .orElse(false);
 
-      if (isEligible && tracer != null) {
+      if (isEligible) {
         String ipProtocolStr =
-            Optional.ofNullable(sidebandData)
-                .map(MetadataExtractorInterceptor.SidebandData::getIpProtocol)
-                .map(String::valueOf)
-                .map(String::toLowerCase)
-                .orElse("unknown");
+            sidebandData.getIpProtocol() != null
+                ? sidebandData.getIpProtocol().toString().toLowerCase()
+                : "unknown";
         tracer.recordSuccess(ipProtocolStr);
       }
+
       return isEligible;
+
     } catch (Exception e) {
       LOG.log(Level.FINE, "Failed to evaluate direct access eligibility.", e);
       return false;

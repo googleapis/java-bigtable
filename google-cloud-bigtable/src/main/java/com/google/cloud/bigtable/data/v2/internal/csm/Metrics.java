@@ -32,7 +32,6 @@ public interface Metrics extends Closeable {
   @Nullable
   ChannelPoolMetricsTracer getChannelPoolMetricsTracer();
 
-  @Nullable
   DirectPathCompatibleTracer getDirectPathCompatibleTracer();
 
   void start();

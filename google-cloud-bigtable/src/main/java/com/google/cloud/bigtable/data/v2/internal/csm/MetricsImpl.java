@@ -33,6 +33,7 @@ import com.google.cloud.bigtable.data.v2.internal.csm.tracers.ChannelPoolMetrics
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.CompositeTracerFactory;
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DefaultDirectPathCompatibleTracer;
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DirectPathCompatibleTracer;
+import com.google.cloud.bigtable.data.v2.internal.csm.tracers.NoopDirectPathCompatibleTracer;
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.Pacemaker;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -114,7 +115,7 @@ public class MetricsImpl implements Metrics, Closeable {
       this.grpcOtel = null;
       this.pacemaker = null;
       this.channelPoolMetricsTracer = null;
-      this.directPathCompatibleTracer = null;
+      this.directPathCompatibleTracer = NoopDirectPathCompatibleTracer.INSTANCE;
     }
 
     if (userOtel != null) {

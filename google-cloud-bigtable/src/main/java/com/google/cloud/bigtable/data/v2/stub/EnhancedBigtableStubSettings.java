@@ -641,8 +641,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           FeatureFlags.newBuilder()
               .setReverseScans(true)
               .setLastScannedRowResponses(true)
-              .setDirectAccessRequested(true)
-              .setTrafficDirectorEnabled(true)
+              .setDirectAccessRequested(DIRECT_PATH_ENABLED)
+              .setTrafficDirectorEnabled(DIRECT_PATH_ENABLED)
               .setPeerInfo(true);
     }
 

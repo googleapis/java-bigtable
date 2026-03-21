@@ -13,13 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.data.v2.stub;
+package com.google.cloud.bigtable.data.v2.internal.csm.tracers;
 
 import com.google.api.core.InternalApi;
-import io.grpc.ManagedChannel;
-import java.io.IOException;
 
 @InternalApi
-public interface BigtableChannelFactory {
-  ManagedChannel createSingleChannel() throws IOException;
+public class NoopDirectPathCompatibleTracer implements DirectPathCompatibleTracer {
+
+  public static final NoopDirectPathCompatibleTracer INSTANCE =
+      new NoopDirectPathCompatibleTracer();
+
+  private NoopDirectPathCompatibleTracer() {}
+
+  @Override
+  public void recordSuccess(String ipPreference) {
+    // No-op
+  }
+
+  @Override
+  public void recordFailure(String reason) {
+    // No-op
+  }
 }
