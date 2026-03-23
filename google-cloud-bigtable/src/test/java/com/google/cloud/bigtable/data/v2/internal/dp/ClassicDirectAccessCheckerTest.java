@@ -51,13 +51,9 @@ public class ClassicDirectAccessCheckerTest {
 
   @Before
   public void setUp() throws Exception {
-    // 1. Create a SPY of the checker so we can override just one method
-    checker = spy(ClassicDirectAccessChecker.create(mockChannelPrimer));
-
-    // 2. Tell the spy to return our mock interceptor instead of calling new()
+    checker = spy(new ClassicDirectAccessChecker(mockTracer, mockChannelPrimer));
     doReturn(mockInterceptor).when(checker).createInterceptor();
 
-    // 3. Setup standard mocks
     when(mockChannelFactory.get()).thenReturn(mockChannel);
     when(mockInterceptor.getSidebandData()).thenReturn(mockSidebandData);
   }
@@ -72,7 +68,7 @@ public class ClassicDirectAccessCheckerTest {
     when(mockSidebandData.getIpProtocol())
         .thenReturn(MetadataExtractorInterceptor.SidebandData.IpProtocol.IPV6);
 
-    boolean isEligible = checker.check(mockChannelFactory, mockTracer);
+    boolean isEligible = checker.check(mockChannelFactory);
 
     assertThat(isEligible).isTrue();
     verify(mockChannelPrimer).primeChannel(any(Channel.class));
@@ -88,7 +84,7 @@ public class ClassicDirectAccessCheckerTest {
             .build();
     when(mockSidebandData.getPeerInfo()).thenReturn(peerInfo);
 
-    boolean isEligible = checker.check(mockChannelFactory, mockTracer);
+    boolean isEligible = checker.check(mockChannelFactory);
 
     assertThat(isEligible).isFalse();
     verifyNoInteractions(mockTracer);
@@ -100,7 +96,7 @@ public class ClassicDirectAccessCheckerTest {
     // Override the Before setup to return null for this specific test
     when(mockInterceptor.getSidebandData()).thenReturn(null);
 
-    boolean isEligible = checker.check(mockChannelFactory, mockTracer);
+    boolean isEligible = checker.check(mockChannelFactory);
 
     assertThat(isEligible).isFalse();
     verifyNoInteractions(mockTracer);
@@ -113,7 +109,7 @@ public class ClassicDirectAccessCheckerTest {
         .when(mockChannelPrimer)
         .primeChannel(any(Channel.class));
 
-    boolean isEligible = checker.check(mockChannelFactory, mockTracer);
+    boolean isEligible = checker.check(mockChannelFactory);
 
     assertThat(isEligible).isFalse();
     verifyNoInteractions(mockTracer);

@@ -267,7 +267,8 @@ public class BigtableDataClientFactoryTest {
         .stubSettings()
         .setCredentialsProvider(credentialsProvider)
         .setStreamWatchdogProvider(watchdogProvider)
-        .setBackgroundExecutorProvider(executorProvider);
+        .setBackgroundExecutorProvider(executorProvider)
+        .setEnableDirectPathByDefault(true);
     InstantiatingGrpcChannelProvider channelProvider =
         (InstantiatingGrpcChannelProvider) builder.stubSettings().getTransportChannelProvider();
     InstantiatingGrpcChannelProvider.Builder channelProviderBuilder = channelProvider.toBuilder();

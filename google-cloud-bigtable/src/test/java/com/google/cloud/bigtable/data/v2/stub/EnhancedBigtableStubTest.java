@@ -553,6 +553,20 @@ public class EnhancedBigtableStubTest {
 
     try (EnhancedBigtableStub ignored = EnhancedBigtableStub.create(settings)) {
       // direct access checker ping
+      assertThat(fakeDataService.pingRequests).hasSize(1);
+    }
+  }
+
+  @Test
+  public void testChannelPrimeWithDirectAccessEnabledByDefault() throws IOException {
+    EnhancedBigtableStubSettings settings =
+        defaultSettings.toBuilder()
+            .setRefreshingChannel(true)
+            .setEnableDirectPathByDefault(true)
+            .build();
+
+    try (EnhancedBigtableStub ignored = EnhancedBigtableStub.create(settings)) {
+      // direct access checker ping
       assertThat(fakeDataService.pingRequests).hasSize(2);
     }
   }

@@ -160,14 +160,14 @@ public class BigtableClientContext {
                 credentials,
                 builder.getHeaderProvider().getHeaders());
       }
-
       BigtableTransportChannelProvider btTransportProvider =
           BigtableTransportChannelProvider.create(
               transportProvider.build(),
               channelPrimer,
               metrics.getChannelPoolMetricsTracer(),
               backgroundExecutor,
-              metrics.getDirectPathCompatibleTracer());
+              metrics.getDirectPathCompatibleTracer(),
+              builder.isDirectPathEnabledByDefault());
 
       builder.setTransportChannelProvider(btTransportProvider);
     }

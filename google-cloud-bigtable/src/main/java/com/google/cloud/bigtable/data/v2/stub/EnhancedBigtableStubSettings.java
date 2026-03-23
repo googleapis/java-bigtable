@@ -101,6 +101,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private static final boolean DIRECT_PATH_ENABLED =
       Boolean.parseBoolean(System.getenv("CBT_ENABLE_DIRECTPATH"));
 
+  ;
+
   // If true, disable the bound-token-by-default feature for DirectPath.
   private static final boolean DIRECT_PATH_BOUND_TOKEN_DISABLED =
       Boolean.parseBoolean(System.getenv("CBT_DISABLE_DIRECTPATH_BOUND_TOKEN"));
@@ -138,9 +140,12 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   @Nullable private final String metricsEndpoint;
   private final boolean areInternalMetricsEnabled;
   private final String jwtAudience;
+  private boolean enableDirectPathByDefault;
 
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
+
+    enableDirectPathByDefault = builder.enableDirectPathByDefault;
 
     projectId = builder.projectId;
     instanceId = builder.instanceId;
@@ -163,6 +168,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   /** Returns the project id of the target instance. */
   public String getProjectId() {
     return projectId;
+  }
+
+  public boolean isDirectPathEnabledByDefault() {
+    return enableDirectPathByDefault;
   }
 
   /** Returns the target instance id. */
@@ -592,7 +601,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   /** Builder for BigtableDataSettings. */
   public static class Builder extends StubSettings.Builder<EnhancedBigtableStubSettings, Builder> {
-
+    private boolean enableDirectPathByDefault;
     private String projectId;
     private String instanceId;
     private String appProfileId;
@@ -639,12 +648,16 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       // is fine as GFE/CFE sends with gslb target type
       // TODO: flip the bit setDirectAccessRequested and setTrafficDirectorEnabled  once we make
       // client compatible by default.
+
+      this.enableDirectPathByDefault =
+          Boolean.parseBoolean(System.getenv("CBT_ENABLE_DIRECTPATH_BY_DEFAULT"));
+
       featureFlags =
           FeatureFlags.newBuilder()
               .setReverseScans(true)
               .setLastScannedRowResponses(true)
-              .setDirectAccessRequested(DIRECT_PATH_ENABLED)
-              .setTrafficDirectorEnabled(DIRECT_PATH_ENABLED)
+              .setDirectAccessRequested(DIRECT_PATH_ENABLED || enableDirectPathByDefault)
+              .setTrafficDirectorEnabled(DIRECT_PATH_ENABLED || enableDirectPathByDefault)
               .setPeerInfo(true);
     }
 
@@ -658,6 +671,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       metricsEndpoint = settings.getMetricsEndpoint();
       areInternalMetricsEnabled = settings.areInternalMetricsEnabled;
       jwtAudience = settings.jwtAudience;
+      this.enableDirectPathByDefault = settings.isDirectPathEnabledByDefault();
 
       this.perOpSettings = new ClientOperationSettings.Builder(settings.perOpSettings);
 
@@ -741,6 +755,15 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     public Builder setRefreshingChannel(boolean isRefreshingChannel) {
       this.isRefreshingChannel = isRefreshingChannel;
       return this;
+    }
+
+    public Builder setEnableDirectPathByDefault(boolean enableDirectPathByDefault) {
+      this.enableDirectPathByDefault = enableDirectPathByDefault;
+      return this;
+    }
+
+    public boolean isDirectPathEnabledByDefault() {
+      return enableDirectPathByDefault;
     }
 
     /**
@@ -1024,6 +1047,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("metricsEndpoint", metricsEndpoint)
         .add("areInternalMetricsEnabled", areInternalMetricsEnabled)
         .add("jwtAudience", jwtAudience)
+        .add("enableDirectPathByDefault", enableDirectPathByDefault)
         .add("parent", super.toString())
         .toString();
   }

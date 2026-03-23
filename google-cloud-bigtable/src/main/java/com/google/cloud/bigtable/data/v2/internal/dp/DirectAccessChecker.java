@@ -16,10 +16,8 @@
 package com.google.cloud.bigtable.data.v2.internal.dp;
 
 import com.google.api.core.InternalApi;
-import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DirectPathCompatibleTracer;
 import io.grpc.ManagedChannel;
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
 
 @InternalApi
 /* Evaluates whether a given channel supports Direct Access. */
@@ -30,5 +28,5 @@ public interface DirectAccessChecker {
    * @param supplier A supplier to create maybe direct access channel
    * @return true if the channel is eligible for Direct Access
    */
-  boolean check(Supplier<ManagedChannel> supplier, @Nullable DirectPathCompatibleTracer tracer);
+  boolean check(Supplier<ManagedChannel> supplier);
 }

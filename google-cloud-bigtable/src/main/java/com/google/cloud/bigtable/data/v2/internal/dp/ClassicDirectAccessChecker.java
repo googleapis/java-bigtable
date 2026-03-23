@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
 
 /**
  * Evaluates whether a given channel has Direct Access (DirectPath) routing by executing a RPC and
@@ -37,14 +36,13 @@ import javax.annotation.Nullable;
 @InternalApi
 public class ClassicDirectAccessChecker implements DirectAccessChecker {
   private static final Logger LOG = Logger.getLogger(ClassicDirectAccessChecker.class.getName());
+  private final DirectPathCompatibleTracer tracer;
   private final ChannelPrimer channelPrimer;
 
-  private ClassicDirectAccessChecker(ChannelPrimer channelPrimer) {
+  public ClassicDirectAccessChecker(
+      DirectPathCompatibleTracer tracer, ChannelPrimer channelPrimer) {
+    this.tracer = tracer;
     this.channelPrimer = channelPrimer;
-  }
-
-  public static ClassicDirectAccessChecker create(ChannelPrimer channelPrimer) {
-    return new ClassicDirectAccessChecker(channelPrimer);
   }
 
   @VisibleForTesting
@@ -53,11 +51,10 @@ public class ClassicDirectAccessChecker implements DirectAccessChecker {
   }
 
   @Override
-  public boolean check(
-      Supplier<ManagedChannel> channelSupplier, @Nullable DirectPathCompatibleTracer tracer) {
+  public boolean check(Supplier<ManagedChannel> supplier) {
     ManagedChannel channel = null;
     try {
-      channel = channelSupplier.get();
+      channel = supplier.get();
       MetadataExtractorInterceptor interceptor = createInterceptor();
       Channel interceptedChannel = ClientInterceptors.intercept(channel, interceptor);
       channelPrimer.primeChannel(interceptedChannel);
