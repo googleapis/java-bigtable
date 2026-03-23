@@ -648,10 +648,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       // is fine as GFE/CFE sends with gslb target type
       // TODO: flip the bit setDirectAccessRequested and setTrafficDirectorEnabled  once we make
       // client compatible by default.
-
-      this.enableDirectPathByDefault =
-          Boolean.parseBoolean(System.getenv("CBT_ENABLE_DIRECTPATH_BY_DEFAULT"));
-
       featureFlags =
           FeatureFlags.newBuilder()
               .setReverseScans(true)
