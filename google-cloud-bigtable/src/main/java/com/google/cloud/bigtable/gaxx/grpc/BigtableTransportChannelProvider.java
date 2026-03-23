@@ -26,7 +26,6 @@ import com.google.cloud.bigtable.data.v2.internal.csm.tracers.ChannelPoolMetrics
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DirectPathCompatibleTracer;
 import com.google.cloud.bigtable.data.v2.internal.dp.ClassicDirectAccessChecker;
 import com.google.cloud.bigtable.data.v2.internal.dp.DirectAccessChecker;
-import com.google.cloud.bigtable.data.v2.stub.BigtableChannelSupplier;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.common.base.Preconditions;
 import io.grpc.ManagedChannel;
@@ -227,7 +226,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
             .setChannelPoolSettings(ChannelPoolSettings.staticallySized(1))
             .build();
 
-    BigtableChannelSupplier channelFactory =
+    Supplier<ManagedChannel> channelSupplier =
         () -> {
           try {
             GrpcTransportChannel channel =
@@ -243,7 +242,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
 
     BigtableChannelPool btChannelPool =
         BigtableChannelPool.create(
-            btPoolSettings, channelFactory, channelPrimer, backgroundExecutor);
+            btPoolSettings, channelSupplier, channelPrimer, backgroundExecutor);
 
     if (channelPoolMetricsTracer != null) {
       channelPoolMetricsTracer.registerChannelInsightsProvider(btChannelPool);
