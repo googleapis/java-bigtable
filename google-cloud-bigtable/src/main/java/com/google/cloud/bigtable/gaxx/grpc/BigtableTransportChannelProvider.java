@@ -173,9 +173,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
         directPathCompatibleTracer,
         enableDirectAccessChecker);
   }
-
-  // We need this for direct access checker.
-
+  
   /** Expected to only be called once when BigtableClientContext is created */
   @Override
   public TransportChannel getTransportChannel() throws IOException {

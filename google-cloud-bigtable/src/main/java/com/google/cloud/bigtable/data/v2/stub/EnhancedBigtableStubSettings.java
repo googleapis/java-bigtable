@@ -101,8 +101,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private static final boolean DIRECT_PATH_ENABLED =
       Boolean.parseBoolean(System.getenv("CBT_ENABLE_DIRECTPATH"));
 
-  ;
-
   // If true, disable the bound-token-by-default feature for DirectPath.
   private static final boolean DIRECT_PATH_BOUND_TOKEN_DISABLED =
       Boolean.parseBoolean(System.getenv("CBT_DISABLE_DIRECTPATH_BOUND_TOKEN"));
