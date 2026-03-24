@@ -70,7 +70,7 @@ public class MetricsImpl implements Metrics, Closeable {
 
   @Nullable private final GrpcOpenTelemetry grpcOtel;
   @Nullable private final ChannelPoolMetricsTracer channelPoolMetricsTracer;
-  @Nullable private final DirectPathCompatibleTracer directPathCompatibleTracer;
+  private final DirectPathCompatibleTracer directPathCompatibleTracer;
   @Nullable private final Pacemaker pacemaker;
   private final List<ScheduledFuture<?>> tasks = new ArrayList<>();
 
@@ -178,7 +178,6 @@ public class MetricsImpl implements Metrics, Closeable {
     return channelPoolMetricsTracer;
   }
 
-  @Nullable
   @Override
   public DirectPathCompatibleTracer getDirectPathCompatibleTracer() {
     return directPathCompatibleTracer;
