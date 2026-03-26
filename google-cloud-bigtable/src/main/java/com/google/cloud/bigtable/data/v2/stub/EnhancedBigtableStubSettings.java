@@ -96,11 +96,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   // The largest message that can be received is a 256 MB ReadRowsResponse.
   private static final int MAX_MESSAGE_SIZE = 256 * 1024 * 1024;
   private static final String SERVER_DEFAULT_APP_PROFILE_ID = "";
-
-  // TODO(meeral-k): add documentation
-  private static final boolean DIRECT_PATH_ENABLED =
-      Boolean.parseBoolean(System.getenv("CBT_ENABLE_DIRECTPATH"));
-
   // If true, disable the bound-token-by-default feature for DirectPath.
   private static final boolean DIRECT_PATH_BOUND_TOKEN_DISABLED =
       Boolean.parseBoolean(System.getenv("CBT_DISABLE_DIRECTPATH_BOUND_TOKEN"));
@@ -270,24 +265,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   /** Returns a builder for the default ChannelProvider for this service. */
   public static InstantiatingGrpcChannelProvider.Builder defaultGrpcTransportProviderBuilder() {
-    InstantiatingGrpcChannelProvider.Builder grpcTransportProviderBuilder =
-        BigtableStubSettings.defaultGrpcTransportProviderBuilder();
-    if (DIRECT_PATH_ENABLED) {
-      // Attempts direct access to CBT service over gRPC to improve throughput,
-      // whether the attempt is allowed is totally controlled by service owner.
-      grpcTransportProviderBuilder
-          .setAttemptDirectPathXds()
-          .setAttemptDirectPath(true)
-          // Allow using non-default service account in DirectPath.
-          .setAllowNonDefaultServiceAccount(true);
-      if (!DIRECT_PATH_BOUND_TOKEN_DISABLED) {
-        // Try to fetch a hard-bound access token for direct access if the runtime
-        // environment supports it.
-        grpcTransportProviderBuilder.setAllowHardBoundTokenTypes(
-            Collections.singletonList(InstantiatingGrpcChannelProvider.HardBoundTokenTypes.ALTS));
-      }
-    }
-    return commonTraits(grpcTransportProviderBuilder);
+    return commonTraits(BigtableStubSettings.defaultGrpcTransportProviderBuilder());
   }
 
   /** Applies Direct Access traits (DirectPath & ALTS) to an existing builder. */
@@ -624,12 +602,9 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
      */
     private Builder() {
       // TODO(enable this by default)
-      // Default is false until release.
-      // Only runs check if user explicitly sets CBT_ENABLE_DIRECTPATH=true
-      // We will run the direct access checker even if CBT_ENABLE_DIRECTPATH=true.
+      // Only runs Direct Access Checker if user explicitly sets CBT_ENABLE_DIRECTPATH=true
       this.enableDirectPathByDefault = Boolean.parseBoolean(System.getenv("CBT_ENABLE_DIRECTPATH"));
-      // Once we release, this will be
-      // Only skips check if user explicitly sets CBT_ENABLE_DIRECTPATH=false
+      // Once we release DirectPath, this will be default to true unless CBT_ENABLE_DIRECTPATH=false
       // this.enableDirectPathByDefault =
       // !"false".equalsIgnoreCase(System.getenv("CBT_ENABLE_DIRECTPATH"));
       this.appProfileId = SERVER_DEFAULT_APP_PROFILE_ID;
