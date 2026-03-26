@@ -623,6 +623,15 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
      * in the underlying GAPIC client for batching).
      */
     private Builder() {
+      // TODO(enable this by default)
+      // Default is false until release.
+      // Only runs check if user explicitly sets CBT_ENABLE_DIRECTPATH=true
+      // We will run the direct access checker even if CBT_ENABLE_DIRECTPATH=true.
+      this.enableDirectPathByDefault = Boolean.parseBoolean(System.getenv("CBT_ENABLE_DIRECTPATH"));
+      // Once we release, this will be
+      // Only skips check if user explicitly sets CBT_ENABLE_DIRECTPATH=false
+      // this.enableDirectPathByDefault =
+      // !"false".equalsIgnoreCase(System.getenv("CBT_ENABLE_DIRECTPATH"));
       this.appProfileId = SERVER_DEFAULT_APP_PROFILE_ID;
       this.isRefreshingChannel = true;
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
@@ -650,8 +659,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           FeatureFlags.newBuilder()
               .setReverseScans(true)
               .setLastScannedRowResponses(true)
-              .setDirectAccessRequested(DIRECT_PATH_ENABLED || enableDirectPathByDefault)
-              .setTrafficDirectorEnabled(DIRECT_PATH_ENABLED || enableDirectPathByDefault)
+              .setDirectAccessRequested(enableDirectPathByDefault)
+              .setTrafficDirectorEnabled(enableDirectPathByDefault)
               .setPeerInfo(true);
     }
 
