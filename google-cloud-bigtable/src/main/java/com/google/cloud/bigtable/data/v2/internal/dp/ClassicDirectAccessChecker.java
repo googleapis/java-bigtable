@@ -64,9 +64,7 @@ public class ClassicDirectAccessChecker implements DirectAccessChecker {
     }
   }
 
-  /**
-   * Executes the underlying RPC and evaluates the eligibility.
-   */
+  /** Executes the underlying RPC and evaluates the eligibility. */
   private boolean evaluateEligibility(Channel channel) {
     MetadataExtractorInterceptor interceptor = createInterceptor();
     Channel interceptedChannel = ClientInterceptors.intercept(channel, interceptor);
@@ -74,11 +72,11 @@ public class ClassicDirectAccessChecker implements DirectAccessChecker {
     MetadataExtractorInterceptor.SidebandData sidebandData = interceptor.getSidebandData();
 
     boolean isEligible =
-            Optional.ofNullable(sidebandData)
-                    .map(MetadataExtractorInterceptor.SidebandData::getPeerInfo)
-                    .map(PeerInfo::getTransportType)
-                    .map(type -> type == PeerInfo.TransportType.TRANSPORT_TYPE_DIRECT_ACCESS)
-                    .orElse(false);
+        Optional.ofNullable(sidebandData)
+            .map(MetadataExtractorInterceptor.SidebandData::getPeerInfo)
+            .map(PeerInfo::getTransportType)
+            .map(type -> type == PeerInfo.TransportType.TRANSPORT_TYPE_DIRECT_ACCESS)
+            .orElse(false);
 
     if (isEligible) {
       // getIp should be non-null as isEligible is true

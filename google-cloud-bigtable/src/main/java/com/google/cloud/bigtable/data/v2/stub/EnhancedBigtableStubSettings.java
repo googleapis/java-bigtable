@@ -252,25 +252,24 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return perOpSettings;
   }
 
-
   /** Returns a builder for the default ChannelProvider for this service. */
   public static InstantiatingGrpcChannelProvider.Builder defaultGrpcTransportProviderBuilder() {
     InstantiatingGrpcChannelProvider.Builder grpcTransportProviderBuilder =
-            BigtableStubSettings.defaultGrpcTransportProviderBuilder();
+        BigtableStubSettings.defaultGrpcTransportProviderBuilder();
     return grpcTransportProviderBuilder
-            .setChannelPoolSettings(
-                    ChannelPoolSettings.builder()
-                            .setInitialChannelCount(10)
-                            .setMinRpcsPerChannel(1)
-                            // Keep it conservative as we scale the channel size every 1min
-                            // and delta is 2 channels.
-                            .setMaxRpcsPerChannel(25)
-                            .setPreemptiveRefreshEnabled(true)
-                            .build())
-            .setMaxInboundMessageSize(MAX_MESSAGE_SIZE)
-            .setKeepAliveTime(Duration.ofSeconds(30)) // sends ping in this interval
-            .setKeepAliveTimeout(
-                    Duration.ofSeconds(10)); // wait this long before considering the connection dead
+        .setChannelPoolSettings(
+            ChannelPoolSettings.builder()
+                .setInitialChannelCount(10)
+                .setMinRpcsPerChannel(1)
+                // Keep it conservative as we scale the channel size every 1min
+                // and delta is 2 channels.
+                .setMaxRpcsPerChannel(25)
+                .setPreemptiveRefreshEnabled(true)
+                .build())
+        .setMaxInboundMessageSize(MAX_MESSAGE_SIZE)
+        .setKeepAliveTime(Duration.ofSeconds(30)) // sends ping in this interval
+        .setKeepAliveTimeout(
+            Duration.ofSeconds(10)); // wait this long before considering the connection dead
   }
 
   /** Applies Direct Access traits to an existing builder. */
