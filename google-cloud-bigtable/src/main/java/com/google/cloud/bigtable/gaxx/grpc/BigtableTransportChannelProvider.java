@@ -181,7 +181,6 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
 
     if (!directPathCompatibleTracer.isPresent()) {
       LOG.fine("Direct access check skipped. Reason: user_disabled or tracer absent");
-      LOG.fine("Direct access check skipped. Reason: user_disabled");
     } else {
       DirectPathCompatibleTracer tracer = directPathCompatibleTracer.get();
       DirectAccessChecker directAccessChecker =
