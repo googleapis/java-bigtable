@@ -32,6 +32,7 @@ import com.google.cloud.bigtable.data.v2.internal.csm.MetricRegistry;
 import com.google.cloud.bigtable.data.v2.internal.csm.Metrics;
 import com.google.cloud.bigtable.data.v2.internal.csm.MetricsImpl;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.ClientInfo;
+import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DirectPathCompatibleTracer;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableTransportChannelProvider;
 import com.google.cloud.bigtable.gaxx.grpc.ChannelPrimer;
@@ -45,6 +46,7 @@ import io.opentelemetry.sdk.OpenTelemetrySdk;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -160,14 +162,19 @@ public class BigtableClientContext {
                 credentials,
                 builder.getHeaderProvider().getHeaders());
       }
+
+      Optional<DirectPathCompatibleTracer> optionalTracer =
+          settings.isDirectPathEnabledByDefault()
+              ? Optional.ofNullable(metrics.getDirectPathCompatibleTracer())
+              : Optional.empty();
+
       BigtableTransportChannelProvider btTransportProvider =
           BigtableTransportChannelProvider.create(
               transportProvider.build(),
               channelPrimer,
               metrics.getChannelPoolMetricsTracer(),
               backgroundExecutor,
-              metrics.getDirectPathCompatibleTracer(),
-              builder.isDirectPathEnabledByDefault());
+              optionalTracer);
 
       builder.setTransportChannelProvider(btTransportProvider);
     }

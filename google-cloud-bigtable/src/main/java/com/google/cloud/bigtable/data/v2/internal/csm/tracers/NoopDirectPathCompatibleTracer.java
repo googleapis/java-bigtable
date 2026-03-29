@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.internal.csm.tracers;
 
 import com.google.api.core.InternalApi;
+import com.google.cloud.bigtable.data.v2.internal.csm.attributes.Util;
 
 @InternalApi
 public class NoopDirectPathCompatibleTracer implements DirectPathCompatibleTracer {
@@ -26,7 +27,7 @@ public class NoopDirectPathCompatibleTracer implements DirectPathCompatibleTrace
   private NoopDirectPathCompatibleTracer() {}
 
   @Override
-  public void recordSuccess(String ipPreference) {
+  public void recordSuccess(Util.IpProtocol ipProtocol) {
     // No-op
   }
 

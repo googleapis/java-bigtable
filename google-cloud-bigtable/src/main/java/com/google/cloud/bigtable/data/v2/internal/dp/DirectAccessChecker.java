@@ -16,17 +16,16 @@
 package com.google.cloud.bigtable.data.v2.internal.dp;
 
 import com.google.api.core.InternalApi;
-import io.grpc.ManagedChannel;
-import java.util.function.Supplier;
+import io.grpc.Channel;
 
 @InternalApi
 /* Evaluates whether a given channel supports Direct Access. */
 public interface DirectAccessChecker {
   /**
-   * Evaluates if Direct Access is available by creating a test channel.
+   * Evaluates if Direct Access is available by sending request via provided channel.
    *
-   * @param supplier A supplier to create maybe direct access channel
+   * @param channel A channel to probe direct access connectivity
    * @return true if the channel is eligible for Direct Access
    */
-  boolean check(Supplier<ManagedChannel> supplier);
+  boolean check(Channel channel);
 }

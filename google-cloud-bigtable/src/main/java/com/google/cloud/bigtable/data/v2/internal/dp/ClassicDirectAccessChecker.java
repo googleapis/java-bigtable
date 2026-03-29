@@ -25,7 +25,6 @@ import io.grpc.Channel;
 import io.grpc.ClientInterceptors;
 import io.grpc.ManagedChannel;
 import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,41 +50,40 @@ public class ClassicDirectAccessChecker implements DirectAccessChecker {
   }
 
   @Override
-  public boolean check(Supplier<ManagedChannel> supplier) {
-    ManagedChannel channel = null;
+  public boolean check(Channel channel) {
     try {
-      channel = supplier.get();
-      MetadataExtractorInterceptor interceptor = createInterceptor();
-      Channel interceptedChannel = ClientInterceptors.intercept(channel, interceptor);
-      channelPrimer.primeChannel(interceptedChannel);
-
-      // Extract the sideband data populated by the interceptor
-      MetadataExtractorInterceptor.SidebandData sidebandData = interceptor.getSidebandData();
-
-      boolean isEligible =
-          Optional.ofNullable(sidebandData)
-              .map(MetadataExtractorInterceptor.SidebandData::getPeerInfo)
-              .map(PeerInfo::getTransportType)
-              .map(type -> type == PeerInfo.TransportType.TRANSPORT_TYPE_DIRECT_ACCESS)
-              .orElse(false);
-
-      if (isEligible) {
-        String ipProtocolStr =
-            sidebandData.getIpProtocol() != null
-                ? sidebandData.getIpProtocol().toString().toLowerCase()
-                : "unknown";
-        tracer.recordSuccess(ipProtocolStr);
-      }
-
-      return isEligible;
-
+      return evaluateEligibility(channel);
     } catch (Exception e) {
-      LOG.log(Level.FINE, "Failed to evaluate direct access eligibility.", e);
+      LOG.log(Level.WARNING, "Failed to evaluate direct access eligibility.", e);
       return false;
     } finally {
-      if (channel != null) {
-        channel.shutdownNow();
+      if (channel instanceof ManagedChannel) {
+        ManagedChannel managedChannel = (ManagedChannel) channel;
+        managedChannel.shutdownNow();
       }
     }
+  }
+
+  /**
+   * Executes the underlying RPC and evaluates the eligibility.
+   */
+  private boolean evaluateEligibility(Channel channel) {
+    MetadataExtractorInterceptor interceptor = createInterceptor();
+    Channel interceptedChannel = ClientInterceptors.intercept(channel, interceptor);
+    channelPrimer.primeChannel(interceptedChannel);
+    MetadataExtractorInterceptor.SidebandData sidebandData = interceptor.getSidebandData();
+
+    boolean isEligible =
+            Optional.ofNullable(sidebandData)
+                    .map(MetadataExtractorInterceptor.SidebandData::getPeerInfo)
+                    .map(PeerInfo::getTransportType)
+                    .map(type -> type == PeerInfo.TransportType.TRANSPORT_TYPE_DIRECT_ACCESS)
+                    .orElse(false);
+
+    if (isEligible) {
+      // getIp should be non-null as isEligible is true
+      tracer.recordSuccess(sidebandData.getIpProtocol());
+    }
+    return isEligible;
   }
 }

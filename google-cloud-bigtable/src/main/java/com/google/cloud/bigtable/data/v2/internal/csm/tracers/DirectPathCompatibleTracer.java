@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.internal.csm.tracers;
 
 import com.google.api.core.InternalApi;
+import com.google.cloud.bigtable.data.v2.internal.csm.attributes.Util;
 
 /** Interface for recording DirectPath/DirectAccess eligibility metrics. */
 @InternalApi
@@ -24,9 +25,9 @@ public interface DirectPathCompatibleTracer {
   /**
    * Records that the environment is eligible and successfully connected via DirectPath.
    *
-   * @param ipPreference The IP preference used (e.g., "ipv6").
+   * @param ipProtocol The IP protocol used (e.g., "ipv6").
    */
-  void recordSuccess(String ipPreference);
+  void recordSuccess(Util.IpProtocol ipProtocol);
 
   /**
    * Records that the environment is not eligible or failed to connect via DirectPath.

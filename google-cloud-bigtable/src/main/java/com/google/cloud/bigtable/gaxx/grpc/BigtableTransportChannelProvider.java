@@ -26,11 +26,13 @@ import com.google.cloud.bigtable.data.v2.internal.csm.tracers.ChannelPoolMetrics
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DirectPathCompatibleTracer;
 import com.google.cloud.bigtable.data.v2.internal.dp.ClassicDirectAccessChecker;
 import com.google.cloud.bigtable.data.v2.internal.dp.DirectAccessChecker;
+import com.google.cloud.bigtable.data.v2.internal.dp.DirectAccessInvestigator;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.common.base.Preconditions;
 import io.grpc.ManagedChannel;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Supplier;
@@ -50,22 +52,20 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
   private final ChannelPrimer channelPrimer;
   @Nullable private final ChannelPoolMetricsTracer channelPoolMetricsTracer;
   @Nullable private final ScheduledExecutorService backgroundExecutor;
-  DirectPathCompatibleTracer directPathCompatibleTracer;
-  private final boolean enableDirectAccessChecker;
+  private final Optional<DirectPathCompatibleTracer> directPathCompatibleTracer;
 
   private BigtableTransportChannelProvider(
       InstantiatingGrpcChannelProvider instantiatingGrpcChannelProvider,
       ChannelPrimer channelPrimer,
       @Nullable ChannelPoolMetricsTracer channelPoolMetricsTracer,
       @Nullable ScheduledExecutorService backgroundExecutor,
-      DirectPathCompatibleTracer directPathCompatibleTracer,
-      boolean enableDirectAccessChecker) {
+      Optional<DirectPathCompatibleTracer> directPathCompatibleTracer) {
     delegate = Preconditions.checkNotNull(instantiatingGrpcChannelProvider);
     this.channelPrimer = channelPrimer;
     this.channelPoolMetricsTracer = channelPoolMetricsTracer;
     this.backgroundExecutor = backgroundExecutor;
-    this.directPathCompatibleTracer = directPathCompatibleTracer;
-    this.enableDirectAccessChecker = enableDirectAccessChecker;
+    this.directPathCompatibleTracer =
+        directPathCompatibleTracer != null ? directPathCompatibleTracer : Optional.empty();
   }
 
   @Override
@@ -96,8 +96,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
         channelPrimer,
         channelPoolMetricsTracer,
         backgroundExecutor,
-        directPathCompatibleTracer,
-        enableDirectAccessChecker);
+        directPathCompatibleTracer);
   }
 
   @Override
@@ -114,8 +113,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
         channelPrimer,
         channelPoolMetricsTracer,
         executor,
-        directPathCompatibleTracer,
-        enableDirectAccessChecker);
+        directPathCompatibleTracer);
   }
 
   @Override
@@ -132,8 +130,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
         channelPrimer,
         channelPoolMetricsTracer,
         backgroundExecutor,
-        directPathCompatibleTracer,
-        enableDirectAccessChecker);
+        directPathCompatibleTracer);
   }
 
   @Override
@@ -150,8 +147,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
         channelPrimer,
         channelPoolMetricsTracer,
         backgroundExecutor,
-        directPathCompatibleTracer,
-        enableDirectAccessChecker);
+        directPathCompatibleTracer);
   }
 
   @Deprecated
@@ -170,8 +166,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
         channelPrimer,
         channelPoolMetricsTracer,
         backgroundExecutor,
-        directPathCompatibleTracer,
-        enableDirectAccessChecker);
+        directPathCompatibleTracer);
   }
 
   /** Expected to only be called once when BigtableClientContext is created */
@@ -182,31 +177,35 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
             .setChannelPoolSettings(ChannelPoolSettings.staticallySized(1))
             .build();
 
-    DirectAccessChecker directAccessChecker =
-        new ClassicDirectAccessChecker(directPathCompatibleTracer, channelPrimer);
     boolean isDirectAccessEligible = false;
 
-    if (enableDirectAccessChecker) {
-      Supplier<ManagedChannel> maybeDirectAccessChannelSupplier =
-          () -> {
-            try {
-              GrpcTransportChannel channel =
-                  (GrpcTransportChannel) directAccessProvider.getTransportChannel();
-              return (ManagedChannel) channel.getChannel();
-            } catch (IOException e) {
-              throw new java.io.UncheckedIOException(e);
-            }
-          };
-
+    if (!directPathCompatibleTracer.isPresent()) {
+      LOG.fine("Direct access check skipped. Reason: user_disabled or tracer absent");
+      LOG.fine("Direct access check skipped. Reason: user_disabled");
+    } else {
+      DirectPathCompatibleTracer tracer = directPathCompatibleTracer.get();
+      DirectAccessChecker directAccessChecker =
+          new ClassicDirectAccessChecker(tracer, channelPrimer);
       try {
-        isDirectAccessEligible = directAccessChecker.check(maybeDirectAccessChannelSupplier);
+        GrpcTransportChannel grpcTransportChannel =
+            (GrpcTransportChannel) directAccessProvider.getTransportChannel();
+        ManagedChannel directAccessChannel = (ManagedChannel) grpcTransportChannel.getChannel();
+
+        isDirectAccessEligible = directAccessChecker.check(directAccessChannel);
+        if (!isDirectAccessEligible && backgroundExecutor != null) {
+          backgroundExecutor.execute(
+              () -> DirectAccessInvestigator.investigateAndReport(tracer, null));
+        }
       } catch (Exception e) {
         LOG.log(Level.FINE, "Client is not direct access eligible, using standard transport.", e);
+        if (backgroundExecutor != null) {
+          backgroundExecutor.execute(
+              () -> DirectAccessInvestigator.investigateAndReport(tracer, e));
+        }
       }
     }
 
     InstantiatingGrpcChannelProvider selectedProvider;
-
     if (isDirectAccessEligible) {
       selectedProvider = directAccessProvider;
     } else {
@@ -270,8 +269,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
         channelPrimer,
         channelPoolMetricsTracer,
         backgroundExecutor,
-        directPathCompatibleTracer,
-        enableDirectAccessChecker);
+        directPathCompatibleTracer);
   }
 
   /** Creates a BigtableTransportChannelProvider. */
@@ -280,14 +278,12 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
       ChannelPrimer channelPrimer,
       ChannelPoolMetricsTracer outstandingRpcsMetricTracker,
       ScheduledExecutorService backgroundExecutor,
-      DirectPathCompatibleTracer directPathCompatibleTracer,
-      boolean enableDirectAccessChecker) {
+      Optional<DirectPathCompatibleTracer> directPathCompatibleTracer) {
     return new BigtableTransportChannelProvider(
         instantiatingGrpcChannelProvider,
         channelPrimer,
         outstandingRpcsMetricTracker,
         backgroundExecutor,
-        directPathCompatibleTracer,
-        enableDirectAccessChecker);
+        directPathCompatibleTracer);
   }
 }

@@ -19,6 +19,7 @@ import com.google.api.core.InternalApi;
 import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.bigtable.v2.PeerInfo;
 import com.google.bigtable.v2.ResponseParams;
+import com.google.cloud.bigtable.data.v2.internal.csm.attributes.Util;
 import com.google.common.base.Strings;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.Attributes;
@@ -90,12 +91,6 @@ public class MetadataExtractorInterceptor implements ClientInterceptor {
   }
 
   public static class SidebandData {
-    public enum IpProtocol {
-      IPV4,
-      IPV6,
-      UNKNOWN
-    }
-
     private static final CallOptions.Key<SidebandData> KEY =
         CallOptions.Key.create("bigtable-sideband");
 
@@ -116,7 +111,7 @@ public class MetadataExtractorInterceptor implements ClientInterceptor {
     @Nullable private volatile ResponseParams responseParams;
     @Nullable private volatile PeerInfo peerInfo;
     @Nullable private volatile Duration gfeTiming;
-    @Nullable private volatile IpProtocol ipProtocol;
+    @Nullable private volatile Util.IpProtocol ipProtocol;
 
     @Nullable
     public ResponseParams getResponseParams() {
@@ -134,7 +129,7 @@ public class MetadataExtractorInterceptor implements ClientInterceptor {
     }
 
     @Nullable
-    public IpProtocol getIpProtocol() {
+    public Util.IpProtocol getIpProtocol() {
       return ipProtocol;
     }
 
@@ -142,7 +137,7 @@ public class MetadataExtractorInterceptor implements ClientInterceptor {
       responseParams = null;
       peerInfo = null;
       gfeTiming = null;
-      ipProtocol = IpProtocol.UNKNOWN;
+      ipProtocol = Util.IpProtocol.UNKNOWN;
     }
 
     void onResponseHeaders(Metadata md, Attributes attributes) {
@@ -159,17 +154,17 @@ public class MetadataExtractorInterceptor implements ClientInterceptor {
     }
 
     @Nullable
-    private static IpProtocol extractIpProtocol(Attributes attributes) {
+    private static Util.IpProtocol extractIpProtocol(Attributes attributes) {
       SocketAddress remoteAddr = attributes.get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
       if (remoteAddr instanceof InetSocketAddress) {
         InetSocketAddress inetAddr = (InetSocketAddress) remoteAddr;
         if (inetAddr.getAddress() instanceof Inet4Address) {
-          return IpProtocol.IPV4;
+          return Util.IpProtocol.IPV4;
         } else if (inetAddr.getAddress() instanceof Inet6Address) {
-          return IpProtocol.IPV6;
+          return Util.IpProtocol.IPV6;
         }
       }
-      return IpProtocol.UNKNOWN;
+      return Util.IpProtocol.UNKNOWN;
     }
 
     @Nullable

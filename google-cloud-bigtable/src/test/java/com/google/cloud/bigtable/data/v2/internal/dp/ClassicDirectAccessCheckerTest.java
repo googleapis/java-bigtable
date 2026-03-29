@@ -20,12 +20,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.google.bigtable.v2.PeerInfo;
+import com.google.cloud.bigtable.data.v2.internal.csm.attributes.Util;
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DirectPathCompatibleTracer;
 import com.google.cloud.bigtable.data.v2.stub.MetadataExtractorInterceptor;
 import com.google.cloud.bigtable.gaxx.grpc.ChannelPrimer;
 import io.grpc.Channel;
 import io.grpc.ManagedChannel;
-import java.util.function.Supplier;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,9 +41,8 @@ public class ClassicDirectAccessCheckerTest {
   @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
   @Mock private ChannelPrimer mockChannelPrimer;
-  @Mock private Supplier<ManagedChannel> mockChannelFactory;
-  @Mock private DirectPathCompatibleTracer mockTracer;
   @Mock private ManagedChannel mockChannel;
+  @Mock private DirectPathCompatibleTracer mockTracer;
   @Mock private MetadataExtractorInterceptor mockInterceptor;
   @Mock private MetadataExtractorInterceptor.SidebandData mockSidebandData;
 
@@ -53,8 +52,6 @@ public class ClassicDirectAccessCheckerTest {
   public void setUp() throws Exception {
     checker = spy(new ClassicDirectAccessChecker(mockTracer, mockChannelPrimer));
     doReturn(mockInterceptor).when(checker).createInterceptor();
-
-    when(mockChannelFactory.get()).thenReturn(mockChannel);
     when(mockInterceptor.getSidebandData()).thenReturn(mockSidebandData);
   }
 
@@ -65,26 +62,25 @@ public class ClassicDirectAccessCheckerTest {
             .setTransportType(PeerInfo.TransportType.TRANSPORT_TYPE_DIRECT_ACCESS)
             .build();
     when(mockSidebandData.getPeerInfo()).thenReturn(peerInfo);
-    when(mockSidebandData.getIpProtocol())
-        .thenReturn(MetadataExtractorInterceptor.SidebandData.IpProtocol.IPV6);
+    when(mockSidebandData.getIpProtocol()).thenReturn(Util.IpProtocol.IPV6);
 
-    boolean isEligible = checker.check(mockChannelFactory);
+    boolean isEligible = checker.check(mockChannel);
 
     assertThat(isEligible).isTrue();
     verify(mockChannelPrimer).primeChannel(any(Channel.class));
-    verify(mockTracer).recordSuccess("ipv6");
+    verify(mockTracer).recordSuccess(Util.IpProtocol.IPV6);
     verify(mockChannel).shutdownNow();
   }
 
   @Test
-  public void testNotEligibleProxiedRouting() {
+  public void testNotEligibleCFE() {
     PeerInfo peerInfo =
         PeerInfo.newBuilder()
             .setTransportType(PeerInfo.TransportType.TRANSPORT_TYPE_CLOUD_PATH)
             .build();
     when(mockSidebandData.getPeerInfo()).thenReturn(peerInfo);
 
-    boolean isEligible = checker.check(mockChannelFactory);
+    boolean isEligible = checker.check(mockChannel);
 
     assertThat(isEligible).isFalse();
     verifyNoInteractions(mockTracer);
@@ -96,7 +92,7 @@ public class ClassicDirectAccessCheckerTest {
     // Override the Before setup to return null for this specific test
     when(mockInterceptor.getSidebandData()).thenReturn(null);
 
-    boolean isEligible = checker.check(mockChannelFactory);
+    boolean isEligible = checker.check(mockChannel);
 
     assertThat(isEligible).isFalse();
     verifyNoInteractions(mockTracer);
@@ -109,8 +105,19 @@ public class ClassicDirectAccessCheckerTest {
         .when(mockChannelPrimer)
         .primeChannel(any(Channel.class));
 
-    boolean isEligible = checker.check(mockChannelFactory);
+    boolean isEligible = checker.check(mockChannel);
 
+    assertThat(isEligible).isFalse();
+    verifyNoInteractions(mockTracer);
+    verify(mockChannel).shutdownNow();
+  }
+
+  @Test
+  public void testNullPeerInfoIsHandledSafely() {
+    when(mockInterceptor.getSidebandData()).thenReturn(mockSidebandData);
+
+    when(mockSidebandData.getPeerInfo()).thenReturn(null);
+    boolean isEligible = checker.check(mockChannel);
     assertThat(isEligible).isFalse();
     verifyNoInteractions(mockTracer);
     verify(mockChannel).shutdownNow();

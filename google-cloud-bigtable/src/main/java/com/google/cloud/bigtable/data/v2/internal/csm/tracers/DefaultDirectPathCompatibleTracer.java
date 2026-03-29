@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.data.v2.internal.csm.tracers;
 import com.google.api.core.InternalApi;
 import com.google.cloud.bigtable.data.v2.internal.csm.MetricRegistry;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.ClientInfo;
+import com.google.cloud.bigtable.data.v2.internal.csm.attributes.Util;
 
 @InternalApi
 public class DefaultDirectPathCompatibleTracer implements DirectPathCompatibleTracer {
@@ -31,8 +32,8 @@ public class DefaultDirectPathCompatibleTracer implements DirectPathCompatibleTr
   }
 
   @Override
-  public void recordSuccess(String ipPreference) {
-    recorder.dpCompatGuage.recordSuccess(clientInfo, ipPreference);
+  public void recordSuccess(Util.IpProtocol ipProtocol) {
+    recorder.dpCompatGuage.recordSuccess(clientInfo, ipProtocol.getValue());
   }
 
   @Override

@@ -60,6 +60,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
@@ -99,6 +100,13 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   // If true, disable the bound-token-by-default feature for DirectPath.
   private static final boolean DIRECT_PATH_BOUND_TOKEN_DISABLED =
       Boolean.parseBoolean(System.getenv("CBT_DISABLE_DIRECTPATH_BOUND_TOKEN"));
+
+  // TODO change this to true when enabling directpath by default
+  // For now, Only runs Direct Access Checker if user explicitly sets CBT_ENABLE_DIRECTPATH=true
+  private static final boolean ENABLE_DIRECT_PATH_BY_DEFAULT =
+      Optional.ofNullable(System.getenv("CBT_ENABLE_DIRECTPATH"))
+          .map(Boolean::parseBoolean)
+          .orElse(false);
 
   /**
    * Scopes that are equivalent to JWT's audience.
@@ -244,34 +252,30 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return perOpSettings;
   }
 
-  /** Applies common pool, message size, and keep-alive settings to the provided builder. */
-  private static InstantiatingGrpcChannelProvider.Builder commonTraits(
-      InstantiatingGrpcChannelProvider.Builder builder) {
-    return builder
-        .setChannelPoolSettings(
-            ChannelPoolSettings.builder()
-                .setInitialChannelCount(10)
-                .setMinRpcsPerChannel(1)
-                // Keep it conservative as we scale the channel size every 1min
-                // and delta is 2 channels.
-                .setMaxRpcsPerChannel(25)
-                .setPreemptiveRefreshEnabled(true)
-                .build())
-        .setMaxInboundMessageSize(MAX_MESSAGE_SIZE)
-        .setKeepAliveTime(Duration.ofSeconds(30)) // sends ping in this interval
-        .setKeepAliveTimeout(
-            Duration.ofSeconds(10)); // wait this long before considering the connection dead
-  }
 
   /** Returns a builder for the default ChannelProvider for this service. */
   public static InstantiatingGrpcChannelProvider.Builder defaultGrpcTransportProviderBuilder() {
-    return commonTraits(BigtableStubSettings.defaultGrpcTransportProviderBuilder());
+    InstantiatingGrpcChannelProvider.Builder grpcTransportProviderBuilder =
+            BigtableStubSettings.defaultGrpcTransportProviderBuilder();
+    return grpcTransportProviderBuilder
+            .setChannelPoolSettings(
+                    ChannelPoolSettings.builder()
+                            .setInitialChannelCount(10)
+                            .setMinRpcsPerChannel(1)
+                            // Keep it conservative as we scale the channel size every 1min
+                            // and delta is 2 channels.
+                            .setMaxRpcsPerChannel(25)
+                            .setPreemptiveRefreshEnabled(true)
+                            .build())
+            .setMaxInboundMessageSize(MAX_MESSAGE_SIZE)
+            .setKeepAliveTime(Duration.ofSeconds(30)) // sends ping in this interval
+            .setKeepAliveTimeout(
+                    Duration.ofSeconds(10)); // wait this long before considering the connection dead
   }
 
-  /** Applies Direct Access traits (DirectPath & ALTS) to an existing builder. */
+  /** Applies Direct Access traits to an existing builder. */
   public static InstantiatingGrpcChannelProvider.Builder applyDirectAccessTraits(
       InstantiatingGrpcChannelProvider.Builder builder) {
-
     builder
         .setAttemptDirectPathXds()
         .setAttemptDirectPath(true)
@@ -603,10 +607,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private Builder() {
       // TODO(enable this by default)
       // Only runs Direct Access Checker if user explicitly sets CBT_ENABLE_DIRECTPATH=true
-      this.enableDirectPathByDefault = Boolean.parseBoolean(System.getenv("CBT_ENABLE_DIRECTPATH"));
-      // Once we release DirectPath, this will be default to true unless CBT_ENABLE_DIRECTPATH=false
-      // this.enableDirectPathByDefault =
-      // !"false".equalsIgnoreCase(System.getenv("CBT_ENABLE_DIRECTPATH"));
+      this.enableDirectPathByDefault = ENABLE_DIRECT_PATH_BY_DEFAULT;
       this.appProfileId = SERVER_DEFAULT_APP_PROFILE_ID;
       this.isRefreshingChannel = true;
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
@@ -735,13 +736,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return this;
     }
 
+    @InternalApi("For internal use only.")
     public Builder setEnableDirectPathByDefault(boolean enableDirectPathByDefault) {
       this.enableDirectPathByDefault = enableDirectPathByDefault;
       return this;
-    }
-
-    public boolean isDirectPathEnabledByDefault() {
-      return enableDirectPathByDefault;
     }
 
     /**
