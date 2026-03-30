@@ -165,7 +165,7 @@ public class BigtableClientContext {
 
       Optional<DirectPathCompatibleTracer> optionalTracer =
           settings.isDirectPathEnabledByDefault()
-              ? Optional.ofNullable(metrics.getDirectPathCompatibleTracer())
+              ? Optional.of(metrics.getDirectPathCompatibleTracer())
               : Optional.empty();
 
       BigtableTransportChannelProvider btTransportProvider =

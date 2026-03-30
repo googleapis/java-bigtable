@@ -47,6 +47,7 @@ public class DirectAccessInvestigator {
     }
   }
 
+  // This is only called when direct access check fails.
   public static void investigateAndReport(
       DirectPathCompatibleTracer tracer, Throwable originalError) {
     try {
