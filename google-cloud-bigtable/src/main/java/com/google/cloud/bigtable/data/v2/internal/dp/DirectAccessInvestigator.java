@@ -20,6 +20,7 @@ import com.google.api.core.InternalApi;
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DirectPathCompatibleTracer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nullable;
 
 @InternalApi
 public class DirectAccessInvestigator {
@@ -34,7 +35,7 @@ public class DirectAccessInvestigator {
     LOOPBACK_V4_MISSING("loopback_misconfigured_ipv4"),
     LOOPBACK_V6_MISSING("loopback_misconfigured_ipv6"),
     USER_DISABLED("user_disabled"),
-    UNKNOWN("");
+    UNKNOWN("unknown");
 
     private final String value;
 
@@ -49,7 +50,7 @@ public class DirectAccessInvestigator {
 
   // This is only called when direct access check fails.
   public static void investigateAndReport(
-      DirectPathCompatibleTracer tracer, Throwable originalError) {
+      DirectPathCompatibleTracer tracer, @Nullable Throwable originalError) {
     try {
       // TODO: Implement checks in a future PR.
       // For now, default to returning "unknown".
@@ -65,7 +66,10 @@ public class DirectAccessInvestigator {
 
   /** Helper method to consistently log the failure reason and record it to the tracer. */
   private static void recordAndLog(
-      DirectPathCompatibleTracer tracer, FailureReason reason, String logMessage, Throwable error) {
+      DirectPathCompatibleTracer tracer,
+      FailureReason reason,
+      String logMessage,
+      @Nullable Throwable error) {
     if (error != null) {
       LOG.log(Level.FINE, logMessage, error);
     } else {
