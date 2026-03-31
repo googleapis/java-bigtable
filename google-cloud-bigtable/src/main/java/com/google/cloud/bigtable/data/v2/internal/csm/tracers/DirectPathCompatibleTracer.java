@@ -34,5 +34,6 @@ public interface DirectPathCompatibleTracer {
    *
    * @param reason The reason for the failure (e.g., "routing_check_failed").
    */
+  // TODO: Make this an enum
   void recordFailure(String reason);
 }
