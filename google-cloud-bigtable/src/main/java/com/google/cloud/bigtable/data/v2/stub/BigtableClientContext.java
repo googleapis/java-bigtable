@@ -33,6 +33,10 @@ import com.google.cloud.bigtable.data.v2.internal.csm.Metrics;
 import com.google.cloud.bigtable.data.v2.internal.csm.MetricsImpl;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.ClientInfo;
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DirectPathCompatibleTracer;
+import com.google.cloud.bigtable.data.v2.internal.csm.tracers.NoopDirectPathCompatibleTracer;
+import com.google.cloud.bigtable.data.v2.internal.dp.ClassicDirectAccessChecker;
+import com.google.cloud.bigtable.data.v2.internal.dp.DirectAccessChecker;
+import com.google.cloud.bigtable.data.v2.internal.dp.NoopDirectAccessChecker;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableTransportChannelProvider;
 import com.google.cloud.bigtable.gaxx.grpc.ChannelPrimer;
@@ -46,7 +50,6 @@ import io.opentelemetry.sdk.OpenTelemetrySdk;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -163,10 +166,16 @@ public class BigtableClientContext {
                 builder.getHeaderProvider().getHeaders());
       }
 
-      Optional<DirectPathCompatibleTracer> optionalTracer =
+      DirectPathCompatibleTracer directPathCompatibleTracer =
           settings.isDirectPathEnabledByDefault()
-              ? Optional.of(metrics.getDirectPathCompatibleTracer())
-              : Optional.empty();
+              ? metrics.getDirectPathCompatibleTracer()
+              : NoopDirectPathCompatibleTracer.INSTANCE;
+
+      DirectAccessChecker directAccessChecker =
+          settings.isDirectPathEnabledByDefault()
+              ? new ClassicDirectAccessChecker(
+                  directPathCompatibleTracer, channelPrimer, backgroundExecutor)
+              : NoopDirectAccessChecker.INSTANCE;
 
       BigtableTransportChannelProvider btTransportProvider =
           BigtableTransportChannelProvider.create(
@@ -174,7 +183,7 @@ public class BigtableClientContext {
               channelPrimer,
               metrics.getChannelPoolMetricsTracer(),
               backgroundExecutor,
-              optionalTracer);
+              directAccessChecker);
 
       builder.setTransportChannelProvider(btTransportProvider);
     }

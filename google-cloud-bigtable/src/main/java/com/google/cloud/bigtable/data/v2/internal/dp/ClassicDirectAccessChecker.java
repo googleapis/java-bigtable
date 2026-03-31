@@ -25,8 +25,10 @@ import io.grpc.Channel;
 import io.grpc.ClientInterceptors;
 import io.grpc.ManagedChannel;
 import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nullable;
 
 /**
  * Evaluates whether a given channel has Direct Access (DirectPath) routing by executing a RPC and
@@ -37,11 +39,15 @@ public class ClassicDirectAccessChecker implements DirectAccessChecker {
   private static final Logger LOG = Logger.getLogger(ClassicDirectAccessChecker.class.getName());
   private final DirectPathCompatibleTracer tracer;
   private final ChannelPrimer channelPrimer;
+  private final ScheduledExecutorService executor;
 
   public ClassicDirectAccessChecker(
-      DirectPathCompatibleTracer tracer, ChannelPrimer channelPrimer) {
+      DirectPathCompatibleTracer tracer,
+      ChannelPrimer channelPrimer,
+      ScheduledExecutorService executor) {
     this.tracer = tracer;
     this.channelPrimer = channelPrimer;
+    this.executor = executor;
   }
 
   @VisibleForTesting
@@ -54,6 +60,7 @@ public class ClassicDirectAccessChecker implements DirectAccessChecker {
     try {
       return evaluateEligibility(channel);
     } catch (Exception e) {
+      investigateFailure(e);
       LOG.log(Level.WARNING, "Failed to evaluate direct access eligibility.", e);
       return false;
     } finally {
@@ -81,7 +88,16 @@ public class ClassicDirectAccessChecker implements DirectAccessChecker {
     if (isEligible) {
       // getIp should be non-null as isEligible is true
       tracer.recordSuccess(sidebandData.getIpProtocol());
+    } else {
+      investigateFailure(null);
     }
     return isEligible;
+  }
+
+  @Override
+  public void investigateFailure(@Nullable Throwable originalError) {
+    if (executor != null) {
+      executor.execute(() -> DirectAccessInvestigator.investigateAndReport(tracer, originalError));
+    }
   }
 }

@@ -17,22 +17,22 @@ package com.google.cloud.bigtable.data.v2.internal.dp;
 
 import com.google.api.core.InternalApi;
 import io.grpc.Channel;
+import javax.annotation.Nullable;
 
 @InternalApi
-/* Evaluates whether a given channel supports Direct Access. */
-public interface DirectAccessChecker {
-  /**
-   * Evaluates if Direct Access is available by sending request via provided channel.
-   *
-   * @param channel A channel to probe direct access connectivity
-   * @return true if the channel is eligible for Direct Access
-   */
-  boolean check(Channel channel);
+public class NoopDirectAccessChecker implements DirectAccessChecker {
+  public static final NoopDirectAccessChecker INSTANCE = new NoopDirectAccessChecker();
 
-  /**
-   * Triggers a investigation into why Direct Access routing failed.
-   *
-   * @param originalError An optional exception that caused the failure.
-   */
-  void investigateFailure(Throwable originalError);
+  private NoopDirectAccessChecker() {}
+
+  @Override
+  public boolean check(Channel channel) {
+    // If it's disabled, it is never eligible.
+    return false;
+  }
+
+  @Override
+  public void investigateFailure(@Nullable Throwable originalError) {
+    // Do nothing. We don't investigate failures if the feature is disabled.
+  }
 }

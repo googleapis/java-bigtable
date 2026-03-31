@@ -17,7 +17,13 @@ package com.google.cloud.bigtable.data.v2.internal.dp;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 import com.google.bigtable.v2.PeerInfo;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.Util;
@@ -26,11 +32,13 @@ import com.google.cloud.bigtable.data.v2.stub.MetadataExtractorInterceptor;
 import com.google.cloud.bigtable.gaxx.grpc.ChannelPrimer;
 import io.grpc.Channel;
 import io.grpc.ManagedChannel;
+import java.util.concurrent.ScheduledExecutorService;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -45,12 +53,14 @@ public class ClassicDirectAccessCheckerTest {
   @Mock private DirectPathCompatibleTracer mockTracer;
   @Mock private MetadataExtractorInterceptor mockInterceptor;
   @Mock private MetadataExtractorInterceptor.SidebandData mockSidebandData;
+  @Mock private ScheduledExecutorService mockExecutor;
 
   private ClassicDirectAccessChecker checker;
 
   @Before
   public void setUp() throws Exception {
-    checker = spy(new ClassicDirectAccessChecker(mockTracer, mockChannelPrimer));
+    // Pass null for the executor by default so background investigations aren't triggered
+    checker = spy(new ClassicDirectAccessChecker(mockTracer, mockChannelPrimer, null));
     doReturn(mockInterceptor).when(checker).createInterceptor();
     when(mockInterceptor.getSidebandData()).thenReturn(mockSidebandData);
   }
@@ -83,7 +93,7 @@ public class ClassicDirectAccessCheckerTest {
     boolean isEligible = checker.check(mockChannel);
 
     assertThat(isEligible).isFalse();
-    verifyNoInteractions(mockTracer);
+    verifyNoInteractions(mockTracer); // No interactions because executor is null
     verify(mockChannel).shutdownNow();
   }
 
@@ -121,5 +131,25 @@ public class ClassicDirectAccessCheckerTest {
     assertThat(isEligible).isFalse();
     verifyNoInteractions(mockTracer);
     verify(mockChannel).shutdownNow();
+  }
+
+  @Test
+  public void testInvestigationTriggeredOnFailure() {
+    // Re-instantiate the checker with a mock executor to verify investigation is scheduled
+    checker = spy(new ClassicDirectAccessChecker(mockTracer, mockChannelPrimer, mockExecutor));
+    doReturn(mockInterceptor).when(checker).createInterceptor();
+    when(mockInterceptor.getSidebandData()).thenReturn(null); // Force a failure
+
+    boolean isEligible = checker.check(mockChannel);
+
+    assertThat(isEligible).isFalse();
+
+    // Verify the checker submitted a Runnable task to the background executor
+    ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
+    verify(mockExecutor).execute(runnableCaptor.capture());
+
+    // Execute the captured runnable to ensure it safely calls the tracer
+    runnableCaptor.getValue().run();
+    verify(mockTracer).recordFailure(anyString());
   }
 }
