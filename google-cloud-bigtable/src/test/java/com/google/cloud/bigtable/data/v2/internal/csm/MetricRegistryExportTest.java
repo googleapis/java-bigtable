@@ -36,7 +36,6 @@ import com.google.cloud.bigtable.data.v2.internal.csm.attributes.ClientInfo;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.EnvInfo;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.MethodInfo;
 import com.google.cloud.bigtable.data.v2.internal.csm.exporter.BigtableCloudMonitoringExporter;
-import com.google.cloud.bigtable.data.v2.internal.dp.DirectAccessInvestigator;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPoolSettings.LoadBalancingStrategy;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
@@ -465,9 +464,7 @@ public class MetricRegistryExportTest {
             ImmutableMap.of(
                 "reason", "",
                 "ip_preference", "ipv4"),
-            ImmutableMap.of(
-                "reason", UNKNOWN.getValue(),
-                "ip_preference", ""));
+            ImmutableMap.of("reason", UNKNOWN.getValue(), "ip_preference", ""));
   }
 
   @Test

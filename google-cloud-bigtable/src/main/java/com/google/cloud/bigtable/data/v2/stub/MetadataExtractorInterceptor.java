@@ -153,7 +153,6 @@ public class MetadataExtractorInterceptor implements ClientInterceptor {
       }
     }
 
-    @Nullable
     private static Util.IpProtocol extractIpProtocol(Attributes attributes) {
       SocketAddress remoteAddr = attributes.get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
       if (remoteAddr instanceof InetSocketAddress) {

@@ -30,7 +30,7 @@ public class DirectPathCompatibleTracerImpl implements DirectPathCompatibleTrace
   public DirectPathCompatibleTracerImpl(
       ClientInfo clientInfo, MetricRegistry.RecorderRegistry recorder) {
     this.clientInfo = Preconditions.checkNotNull(clientInfo);
-    this.recorder  = Preconditions.checkNotNull(recorder);
+    this.recorder = Preconditions.checkNotNull(recorder);
   }
 
   @Override

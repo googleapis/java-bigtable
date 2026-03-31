@@ -61,7 +61,8 @@ public class ClientDpCompatGuage extends MetricWrapper<ClientSchema> {
     }
 
     // TODO: replace reason with an enum
-    public void recordFailure(ClientInfo clientInfo, DirectAccessInvestigator.FailureReason reason) {
+    public void recordFailure(
+        ClientInfo clientInfo, DirectAccessInvestigator.FailureReason reason) {
       instrument.set(
           1,
           getSchema()

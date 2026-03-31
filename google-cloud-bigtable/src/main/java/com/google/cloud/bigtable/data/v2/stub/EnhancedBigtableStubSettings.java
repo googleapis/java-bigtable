@@ -101,9 +101,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   // TODO change this to true when enabling directpath by default
   // For now, Only runs Direct Access Checker if user explicitly sets CBT_ENABLE_DIRECTPATH=true
   private static final DirectPathConfig DIRECT_PATH_CONFIG =
-          Optional.ofNullable(System.getenv("CBT_ENABLE_DIRECTPATH")).map(
-                  Boolean::parseBoolean
-          ).map(b -> b ? DirectPathConfig.FORCED_ON : DirectPathConfig.FORCED_OFF).orElse(DirectPathConfig.DEFAULT);
+      Optional.ofNullable(System.getenv("CBT_ENABLE_DIRECTPATH"))
+          .map(Boolean::parseBoolean)
+          .map(b -> b ? DirectPathConfig.FORCED_ON : DirectPathConfig.FORCED_OFF)
+          .orElse(DirectPathConfig.DEFAULT);
 
   // If true, disable the bound-token-by-default feature for DirectPath.
   private static final boolean DIRECT_PATH_BOUND_TOKEN_DISABLED =
@@ -149,6 +150,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     FORCED_ON,
     FORCED_OFF,
   }
+
   private final DirectPathConfig directPathConfig;
 
   private EnhancedBigtableStubSettings(Builder builder) {
@@ -178,6 +180,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return projectId;
   }
 
+  @InternalApi
   public DirectPathConfig getDirectPathConfig() {
     return DIRECT_PATH_CONFIG;
   }
@@ -280,7 +283,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   }
 
   /** Applies Direct Access traits to an existing builder. */
-  public static InstantiatingGrpcChannelProvider.Builder applyDirectAccessTraits(
+  @InternalApi
+  public static InstantiatingGrpcChannelProvider.Builder applyDirectAccessTraitsInternal(
       InstantiatingGrpcChannelProvider.Builder builder) {
     builder
         .setAttemptDirectPathXds()
@@ -634,7 +638,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       // TODO: flip the bit setDirectAccessRequested and setTrafficDirectorEnabled  once we make
       // client compatible by default.
       boolean isDirectPathRequested =
-              directPathConfig == DirectPathConfig.FORCED_ON || directPathConfig == DirectPathConfig.DEFAULT;
+          directPathConfig == DirectPathConfig.FORCED_ON
+              || directPathConfig == DirectPathConfig.DEFAULT;
       featureFlags =
           FeatureFlags.newBuilder()
               .setReverseScans(true)

@@ -33,7 +33,6 @@ import com.google.cloud.bigtable.data.v2.internal.csm.Metrics;
 import com.google.cloud.bigtable.data.v2.internal.csm.MetricsImpl;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.ClientInfo;
 import com.google.cloud.bigtable.data.v2.internal.dp.AlwaysEnabledDirectAccessChecker;
-import com.google.cloud.bigtable.data.v2.internal.dp.ClassicDirectAccessChecker;
 import com.google.cloud.bigtable.data.v2.internal.dp.DirectAccessChecker;
 import com.google.cloud.bigtable.data.v2.internal.dp.NoopDirectAccessChecker;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
@@ -175,7 +174,7 @@ public class BigtableClientContext {
           directAccessChecker = NoopDirectAccessChecker.INSTANCE;
           break;
       }
-      
+
       BigtableTransportChannelProvider btTransportProvider =
           BigtableTransportChannelProvider.create(
               transportProvider.build(),

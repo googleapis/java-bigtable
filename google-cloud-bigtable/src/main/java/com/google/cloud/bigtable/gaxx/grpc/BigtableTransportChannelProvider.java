@@ -164,7 +164,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
   @Override
   public TransportChannel getTransportChannel() throws IOException {
     InstantiatingGrpcChannelProvider directAccessProvider =
-        EnhancedBigtableStubSettings.applyDirectAccessTraits(delegate.toBuilder())
+        EnhancedBigtableStubSettings.applyDirectAccessTraitsInternal(delegate.toBuilder())
             .setChannelPoolSettings(ChannelPoolSettings.staticallySized(1))
             .build();
 

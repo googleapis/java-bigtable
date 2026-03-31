@@ -23,21 +23,21 @@ import javax.annotation.Nullable;
 
 @InternalApi
 public class AlwaysEnabledDirectAccessChecker implements DirectAccessChecker {
-    public static final AlwaysEnabledDirectAccessChecker INSTANCE =
-            new AlwaysEnabledDirectAccessChecker();
+  public static final AlwaysEnabledDirectAccessChecker INSTANCE =
+      new AlwaysEnabledDirectAccessChecker();
 
-    private AlwaysEnabledDirectAccessChecker() {}
+  private AlwaysEnabledDirectAccessChecker() {}
 
-    @Override
-    public boolean check(Channel channel) {
-        if (channel instanceof ManagedChannel) {
-            ((ManagedChannel) channel).shutdownNow();
-        }
-        return true;
+  @Override
+  public boolean check(Channel channel) {
+    if (channel instanceof ManagedChannel) {
+      ((ManagedChannel) channel).shutdownNow();
     }
+    return true;
+  }
 
-    @Override
-    public void investigateFailure(@Nullable Throwable originalError) {
-        // No-op:
-    }
+  @Override
+  public void investigateFailure(@Nullable Throwable originalError) {
+    // No-op:
+  }
 }

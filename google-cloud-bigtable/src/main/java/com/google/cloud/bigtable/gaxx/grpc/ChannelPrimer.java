@@ -26,8 +26,8 @@ public interface ChannelPrimer {
   /**
    * @deprecated Use {@link #primeChannel(Channel)}
    */
- @Deprecated
- default void primeChannel(ManagedChannel channel) {
+  @Deprecated
+  default void primeChannel(ManagedChannel channel) {
     primeChannel((Channel) channel);
   }
 

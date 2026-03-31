@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.internal.dp;
 
 import com.google.api.core.InternalApi;
 import io.grpc.Channel;
+import io.grpc.ManagedChannel;
 import javax.annotation.Nullable;
 
 @InternalApi
@@ -27,6 +28,10 @@ public class NoopDirectAccessChecker implements DirectAccessChecker {
 
   @Override
   public boolean check(Channel channel) {
+    // We must shut down the temporary probe channel to prevent gRPC resource leaks!
+    if (channel instanceof ManagedChannel) {
+      ((ManagedChannel) channel).shutdownNow();
+    }
     // If it's disabled, it is never eligible.
     return false;
   }
