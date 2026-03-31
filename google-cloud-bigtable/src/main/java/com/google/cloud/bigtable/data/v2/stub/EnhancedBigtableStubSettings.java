@@ -637,9 +637,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
       // TODO: flip the bit setDirectAccessRequested and setTrafficDirectorEnabled  once we make
       // client compatible by default.
-      boolean isDirectPathRequested =
-          directPathConfig == DirectPathConfig.FORCED_ON
-              || directPathConfig == DirectPathConfig.DEFAULT;
+      boolean isDirectPathRequested = directPathConfig == DirectPathConfig.FORCED_ON;
       featureFlags =
           FeatureFlags.newBuilder()
               .setReverseScans(true)
