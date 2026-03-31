@@ -558,20 +558,6 @@ public class EnhancedBigtableStubTest {
   }
 
   @Test
-  public void testChannelPrimeWithDirectAccessEnabledByDefault() throws IOException {
-    EnhancedBigtableStubSettings settings =
-        defaultSettings.toBuilder()
-            .setRefreshingChannel(true)
-            .setEnableDirectPathByDefault(true)
-            .build();
-
-    try (EnhancedBigtableStub ignored = EnhancedBigtableStub.create(settings)) {
-      // direct access checker ping
-      assertThat(fakeDataService.pingRequests).hasSize(2);
-    }
-  }
-
-  @Test
   public void testUserAgent() throws InterruptedException {
     ServerStreamingCallable<Query, Row> streamingCallable =
         enhancedBigtableStub.createReadRowsCallable(new DefaultRowAdapter());

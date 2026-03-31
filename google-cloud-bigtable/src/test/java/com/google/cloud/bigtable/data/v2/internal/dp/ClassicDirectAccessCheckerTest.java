@@ -60,7 +60,7 @@ public class ClassicDirectAccessCheckerTest {
   @Before
   public void setUp() throws Exception {
     // Pass null for the executor by default so background investigations aren't triggered
-    checker = spy(new ClassicDirectAccessChecker(mockTracer, mockChannelPrimer, null));
+    checker = spy(new ClassicDirectAccessChecker(mockTracer, mockChannelPrimer, mockExecutor));
     doReturn(mockInterceptor).when(checker).createInterceptor();
     when(mockInterceptor.getSidebandData()).thenReturn(mockSidebandData);
   }
@@ -150,6 +150,6 @@ public class ClassicDirectAccessCheckerTest {
 
     // Execute the captured runnable to ensure it safely calls the tracer
     runnableCaptor.getValue().run();
-    verify(mockTracer).recordFailure(anyString());
+    verify(mockTracer).recordFailure(DirectAccessInvestigator.FailureReason.UNKNOWN);
   }
 }

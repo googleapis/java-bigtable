@@ -23,13 +23,19 @@ import io.grpc.ManagedChannel;
 
 @InternalApi("For internal use by google-cloud-java clients only")
 public interface ChannelPrimer {
-  @Deprecated
-  default void primeChannel(ManagedChannel channel) {
+  /**
+   * @deprecated Use {@link #primeChannel(Channel)}
+   */
+ @Deprecated
+ default void primeChannel(ManagedChannel channel) {
     primeChannel((Channel) channel);
   }
 
   void primeChannel(Channel channel);
 
+  /**
+   * @deprecated Use {@link #sendPrimeRequestsAsync(Channel)}
+   */
   @Deprecated
   default ApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(ManagedChannel channel) {
     return sendPrimeRequestsAsync((Channel) channel);

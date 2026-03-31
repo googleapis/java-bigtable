@@ -97,16 +97,17 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   // The largest message that can be received is a 256 MB ReadRowsResponse.
   private static final int MAX_MESSAGE_SIZE = 256 * 1024 * 1024;
   private static final String SERVER_DEFAULT_APP_PROFILE_ID = "";
-  // If true, disable the bound-token-by-default feature for DirectPath.
-  private static final boolean DIRECT_PATH_BOUND_TOKEN_DISABLED =
-      Boolean.parseBoolean(System.getenv("CBT_DISABLE_DIRECTPATH_BOUND_TOKEN"));
 
   // TODO change this to true when enabling directpath by default
   // For now, Only runs Direct Access Checker if user explicitly sets CBT_ENABLE_DIRECTPATH=true
-  private static final boolean ENABLE_DIRECT_PATH_BY_DEFAULT =
-      Optional.ofNullable(System.getenv("CBT_ENABLE_DIRECTPATH"))
-          .map(Boolean::parseBoolean)
-          .orElse(false);
+  private static final DirectPathConfig DIRECT_PATH_CONFIG =
+          Optional.ofNullable(System.getenv("CBT_ENABLE_DIRECTPATH")).map(
+                  Boolean::parseBoolean
+          ).map(b -> b ? DirectPathConfig.FORCED_ON : DirectPathConfig.FORCED_OFF).orElse(DirectPathConfig.DEFAULT);
+
+  // If true, disable the bound-token-by-default feature for DirectPath.
+  private static final boolean DIRECT_PATH_BOUND_TOKEN_DISABLED =
+      Boolean.parseBoolean(System.getenv("CBT_DISABLE_DIRECTPATH_BOUND_TOKEN"));
 
   /**
    * Scopes that are equivalent to JWT's audience.
@@ -141,13 +142,19 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   @Nullable private final String metricsEndpoint;
   private final boolean areInternalMetricsEnabled;
   private final String jwtAudience;
-  private boolean enableDirectPathByDefault;
+
+  @InternalApi
+  public enum DirectPathConfig {
+    DEFAULT,
+    FORCED_ON,
+    FORCED_OFF,
+  }
+  private final DirectPathConfig directPathConfig;
 
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
 
-    enableDirectPathByDefault = builder.enableDirectPathByDefault;
-
+    directPathConfig = builder.directPathConfig;
     projectId = builder.projectId;
     instanceId = builder.instanceId;
     appProfileId = builder.appProfileId;
@@ -171,8 +178,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return projectId;
   }
 
-  public boolean isDirectPathEnabledByDefault() {
-    return enableDirectPathByDefault;
+  public DirectPathConfig getDirectPathConfig() {
+    return DIRECT_PATH_CONFIG;
   }
 
   /** Returns the target instance id. */
@@ -580,7 +587,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   /** Builder for BigtableDataSettings. */
   public static class Builder extends StubSettings.Builder<EnhancedBigtableStubSettings, Builder> {
-    private boolean enableDirectPathByDefault;
+    private DirectPathConfig directPathConfig;
     private String projectId;
     private String instanceId;
     private String appProfileId;
@@ -605,8 +612,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
      */
     private Builder() {
       // TODO(enable this by default)
-      // Only runs Direct Access Checker if user explicitly sets CBT_ENABLE_DIRECTPATH=true
-      this.enableDirectPathByDefault = ENABLE_DIRECT_PATH_BY_DEFAULT;
+      // Only runs Direct Access Checker if it is DIRECTPATH_ENABLED_BY_DEFAULT
+      this.directPathConfig = DIRECT_PATH_CONFIG;
       this.appProfileId = SERVER_DEFAULT_APP_PROFILE_ID;
       this.isRefreshingChannel = true;
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
@@ -624,18 +631,16 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
       perOpSettings = new ClientOperationSettings.Builder();
 
-      // Note: RouteLookup evaluates and returns directpath targets
-      // only if Traffic Director sends the request (with grpc as target type)
-      // For GFE/CFE, sending setDirectAccessRequested
-      // is fine as GFE/CFE sends with gslb target type
       // TODO: flip the bit setDirectAccessRequested and setTrafficDirectorEnabled  once we make
       // client compatible by default.
+      boolean isDirectPathRequested =
+              directPathConfig == DirectPathConfig.FORCED_ON || directPathConfig == DirectPathConfig.DEFAULT;
       featureFlags =
           FeatureFlags.newBuilder()
               .setReverseScans(true)
               .setLastScannedRowResponses(true)
-              .setDirectAccessRequested(enableDirectPathByDefault)
-              .setTrafficDirectorEnabled(enableDirectPathByDefault)
+              .setDirectAccessRequested(isDirectPathRequested)
+              .setTrafficDirectorEnabled(isDirectPathRequested)
               .setPeerInfo(true);
     }
 
@@ -649,7 +654,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       metricsEndpoint = settings.getMetricsEndpoint();
       areInternalMetricsEnabled = settings.areInternalMetricsEnabled;
       jwtAudience = settings.jwtAudience;
-      this.enableDirectPathByDefault = settings.isDirectPathEnabledByDefault();
+      this.directPathConfig = settings.getDirectPathConfig();
 
       this.perOpSettings = new ClientOperationSettings.Builder(settings.perOpSettings);
 
@@ -736,8 +741,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     }
 
     @InternalApi("For internal use only.")
-    public Builder setEnableDirectPathByDefault(boolean enableDirectPathByDefault) {
-      this.enableDirectPathByDefault = enableDirectPathByDefault;
+    public Builder setDirectPathConfig(DirectPathConfig directPathConfig) {
+      this.directPathConfig = directPathConfig;
       return this;
     }
 
@@ -1022,7 +1027,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("metricsEndpoint", metricsEndpoint)
         .add("areInternalMetricsEnabled", areInternalMetricsEnabled)
         .add("jwtAudience", jwtAudience)
-        .add("enableDirectPathByDefault", enableDirectPathByDefault)
+        .add("directPathConfig", getDirectPathConfig().toString())
         .add("parent", super.toString())
         .toString();
   }

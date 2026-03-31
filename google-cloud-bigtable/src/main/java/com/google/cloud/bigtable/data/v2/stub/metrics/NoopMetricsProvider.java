@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.Util;
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DirectPathCompatibleTracer;
+import com.google.cloud.bigtable.data.v2.internal.dp.DirectAccessInvestigator;
 import com.google.common.base.MoreObjects;
 
 /**
@@ -50,7 +51,7 @@ public final class NoopMetricsProvider implements MetricsProvider {
     }
 
     @Override
-    public void recordFailure(String reason) {
+    public void recordFailure(DirectAccessInvestigator.FailureReason reason) {
       // No-op
     }
   }

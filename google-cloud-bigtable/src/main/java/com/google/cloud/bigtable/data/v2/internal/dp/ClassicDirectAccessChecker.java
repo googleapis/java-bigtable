@@ -21,6 +21,7 @@ import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DirectPathCompatib
 import com.google.cloud.bigtable.data.v2.stub.MetadataExtractorInterceptor;
 import com.google.cloud.bigtable.gaxx.grpc.ChannelPrimer;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import io.grpc.Channel;
 import io.grpc.ClientInterceptors;
 import io.grpc.ManagedChannel;
@@ -45,9 +46,9 @@ public class ClassicDirectAccessChecker implements DirectAccessChecker {
       DirectPathCompatibleTracer tracer,
       ChannelPrimer channelPrimer,
       ScheduledExecutorService executor) {
-    this.tracer = tracer;
-    this.channelPrimer = channelPrimer;
-    this.executor = executor;
+    this.tracer = Preconditions.checkNotNull(tracer);
+    this.channelPrimer = Preconditions.checkNotNull(channelPrimer);
+    this.executor = Preconditions.checkNotNull(executor);
   }
 
   @VisibleForTesting

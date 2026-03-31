@@ -37,6 +37,7 @@ import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.TableId;
+import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
 import com.google.common.base.Preconditions;
 import com.google.common.io.BaseEncoding;
@@ -268,7 +269,7 @@ public class BigtableDataClientFactoryTest {
         .setCredentialsProvider(credentialsProvider)
         .setStreamWatchdogProvider(watchdogProvider)
         .setBackgroundExecutorProvider(executorProvider)
-        .setEnableDirectPathByDefault(true);
+        .setDirectPathConfig(EnhancedBigtableStubSettings.DirectPathConfig.FORCED_ON);
     InstantiatingGrpcChannelProvider channelProvider =
         (InstantiatingGrpcChannelProvider) builder.stubSettings().getTransportChannelProvider();
     InstantiatingGrpcChannelProvider.Builder channelProviderBuilder = channelProvider.toBuilder();

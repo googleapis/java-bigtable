@@ -19,6 +19,8 @@ import com.google.api.core.InternalApi;
 import com.google.cloud.bigtable.data.v2.internal.csm.MetricRegistry;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.ClientInfo;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.Util;
+import com.google.cloud.bigtable.data.v2.internal.dp.DirectAccessInvestigator;
+import com.google.common.base.Preconditions;
 
 @InternalApi
 public class DirectPathCompatibleTracerImpl implements DirectPathCompatibleTracer {
@@ -27,8 +29,8 @@ public class DirectPathCompatibleTracerImpl implements DirectPathCompatibleTrace
 
   public DirectPathCompatibleTracerImpl(
       ClientInfo clientInfo, MetricRegistry.RecorderRegistry recorder) {
-    this.clientInfo = clientInfo;
-    this.recorder = recorder;
+    this.clientInfo = Preconditions.checkNotNull(clientInfo);
+    this.recorder  = Preconditions.checkNotNull(recorder);
   }
 
   @Override
@@ -37,7 +39,7 @@ public class DirectPathCompatibleTracerImpl implements DirectPathCompatibleTrace
   }
 
   @Override
-  public void recordFailure(String reason) {
+  public void recordFailure(DirectAccessInvestigator.FailureReason reason) {
     recorder.dpCompatGuage.recordFailure(clientInfo, reason);
   }
 }

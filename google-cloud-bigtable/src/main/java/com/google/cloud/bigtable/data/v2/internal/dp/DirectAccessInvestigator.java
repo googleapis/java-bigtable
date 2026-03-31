@@ -75,6 +75,6 @@ public class DirectAccessInvestigator {
     } else {
       LOG.log(Level.FINE, logMessage);
     }
-    tracer.recordFailure(reason.getValue());
+    tracer.recordFailure(reason);
   }
 }

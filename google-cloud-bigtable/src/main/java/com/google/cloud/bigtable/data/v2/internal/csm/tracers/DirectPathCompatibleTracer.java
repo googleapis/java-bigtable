@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.internal.csm.tracers;
 
 import com.google.api.core.InternalApi;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.Util;
+import com.google.cloud.bigtable.data.v2.internal.dp.DirectAccessInvestigator;
 
 /** Interface for recording DirectPath/DirectAccess eligibility metrics. */
 @InternalApi
@@ -35,5 +36,5 @@ public interface DirectPathCompatibleTracer {
    * @param reason The reason for the failure (e.g., "routing_check_failed").
    */
   // TODO: Make this an enum
-  void recordFailure(String reason);
+  void recordFailure(DirectAccessInvestigator.FailureReason reason);
 }

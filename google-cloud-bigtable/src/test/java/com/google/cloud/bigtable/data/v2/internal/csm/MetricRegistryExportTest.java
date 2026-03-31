@@ -16,6 +16,7 @@
 
 package com.google.cloud.bigtable.data.v2.internal.csm;
 
+import static com.google.cloud.bigtable.data.v2.internal.dp.DirectAccessInvestigator.FailureReason.UNKNOWN;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
@@ -35,6 +36,7 @@ import com.google.cloud.bigtable.data.v2.internal.csm.attributes.ClientInfo;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.EnvInfo;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.MethodInfo;
 import com.google.cloud.bigtable.data.v2.internal.csm.exporter.BigtableCloudMonitoringExporter;
+import com.google.cloud.bigtable.data.v2.internal.dp.DirectAccessInvestigator;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPoolSettings.LoadBalancingStrategy;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
@@ -440,7 +442,7 @@ public class MetricRegistryExportTest {
 
   @Test
   void testDpCompatGuage() {
-    registry.dpCompatGuage.recordFailure(clientInfo, "something");
+    registry.dpCompatGuage.recordFailure(clientInfo, UNKNOWN);
     registry.dpCompatGuage.recordSuccess(clientInfo, "ipv4");
 
     metricReader.forceFlush().join(1, TimeUnit.MINUTES);
@@ -464,7 +466,7 @@ public class MetricRegistryExportTest {
                 "reason", "",
                 "ip_preference", "ipv4"),
             ImmutableMap.of(
-                "reason", "something",
+                "reason", UNKNOWN.getValue(),
                 "ip_preference", ""));
   }
 
