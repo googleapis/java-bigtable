@@ -31,10 +31,10 @@ import com.google.cloud.bigtable.data.v2.internal.csm.opencensus.RpcMeasureConst
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.BuiltinMetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.ChannelPoolMetricsTracer;
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.CompositeTracerFactory;
-import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DefaultDirectPathCompatibleTracer;
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DirectPathCompatibleTracer;
-import com.google.cloud.bigtable.data.v2.internal.csm.tracers.NoopDirectPathCompatibleTracer;
+import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DirectPathCompatibleTracerImpl;
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.Pacemaker;
+import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -99,7 +99,7 @@ public class MetricsImpl implements Metrics, Closeable {
       this.pacemaker = new Pacemaker(internalRecorder, clientInfo, "background");
       this.channelPoolMetricsTracer = new ChannelPoolMetricsTracer(internalRecorder, clientInfo);
       this.directPathCompatibleTracer =
-          new DefaultDirectPathCompatibleTracer(clientInfo, internalRecorder);
+          new DirectPathCompatibleTracerImpl(clientInfo, internalRecorder);
       this.grpcOtel =
           GrpcOpenTelemetry.newBuilder()
               .sdk(internalOtel)
@@ -115,7 +115,7 @@ public class MetricsImpl implements Metrics, Closeable {
       this.grpcOtel = null;
       this.pacemaker = null;
       this.channelPoolMetricsTracer = null;
-      this.directPathCompatibleTracer = NoopDirectPathCompatibleTracer.INSTANCE;
+      this.directPathCompatibleTracer = NoopMetricsProvider.NoopDirectPathCompatibleTracer.INSTANCE;
     }
 
     if (userOtel != null) {

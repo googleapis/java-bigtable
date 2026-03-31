@@ -21,11 +21,11 @@ import com.google.cloud.bigtable.data.v2.internal.csm.attributes.ClientInfo;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.Util;
 
 @InternalApi
-public class DefaultDirectPathCompatibleTracer implements DirectPathCompatibleTracer {
+public class DirectPathCompatibleTracerImpl implements DirectPathCompatibleTracer {
   private final ClientInfo clientInfo;
   private final MetricRegistry.RecorderRegistry recorder;
 
-  public DefaultDirectPathCompatibleTracer(
+  public DirectPathCompatibleTracerImpl(
       ClientInfo clientInfo, MetricRegistry.RecorderRegistry recorder) {
     this.clientInfo = clientInfo;
     this.recorder = recorder;

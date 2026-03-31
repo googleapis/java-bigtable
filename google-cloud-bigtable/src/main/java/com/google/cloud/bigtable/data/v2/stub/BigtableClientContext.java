@@ -32,8 +32,6 @@ import com.google.cloud.bigtable.data.v2.internal.csm.MetricRegistry;
 import com.google.cloud.bigtable.data.v2.internal.csm.Metrics;
 import com.google.cloud.bigtable.data.v2.internal.csm.MetricsImpl;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.ClientInfo;
-import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DirectPathCompatibleTracer;
-import com.google.cloud.bigtable.data.v2.internal.csm.tracers.NoopDirectPathCompatibleTracer;
 import com.google.cloud.bigtable.data.v2.internal.dp.ClassicDirectAccessChecker;
 import com.google.cloud.bigtable.data.v2.internal.dp.DirectAccessChecker;
 import com.google.cloud.bigtable.data.v2.internal.dp.NoopDirectAccessChecker;
@@ -166,15 +164,10 @@ public class BigtableClientContext {
                 builder.getHeaderProvider().getHeaders());
       }
 
-      DirectPathCompatibleTracer directPathCompatibleTracer =
-          settings.isDirectPathEnabledByDefault()
-              ? metrics.getDirectPathCompatibleTracer()
-              : NoopDirectPathCompatibleTracer.INSTANCE;
-
       DirectAccessChecker directAccessChecker =
           settings.isDirectPathEnabledByDefault()
               ? new ClassicDirectAccessChecker(
-                  directPathCompatibleTracer, channelPrimer, backgroundExecutor)
+                  metrics.getDirectPathCompatibleTracer(), channelPrimer, backgroundExecutor)
               : NoopDirectAccessChecker.INSTANCE;
 
       BigtableTransportChannelProvider btTransportProvider =

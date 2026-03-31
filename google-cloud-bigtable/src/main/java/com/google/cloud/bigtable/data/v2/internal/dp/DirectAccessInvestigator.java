@@ -60,7 +60,7 @@ public class DirectAccessInvestigator {
           "Direct Access investigation: Defaulting to unknown failure reason for now.",
           originalError);
     } catch (Exception e) {
-      LOG.log(Level.WARNING, "Failed to complete Direct Access investigation", e);
+      LOG.log(Level.WARNING, "Failed to record results of the Direct Access investigation", e);
     }
   }
 
