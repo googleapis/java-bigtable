@@ -286,7 +286,7 @@ public class BigtableDataClientFactoryTest {
     Mockito.verify(credentialsProvider, Mockito.times(2)).getCredentials();
     Mockito.verify(executorProvider, Mockito.times(1)).getExecutor();
     Mockito.verify(watchdogProvider, Mockito.times(1)).getWatchdog();
-    assertThat(warmedChannels).hasSize(poolSize+1);
+    assertThat(warmedChannels).hasSize(poolSize + 1);
     assertThat(warmedChannels.values()).doesNotContain(false);
 
     // Wait for all the connections to close asynchronously
@@ -294,7 +294,7 @@ public class BigtableDataClientFactoryTest {
     long sleepTimeMs = 1000;
     Thread.sleep(sleepTimeMs);
     // Verify that all the channels are closed
-    assertThat(terminateAttributes).hasSize(poolSize+1);
+    assertThat(terminateAttributes).hasSize(poolSize + 1);
   }
 
   @Test
@@ -303,19 +303,19 @@ public class BigtableDataClientFactoryTest {
     // TODO: remove the suppression when setRefreshingChannel can be removed
     @SuppressWarnings("deprecation")
     BigtableDataSettings.Builder builder =
-            BigtableDataSettings.newBuilderForEmulator(server.getPort())
-                    .setProjectId(DEFAULT_PROJECT_ID)
-                    .setInstanceId(DEFAULT_INSTANCE_ID)
-                    .setAppProfileId(DEFAULT_APP_PROFILE_ID)
-                    .setRefreshingChannel(true);
+        BigtableDataSettings.newBuilderForEmulator(server.getPort())
+            .setProjectId(DEFAULT_PROJECT_ID)
+            .setInstanceId(DEFAULT_INSTANCE_ID)
+            .setAppProfileId(DEFAULT_APP_PROFILE_ID)
+            .setRefreshingChannel(true);
     builder
-            .stubSettings()
-            .setCredentialsProvider(credentialsProvider)
-            .setStreamWatchdogProvider(watchdogProvider)
-            .setBackgroundExecutorProvider(executorProvider)
-            .setDirectPathConfig(EnhancedBigtableStubSettings.DirectPathConfig.DEFAULT);
+        .stubSettings()
+        .setCredentialsProvider(credentialsProvider)
+        .setStreamWatchdogProvider(watchdogProvider)
+        .setBackgroundExecutorProvider(executorProvider)
+        .setDirectPathConfig(EnhancedBigtableStubSettings.DirectPathConfig.DEFAULT);
     InstantiatingGrpcChannelProvider channelProvider =
-            (InstantiatingGrpcChannelProvider) builder.stubSettings().getTransportChannelProvider();
+        (InstantiatingGrpcChannelProvider) builder.stubSettings().getTransportChannelProvider();
     InstantiatingGrpcChannelProvider.Builder channelProviderBuilder = channelProvider.toBuilder();
     channelProviderBuilder.setChannelPoolSettings(ChannelPoolSettings.staticallySized(poolSize));
     builder.stubSettings().setTransportChannelProvider(channelProviderBuilder.build());
@@ -331,7 +331,7 @@ public class BigtableDataClientFactoryTest {
     Mockito.verify(credentialsProvider, Mockito.times(2)).getCredentials();
     Mockito.verify(executorProvider, Mockito.times(1)).getExecutor();
     Mockito.verify(watchdogProvider, Mockito.times(1)).getWatchdog();
-    assertThat(warmedChannels).hasSize(poolSize+1);
+    assertThat(warmedChannels).hasSize(poolSize + 1);
     assertThat(warmedChannels.values()).doesNotContain(false);
 
     // Wait for all the connections to close asynchronously
@@ -340,9 +340,8 @@ public class BigtableDataClientFactoryTest {
     Thread.sleep(sleepTimeMs);
     // Verify that all the channels are closed
     // If we have DEFAULT, it will add one channel temporily
-    assertThat(terminateAttributes).hasSize(poolSize+1);
+    assertThat(terminateAttributes).hasSize(poolSize + 1);
   }
-
 
   @Test
   public void testCreateWithRefreshingChannelDisableDirectAccess() throws Exception {
@@ -350,20 +349,20 @@ public class BigtableDataClientFactoryTest {
     // TODO: remove the suppression when setRefreshingChannel can be removed
     @SuppressWarnings("deprecation")
     BigtableDataSettings.Builder builder =
-            BigtableDataSettings.newBuilderForEmulator(server.getPort())
-                    .setProjectId(DEFAULT_PROJECT_ID)
-                    .setInstanceId(DEFAULT_INSTANCE_ID)
-                    .setAppProfileId(DEFAULT_APP_PROFILE_ID)
-                    .setRefreshingChannel(true);
+        BigtableDataSettings.newBuilderForEmulator(server.getPort())
+            .setProjectId(DEFAULT_PROJECT_ID)
+            .setInstanceId(DEFAULT_INSTANCE_ID)
+            .setAppProfileId(DEFAULT_APP_PROFILE_ID)
+            .setRefreshingChannel(true);
 
     builder
-            .stubSettings()
-            .setCredentialsProvider(credentialsProvider)
-            .setStreamWatchdogProvider(watchdogProvider)
-            .setBackgroundExecutorProvider(executorProvider)
-            .setDirectPathConfig(EnhancedBigtableStubSettings.DirectPathConfig.FORCED_OFF);
+        .stubSettings()
+        .setCredentialsProvider(credentialsProvider)
+        .setStreamWatchdogProvider(watchdogProvider)
+        .setBackgroundExecutorProvider(executorProvider)
+        .setDirectPathConfig(EnhancedBigtableStubSettings.DirectPathConfig.FORCED_OFF);
     InstantiatingGrpcChannelProvider channelProvider =
-            (InstantiatingGrpcChannelProvider) builder.stubSettings().getTransportChannelProvider();
+        (InstantiatingGrpcChannelProvider) builder.stubSettings().getTransportChannelProvider();
     InstantiatingGrpcChannelProvider.Builder channelProviderBuilder = channelProvider.toBuilder();
     channelProviderBuilder.setChannelPoolSettings(ChannelPoolSettings.staticallySized(poolSize));
     builder.stubSettings().setTransportChannelProvider(channelProviderBuilder.build());

@@ -175,8 +175,9 @@ public class BigtableClientContext {
           break;
         case DEFAULT:
         default:
-          System.out.println("Using default direct access checker");
-          directAccessChecker = new ClassicDirectAccessChecker(metrics.getDirectPathCompatibleTracer(), channelPrimer, backgroundExecutor);
+          directAccessChecker =
+              new ClassicDirectAccessChecker(
+                  metrics.getDirectPathCompatibleTracer(), channelPrimer, backgroundExecutor);
           break;
       }
 
