@@ -16,40 +16,49 @@
 
 package com.google.cloud.bigtable.data.v2.internal.session;
 
+import com.google.bigtable.v2.LoadBalancingOptions;
 import com.google.cloud.bigtable.data.v2.internal.session.SessionList.AfeHandle;
 import com.google.cloud.bigtable.data.v2.internal.session.SessionList.SessionHandle;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
-/** Pick the AFE with the fewest in-flight requests. Experimental for now. */
+/** Pick the AFE with the fewest in-flight requests. */
 class LeastInFlightPicker extends Picker {
   private final SessionList sessionList;
+  private final LoadBalancingOptions.LeastInFlight options;
 
-  public LeastInFlightPicker(SessionList sessionList) {
+  public LeastInFlightPicker(SessionList sessionList, LoadBalancingOptions.LeastInFlight options) {
     this.sessionList = sessionList;
+    this.options = options;
   }
 
   @Override
   Optional<SessionHandle> pickSession() {
     List<AfeHandle> readyAfes = sessionList.getAfesWithReadySessions();
-    int size = readyAfes.size();
-
-    if (size == 0) {
+    if (readyAfes.isEmpty()) {
       return Optional.empty();
     }
 
-    ThreadLocalRandom random = ThreadLocalRandom.current();
-    AfeHandle selected = readyAfes.get(random.nextInt(size));
+    ThreadLocalRandom rng = ThreadLocalRandom.current();
+    List<AfeHandle> candidates = new ArrayList<>(readyAfes);
+    int bestCost = Integer.MAX_VALUE;
+    AfeHandle bestAfe = null;
+    long iterations = Math.min(options.getRandomSubsetSize(), readyAfes.size());
 
-    // If we have options, pick a second candidate and keep the better one
-    if (size > 1) {
-      AfeHandle candidate2 = readyAfes.get(random.nextInt(size));
-      if (candidate2.getNumOutstanding() < selected.getNumOutstanding()) {
-        selected = candidate2;
+    // Partial Fisher-Yates shuffle.
+    for (int i = 0; i < iterations; i++) {
+      int randomIndex = i + rng.nextInt(candidates.size() - i);
+      AfeHandle picked = candidates.get(randomIndex);
+      if (picked.getNumOutstanding() < bestCost) {
+        bestCost = picked.getNumOutstanding();
+        bestAfe = picked;
       }
+      // Move candidate to the `i`th entry so that it's not picked again.
+      Collections.swap(candidates, i, randomIndex);
     }
-
-    return sessionList.checkoutSession(selected);
+    return sessionList.checkoutSession(bestAfe);
   }
 }
