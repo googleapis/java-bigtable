@@ -150,12 +150,12 @@ public class InstanceAdminExample {
    * Demonstrates how to create an instance within a provided project with tags.
    *
    * <p>Tags are a way to organize and govern resources across Google Cloud, see
-   * [Creating and managing tags](https://cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing)
+   * [Creating and managing tags](https://docs.cloud.google.com/resource-manager/docs/tags/tags-overview)
    *
    *
    * NOTE: Unlike labels, a tag (Key and Value) must be created before it can be
    * attached to a resource.
-   * See [Creating and managing tags](https://cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing)
+   * See [Creating and managing tags](https://docs.cloud.google.com/resource-manager/docs/tags/tags-overview)
    * and [Tags overview](https://docs.cloud.google.com/bigtable/docs/tags) for more information.
    */
   public void createProdInstanceWithTags() {
