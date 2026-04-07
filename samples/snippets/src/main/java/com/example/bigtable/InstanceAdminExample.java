@@ -153,7 +153,7 @@ public class InstanceAdminExample {
    * [Creating and managing tags](https://docs.cloud.google.com/resource-manager/docs/tags/tags-overview)
    *
    *
-   * NOTE: Unlike labels, a tag (Key and Value) must be created before it can be
+   * NOTE: Unlike labels, a tag (key and value) must be created before it can be
    * attached to a resource.
    * See [Creating and managing tags](https://docs.cloud.google.com/resource-manager/docs/tags/tags-overview)
    * and [Tags overview](https://docs.cloud.google.com/bigtable/docs/tags) for more information.
