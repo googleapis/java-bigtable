@@ -147,7 +147,7 @@ public class InstanceAdminExample {
   }
 
   /**
-   * Demonstrates how to create a Production instance within a provided project with tags.
+   * Demonstrates how to create an instance within a provided project with tags.
    *
    * <p>Tags are a way to organize and govern resources across Google Cloud, see
    * [Creating and managing tags](https://cloud.google.com/resource-manager/docs/tags/tags-creating-and-managing)
@@ -161,14 +161,14 @@ public class InstanceAdminExample {
   public void createProdInstanceWithTags() {
     // Creates an instance if it doesn't exist.
     if (!adminClient.exists(instanceId)) {
-      System.out.println("Instance does not exist, creating a PRODUCTION instance with tags");
+      System.out.println("Instance does not exist, creating an instance with tags");
 
       // These are placeholders. You must create these in your GCP Organization/Project first.
       String tagKey = "tagKeys/12345";
       String tagValue = "tagValues/6789";
 
       // [START bigtable_create_prod_instance_with_tags]
-      // Creates a Production Instance with the ID "ssd-instance",
+      // Creates an instance with the ID "ssd-instance",
       // cluster id "ssd-cluster", 3 nodes and location "us-central1-f".
       String parent = "projects/" + projectId;
       Instance instanceObj =
@@ -194,7 +194,7 @@ public class InstanceAdminExample {
       // Creates a production instance with the given request.
       try {
         Instance instance = adminClient.getBaseClient().createInstanceAsync(request).get();
-        System.out.printf("PRODUCTION type instance %s with tags created successfully%n", instance.getName());
+        System.out.printf("Instance %s with tags created successfully%n", instance.getName());
       } catch (Exception e) {
         System.err.println("Failed to create instance: " + e.getMessage());
         throw new RuntimeException(e);
