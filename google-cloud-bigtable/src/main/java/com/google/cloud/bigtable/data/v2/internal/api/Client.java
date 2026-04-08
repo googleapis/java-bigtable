@@ -94,12 +94,11 @@ public class Client implements AutoCloseable {
     // TODO: compat layer: get this from settings
     String universeDomain = "googleapis.com";
 
-    GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
-
     Metrics metrics;
     if (settings.getChannelProvider() instanceof ChannelProviders.EmulatorChannelProvider) {
       metrics = new NoopMetrics();
     } else {
+      GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
       MetricRegistry registry = new MetricRegistry();
       OpenTelemetrySdk otel =
           MetricsImpl.createBuiltinOtel(
