@@ -28,6 +28,9 @@ import com.google.auth.Credentials;
 import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
 import com.google.cloud.bigtable.data.v2.internal.api.InstanceName;
+import com.google.cloud.bigtable.data.v2.internal.compat.DisabledShim;
+import com.google.cloud.bigtable.data.v2.internal.compat.Shim;
+import com.google.cloud.bigtable.data.v2.internal.compat.ShimImpl;
 import com.google.cloud.bigtable.data.v2.internal.csm.MetricRegistry;
 import com.google.cloud.bigtable.data.v2.internal.csm.Metrics;
 import com.google.cloud.bigtable.data.v2.internal.csm.MetricsImpl;
@@ -38,6 +41,7 @@ import com.google.cloud.bigtable.data.v2.internal.dp.NoopDirectAccessChecker;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableTransportChannelProvider;
 import com.google.cloud.bigtable.gaxx.grpc.ChannelPrimer;
+import com.google.common.base.Preconditions;
 import io.grpc.ManagedChannelBuilder;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
@@ -69,6 +73,7 @@ public class BigtableClientContext {
   // the background executor shared for OTEL instances and monitoring client and all other
   // background tasks
   private final ExecutorProvider backgroundExecutorProvider;
+  private final Shim sessionShim;
 
   public static BigtableClientContext create(EnhancedBigtableStubSettings settings)
       throws IOException {
@@ -90,7 +95,7 @@ public class BigtableClientContext {
     patchCredentials(builder);
 
     // Fix the credentials so that they can be shared
-    Credentials credentials = null;
+    @Nullable Credentials credentials = null;
     if (builder.getCredentialsProvider() != null) {
       credentials = builder.getCredentialsProvider().getCredentials();
     }
@@ -189,8 +194,15 @@ public class BigtableClientContext {
     ClientContext clientContext = ClientContext.create(builder.build());
 
     metrics.start();
+
+    Shim shim =
+        settings.isSessionsEnabled()
+            ? ShimImpl.create(clientInfo, credentials, metrics, backgroundExecutor, settings)
+            : new DisabledShim();
+
     try {
-      return new BigtableClientContext(false, clientInfo, clientContext, metrics, executorProvider);
+      return new BigtableClientContext(
+          false, shim, clientInfo, clientContext, metrics, executorProvider);
     } catch (IOException | RuntimeException t) {
       metrics.close();
       throw t;
@@ -219,12 +231,14 @@ public class BigtableClientContext {
 
   private BigtableClientContext(
       boolean isChild,
+      Shim shim,
       ClientInfo clientInfo,
       ClientContext clientContext,
       Metrics metrics,
       ExecutorProvider backgroundExecutorProvider)
       throws IOException {
     this.isChild = isChild;
+    this.sessionShim = shim;
     this.clientInfo = clientInfo;
 
     this.metrics = metrics;
@@ -248,8 +262,14 @@ public class BigtableClientContext {
 
   public BigtableClientContext createChild(InstanceName instanceName, String appProfileId)
       throws IOException {
+    // TODO: either mark BigtableDataClientFactory as deprecated or figure out how to make it
+    //  work with Sessions
+    Preconditions.checkState(
+        sessionShim instanceof DisabledShim, "Sessions don't support BigtableDataClientFactory");
+
     return new BigtableClientContext(
         true,
+        sessionShim,
         clientInfo.toBuilder().setInstanceName(instanceName).setAppProfileId(appProfileId).build(),
         clientContext,
         metrics,
@@ -260,6 +280,8 @@ public class BigtableClientContext {
     if (isChild) {
       return;
     }
+
+    sessionShim.close();
 
     for (BackgroundResource resource : clientContext.getBackgroundResources()) {
       resource.close();
@@ -314,5 +336,9 @@ public class BigtableClientContext {
           }
           return managedChannelBuilder;
         });
+  }
+
+  public Shim getSessionShim() {
+    return sessionShim;
   }
 }
