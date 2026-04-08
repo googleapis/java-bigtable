@@ -50,6 +50,10 @@ public abstract class ClientSettings {
     abstract ClientSettings autoBuild(); // not public
 
     public ClientSettings build() {
+      if (getChannelProvider() != null) {
+        return autoBuild();
+      }
+
       Credentials creds;
       try {
         creds = GoogleCredentials.getApplicationDefault();
