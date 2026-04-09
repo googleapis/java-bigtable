@@ -222,11 +222,10 @@ public class SessionImplTest {
       }
     }
 
-    assertWithMessage("Sanity check that some vRpcs succeeded prior to the goaway")
+    assertWithMessage("Ensure that some vRpcs succeeded prior to the goaway")
         .that(numOk)
         .isGreaterThan(0);
-    assertWithMessage(
-            "Sanity check possibly only the last vRpc was rejected with an uncommited error")
+    assertWithMessage("Ensure that only the last vRpc could be rejected with an uncommited error")
         .that(numUncommittedErrors)
         .isAtMost(1);
 
