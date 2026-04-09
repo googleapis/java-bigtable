@@ -192,7 +192,7 @@ public class SessionPoolImpl<OpenReqT extends Message> implements SessionPool<Op
             .getSessionConfiguration()
             .getSessionPoolConfiguration()
             .getLoadBalancingOptions();
-    picker = new DynamicPicker(sessions, lbOptions.getLoadBalancingStrategyCase());
+    picker = new DynamicPicker(sessions, lbOptions);
     poolSizer =
         new PoolSizer(
             sessions.getStats(),
@@ -325,7 +325,7 @@ public class SessionPoolImpl<OpenReqT extends Message> implements SessionPool<Op
 
   private synchronized void createSession(OpenParams openParams) {
     if (!budget.tryReserveSession()) {
-      debugTagTracer.record(TelemetryConfiguration.Level.DEBUG, "session_pool_no_budget");
+      debugTagTracer.record(TelemetryConfiguration.Level.WARN, "session_pool_no_budget");
       logger.fine(
           String.format(
               "Refusing to add a new session due to exhausted %s concurrent create session"
