@@ -46,7 +46,10 @@ class LeastInFlightPicker extends Picker {
     List<AfeHandle> candidates = new ArrayList<>(readyAfes);
     int bestCost = Integer.MAX_VALUE;
     AfeHandle bestAfe = null;
-    long iterations = Math.min(options.getRandomSubsetSize(), readyAfes.size());
+    long iterations = readyAfes.size();
+    if (options.getRandomSubsetSize() > 0) {
+      iterations = Math.min(options.getRandomSubsetSize(), iterations);
+    }
 
     // Partial Fisher-Yates shuffle.
     for (int i = 0; i < iterations; i++) {
