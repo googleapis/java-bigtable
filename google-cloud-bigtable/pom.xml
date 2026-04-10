@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>google-cloud-bigtable</artifactId>
-  <version>2.76.0</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+  <version>2.77.0</version><!-- {x-version-update:google-cloud-bigtable:current} -->
   <packaging>jar</packaging>
   <name>Google Cloud Bigtable</name>
   <url>https://github.com/googleapis/java-bigtable</url>
@@ -12,11 +12,11 @@
   <parent>
     <groupId>com.google.cloud</groupId>
     <artifactId>google-cloud-bigtable-parent</artifactId>
-    <version>2.76.0</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+    <version>2.77.0</version><!-- {x-version-update:google-cloud-bigtable:current} -->
   </parent>
   <properties>
     <!-- The version that will be embedded in the published jar via maven-resources-plugin -->
-    <java-bigtable.version>2.76.0</java-bigtable.version><!-- {x-version-update:google-cloud-bigtable:current} -->
+    <java-bigtable.version>2.77.0</java-bigtable.version><!-- {x-version-update:google-cloud-bigtable:current} -->
 
     <site.installationModule>google-cloud-bigtable</site.installationModule>
 
@@ -54,14 +54,14 @@
       <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-bigtable-deps-bom</artifactId>
-        <version>2.76.0</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+        <version>2.77.0</version><!-- {x-version-update:google-cloud-bigtable:current} -->
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-bigtable-bom</artifactId>
-        <version>2.76.0</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+        <version>2.77.0</version><!-- {x-version-update:google-cloud-bigtable:current} -->
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -159,15 +159,9 @@
       <artifactId>google-http-client-gson</artifactId>
       <scope>runtime</scope>
     </dependency>
-    <!--
-      grpc-stub is needed directly by our tests and transitively by grpc-alts at runtime.
-      So it has to be declared as a direct dependency and to avoid overriding grpc-alts'
-      runtime requirement it has to be promoted to the runtime scope.
-    -->
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-stub</artifactId>
-      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>io.grpc</groupId>
@@ -224,6 +218,10 @@
     <dependency>
       <groupId>io.opentelemetry</groupId>
       <artifactId>opentelemetry-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-context</artifactId>
     </dependency>
     <dependency>
       <groupId>io.opentelemetry</groupId>
