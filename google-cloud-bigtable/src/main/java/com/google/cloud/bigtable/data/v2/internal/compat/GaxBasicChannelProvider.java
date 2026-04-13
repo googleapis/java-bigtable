@@ -40,8 +40,8 @@ public class GaxBasicChannelProvider implements ChannelProvider {
   @SuppressWarnings("rawtypes")
   public GaxBasicChannelProvider(
       InstantiatingGrpcChannelProvider inner, @Nullable Credentials credentials) {
-    this.channelConfigurator = Optional.ofNullable(inner.toBuilder().getChannelConfigurator())
-        .orElse(b -> b);
+    this.channelConfigurator =
+        Optional.ofNullable(inner.toBuilder().getChannelConfigurator()).orElse(b -> b);
     this.inner = inner.toBuilder().setAttemptDirectPath(false).build();
     this.credentials = Optional.ofNullable(credentials).map(MoreCallCredentials::from).orElse(null);
   }
