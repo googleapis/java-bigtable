@@ -27,7 +27,6 @@ import com.google.common.base.Strings;
 import com.google.protobuf.Empty;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.Nonnull;
 
 /**
  * Modern Cloud Bigtable Table Admin Client.
@@ -47,8 +46,8 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
   }
 
   /** Constructs an instance of BigtableTableAdminClientV2 with the given settings. */
-  public static final BigtableTableAdminClientV2 createClient(BaseBigtableTableAdminSettings settings)
-      throws IOException {
+  public static final BigtableTableAdminClientV2 createClient(
+      BaseBigtableTableAdminSettings settings) throws IOException {
     return new BigtableTableAdminClientV2(settings);
   }
 
@@ -85,7 +84,9 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
     }
 
     // 3. Return the future for the optimization operation
-    return ((EnhancedBigtableTableAdminStub) getStub()).awaitOptimizeRestoredTableCallable().resumeFutureCall(token.getOperationName());
+    return ((EnhancedBigtableTableAdminStub) getStub())
+        .awaitOptimizeRestoredTableCallable()
+        .resumeFutureCall(token.getOperationName());
   }
 
   /**
@@ -133,7 +134,9 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
   public ApiFuture<Void> awaitOptimizeRestoredTableAsync(
       OptimizeRestoredTableOperationToken token) {
     ApiFuture<Empty> emptyFuture =
-        ((EnhancedBigtableTableAdminStub) getStub()).awaitOptimizeRestoredTableCallable().resumeFutureCall(token.getOperationName());
+        ((EnhancedBigtableTableAdminStub) getStub())
+            .awaitOptimizeRestoredTableCallable()
+            .resumeFutureCall(token.getOperationName());
     return ApiFutures.transform(
         emptyFuture,
         new com.google.api.core.ApiFunction<Empty, Void>() {
@@ -165,7 +168,8 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
    * @param consistencyToken The token to poll.
    */
   public ApiFuture<Void> waitForConsistencyAsync(String tableId, String consistencyToken) {
-    return ((EnhancedBigtableTableAdminStub) getStub()).awaitConsistencyCallable()
+    return ((EnhancedBigtableTableAdminStub) getStub())
+        .awaitConsistencyCallable()
         .futureCall(ConsistencyRequest.forReplication(tableId, consistencyToken));
   }
 }

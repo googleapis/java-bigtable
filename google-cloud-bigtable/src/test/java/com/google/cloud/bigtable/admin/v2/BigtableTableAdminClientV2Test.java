@@ -48,8 +48,7 @@ public class BigtableTableAdminClientV2Test {
 
   @Mock private EnhancedBigtableTableAdminStub mockStub;
 
-  @Mock
-  private UnaryCallable<ConsistencyRequest, Void> mockAwaitConsistencyCallable;
+  @Mock private UnaryCallable<ConsistencyRequest, Void> mockAwaitConsistencyCallable;
 
   @Mock
   private OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
