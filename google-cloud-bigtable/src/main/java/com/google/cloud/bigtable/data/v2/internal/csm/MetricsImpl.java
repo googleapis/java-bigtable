@@ -85,6 +85,9 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 
 public class MetricsImpl implements Metrics, Closeable {
+
+  public static final String CUSTOM_METRIC = "bigtable.internal.enable-custom-metric";
+
   private final ApiTracerFactory userTracerFactory;
   private final @Nullable OpenTelemetrySdk internalOtel;
   private final @Nullable MetricRegistry.RecorderRegistry internalRecorder;
@@ -314,11 +317,11 @@ public class MetricsImpl implements Metrics, Closeable {
             executor));
 
     Optional<Boolean> enableCustomMetric =
-        Optional.ofNullable(System.getenv("BIGTABLE_CUSTOM_METRIC")).map(Boolean::parseBoolean);
+        Optional.ofNullable(System.getProperty(CUSTOM_METRIC)).map(Boolean::parseBoolean);
     if (enableCustomMetric.isPresent() && enableCustomMetric.get()) {
+      // Monitored resource and project id are detected at export time
       MetricConfiguration metricConfig =
           MetricConfiguration.builder()
-              .setProjectId(clientInfo.getInstanceName().getProjectId())
               .setCredentials(credentials)
               .setInstrumentationLibraryLabelsEnabled(false)
               .build();
