@@ -89,7 +89,7 @@ public class MetricsImpl implements Metrics, Closeable {
   public static final String CUSTOM_METRIC = "bigtable.internal.enable-custom-metric";
 
   private static final boolean enableCustomMetric =
-      Optional.ofNullable(System.getProperty(MetricsImpl.CUSTOM_METRIC))
+      Optional.ofNullable(System.getProperty(CUSTOM_METRIC))
           .map(Boolean::parseBoolean)
           .orElse(false);
 
