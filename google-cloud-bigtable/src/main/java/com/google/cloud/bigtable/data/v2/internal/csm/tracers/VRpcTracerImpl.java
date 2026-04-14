@@ -129,13 +129,15 @@ public class VRpcTracerImpl implements VRpcTracer {
     ClusterInformation clusterInfo =
         lastClusterInfo = Optional.ofNullable(result.getClusterInfo()).orElse(UNKNOWN_CLUSTER);
 
+    Duration attemptLatency = attemptTimer.elapsed();
+
     metricRegistry.attemptLatency.record(
         poolInfo.getClientInfo(),
         poolInfo.getName(),
         clusterInfo,
         methodInfo,
         result.getStatus().getCode(),
-        attemptTimer.elapsed());
+        attemptLatency);
 
     metricRegistry.attemptLatency2.record(
         poolInfo.getClientInfo(),
@@ -144,7 +146,16 @@ public class VRpcTracerImpl implements VRpcTracer {
         clusterInfo,
         methodInfo,
         result.getStatus().getCode(),
-        attemptTimer.elapsed());
+        attemptLatency);
+
+    metricRegistry.customAttemptLatency.record(
+        poolInfo.getClientInfo(),
+        poolInfo.getName(),
+        lastPeerInfo,
+        clusterInfo,
+        methodInfo,
+        result.getStatus().getCode(),
+        attemptLatency);
 
     // TODO: what should be server latency?
     //    metricRegistry.serverLatency.record(
@@ -176,10 +187,7 @@ public class VRpcTracerImpl implements VRpcTracer {
         Duration.ofMillis(remainingDeadline));
 
     metricRegistry.transportLatency.record(
-        poolInfo,
-        lastPeerInfo,
-        methodInfo,
-        attemptTimer.elapsed().minus(result.getBackendLatency()));
+        poolInfo, lastPeerInfo, methodInfo, attemptLatency.minus(result.getBackendLatency()));
   }
 
   @Override
