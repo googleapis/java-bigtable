@@ -19,31 +19,23 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.bigtable.admin.v2.CheckConsistencyRequest;
 import com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest;
-import com.google.cloud.bigtable.data.v2.internal.NameUtil;
-import com.google.cloud.bigtable.data.v2.internal.TableAdminRequestContext;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class ConsistencyRequestTest {
-  private final String PROJECT_ID = "my-project";
-  private final String INSTANCE_ID = "my-instance";
-  private final String TABLE_ID = "my-table";
+  private final String TABLE_NAME = "projects/my-project/instances/my-instance/tables/my-table";
   private final String CONSISTENCY_TOKEN = "my-token";
 
   @Test
   public void testToCheckConsistencyProtoWithStandard() {
-    ConsistencyRequest consistencyRequest = ConsistencyRequest.forReplication(TABLE_ID);
-
-    TableAdminRequestContext requestContext =
-        TableAdminRequestContext.create(PROJECT_ID, INSTANCE_ID);
+    ConsistencyRequest consistencyRequest = ConsistencyRequest.forReplication(TABLE_NAME);
 
     CheckConsistencyRequest checkConsistencyRequest =
-        consistencyRequest.toCheckConsistencyProto(requestContext, CONSISTENCY_TOKEN);
+        consistencyRequest.toCheckConsistencyProto(CONSISTENCY_TOKEN);
 
-    assertThat(checkConsistencyRequest.getName())
-        .isEqualTo(NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID));
+    assertThat(checkConsistencyRequest.getName()).isEqualTo(TABLE_NAME);
     assertThat(checkConsistencyRequest.getConsistencyToken()).isEqualTo(CONSISTENCY_TOKEN);
     assertThat(checkConsistencyRequest.getModeCase())
         .isEqualTo(CheckConsistencyRequest.ModeCase.STANDARD_READ_REMOTE_WRITES);
@@ -51,16 +43,12 @@ public class ConsistencyRequestTest {
 
   @Test
   public void testToCheckConsistencyProtoWithDataBoost() {
-    ConsistencyRequest consistencyRequest = ConsistencyRequest.forDataBoost(TABLE_ID);
-
-    TableAdminRequestContext requestContext =
-        TableAdminRequestContext.create(PROJECT_ID, INSTANCE_ID);
+    ConsistencyRequest consistencyRequest = ConsistencyRequest.forDataBoost(TABLE_NAME);
 
     CheckConsistencyRequest checkConsistencyRequest =
-        consistencyRequest.toCheckConsistencyProto(requestContext, CONSISTENCY_TOKEN);
+        consistencyRequest.toCheckConsistencyProto(CONSISTENCY_TOKEN);
 
-    assertThat(checkConsistencyRequest.getName())
-        .isEqualTo(NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID));
+    assertThat(checkConsistencyRequest.getName()).isEqualTo(TABLE_NAME);
     assertThat(checkConsistencyRequest.getConsistencyToken()).isEqualTo(CONSISTENCY_TOKEN);
     assertThat(checkConsistencyRequest.getModeCase())
         .isEqualTo(CheckConsistencyRequest.ModeCase.DATA_BOOST_READ_LOCAL_WRITES);
@@ -68,31 +56,23 @@ public class ConsistencyRequestTest {
 
   @Test
   public void testToGenerateTokenProto() {
-    ConsistencyRequest consistencyRequest = ConsistencyRequest.forDataBoost(TABLE_ID);
-
-    TableAdminRequestContext requestContext =
-        TableAdminRequestContext.create(PROJECT_ID, INSTANCE_ID);
+    ConsistencyRequest consistencyRequest = ConsistencyRequest.forDataBoost(TABLE_NAME);
 
     GenerateConsistencyTokenRequest generateRequest =
-        consistencyRequest.toGenerateTokenProto(requestContext);
+        consistencyRequest.toGenerateTokenProto();
 
-    assertThat(generateRequest.getName())
-        .isEqualTo(NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID));
+    assertThat(generateRequest.getName()).isEqualTo(TABLE_NAME);
   }
 
   @Test
   public void testToCheckConsistencyProtoWithToken() {
     ConsistencyRequest consistencyRequest =
-        ConsistencyRequest.forReplication(TABLE_ID, CONSISTENCY_TOKEN);
-
-    TableAdminRequestContext requestContext =
-        TableAdminRequestContext.create(PROJECT_ID, INSTANCE_ID);
+        ConsistencyRequest.forReplication(TABLE_NAME, CONSISTENCY_TOKEN);
 
     CheckConsistencyRequest checkConsistencyRequest =
-        consistencyRequest.toCheckConsistencyProto(requestContext, CONSISTENCY_TOKEN);
+        consistencyRequest.toCheckConsistencyProto(CONSISTENCY_TOKEN);
 
-    assertThat(checkConsistencyRequest.getName())
-        .isEqualTo(NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID));
+    assertThat(checkConsistencyRequest.getName()).isEqualTo(TABLE_NAME);
     assertThat(checkConsistencyRequest.getConsistencyToken()).isEqualTo(CONSISTENCY_TOKEN);
     assertThat(checkConsistencyRequest.getModeCase())
         .isEqualTo(CheckConsistencyRequest.ModeCase.STANDARD_READ_REMOTE_WRITES);

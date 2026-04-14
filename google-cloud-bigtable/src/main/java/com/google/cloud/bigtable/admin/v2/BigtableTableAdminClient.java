@@ -184,10 +184,8 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   /** Constructs an instance of BigtableTableAdminClient with the given settings. */
   public static BigtableTableAdminClient create(@Nonnull BigtableTableAdminSettings settings)
       throws IOException {
-    TableAdminRequestContext requestContext =
-        TableAdminRequestContext.create(settings.getProjectId(), settings.getInstanceId());
     EnhancedBigtableTableAdminStub stub =
-        EnhancedBigtableTableAdminStub.createEnhanced(settings.getStubSettings(), requestContext);
+        EnhancedBigtableTableAdminStub.createEnhanced(settings.getStubSettings());
     return create(settings.getProjectId(), settings.getInstanceId(), stub);
   }
 
@@ -1697,7 +1695,9 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    */
   public ApiFuture<Void> waitForConsistencyAsync(String tableId, String consistencyToken) {
     return stub.awaitConsistencyCallable()
-        .futureCall(ConsistencyRequest.forReplication(tableId, consistencyToken));
+        .futureCall(
+            ConsistencyRequest.forReplication(
+                NameUtil.formatTableName(projectId, instanceId, tableId), consistencyToken));
   }
 
   /**

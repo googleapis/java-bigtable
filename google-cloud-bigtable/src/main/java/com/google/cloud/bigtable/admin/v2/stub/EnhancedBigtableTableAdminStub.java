@@ -54,8 +54,6 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
   private final BigtableTableAdminStubSettings settings;
   private final ClientContext clientContext;
 
-  private final TableAdminRequestContext requestContext;
-
   @Deprecated private final AwaitReplicationCallable awaitReplicationCallable;
 
   private final AwaitConsistencyCallable awaitConsistencyCallable;
@@ -63,22 +61,20 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
       optimizeRestoredTableOperationBaseCallable;
 
   public static EnhancedBigtableTableAdminStub createEnhanced(
-      BigtableTableAdminStubSettings settings, TableAdminRequestContext requestContext)
+      BigtableTableAdminStubSettings settings)
       throws IOException {
     return new EnhancedBigtableTableAdminStub(
-        settings, ClientContext.create(settings), requestContext);
+        settings, ClientContext.create(settings));
   }
 
   private EnhancedBigtableTableAdminStub(
       BigtableTableAdminStubSettings settings,
-      ClientContext clientContext,
-      TableAdminRequestContext requestContext)
+      ClientContext clientContext)
       throws IOException {
     super(settings, clientContext);
 
     this.settings = settings;
     this.clientContext = clientContext;
-    this.requestContext = requestContext;
     this.awaitConsistencyCallable = createAwaitConsistencyCallable();
     this.awaitReplicationCallable = createAwaitReplicationCallable();
     this.optimizeRestoredTableOperationBaseCallable =
@@ -113,8 +109,7 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
         generateConsistencyTokenCallable(),
         checkConsistencyCallable(),
         clientContext,
-        pollingSettings,
-        requestContext);
+        pollingSettings);
   }
 
   // Plug into gax operation infrastructure

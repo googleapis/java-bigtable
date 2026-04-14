@@ -42,7 +42,7 @@ class AwaitReplicationCallable extends UnaryCallable<TableName, Void> {
 
   @Override
   public ApiFuture<Void> futureCall(final TableName tableName, final ApiCallContext context) {
-    ConsistencyRequest consistencyRequest = ConsistencyRequest.forReplication(tableName.getTable());
+    ConsistencyRequest consistencyRequest = ConsistencyRequest.forReplication(tableName.toString());
 
     return awaitConsistencyCallable.futureCall(consistencyRequest, context);
   }
