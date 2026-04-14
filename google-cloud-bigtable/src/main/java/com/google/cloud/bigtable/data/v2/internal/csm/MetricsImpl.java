@@ -88,6 +88,11 @@ public class MetricsImpl implements Metrics, Closeable {
 
   public static final String CUSTOM_METRIC = "bigtable.internal.enable-custom-metric";
 
+  private static final boolean enableCustomMetric =
+      Optional.ofNullable(System.getProperty(MetricsImpl.CUSTOM_METRIC))
+          .map(Boolean::parseBoolean)
+          .orElse(false);
+
   private final ApiTracerFactory userTracerFactory;
   private final @Nullable OpenTelemetrySdk internalOtel;
   private final @Nullable MetricRegistry.RecorderRegistry internalRecorder;
@@ -205,7 +210,8 @@ public class MetricsImpl implements Metrics, Closeable {
     }
     ImmutableList.Builder<VRpcTracer> builder = ImmutableList.builder();
     builder.add(
-        new VRpcTracerImpl(internalRecorder, poolInfo, descriptor.getMethodInfo(), deadline));
+        new VRpcTracerImpl(
+            internalRecorder, poolInfo, descriptor.getMethodInfo(), deadline, enableCustomMetric));
     if (userRecorder != null) {
       builder.add(new VRpcTracerImpl(userRecorder, poolInfo, descriptor.getMethodInfo(), deadline));
     }
@@ -316,9 +322,7 @@ public class MetricsImpl implements Metrics, Closeable {
                 input -> input.getName().startsWith("bigtable.googleapis.com/internal/client")),
             executor));
 
-    Optional<Boolean> enableCustomMetric =
-        Optional.ofNullable(System.getProperty(CUSTOM_METRIC)).map(Boolean::parseBoolean);
-    if (enableCustomMetric.isPresent() && enableCustomMetric.get()) {
+    if (enableCustomMetric) {
       // Monitored resource and project id are detected at export time
       MetricConfiguration metricConfig =
           MetricConfiguration.builder()

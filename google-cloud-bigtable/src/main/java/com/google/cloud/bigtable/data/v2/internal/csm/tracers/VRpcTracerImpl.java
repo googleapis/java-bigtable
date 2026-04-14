@@ -71,16 +71,28 @@ public class VRpcTracerImpl implements VRpcTracer {
 
   private int numAttempts = 0;
 
+  private final boolean enableCustomMetric;
+
   public VRpcTracerImpl(
       RecorderRegistry metricRegistry,
       SessionPoolInfo poolInfo,
       MethodInfo methodInfo,
       Deadline deadline) {
+    this(metricRegistry, poolInfo, methodInfo, deadline, false);
+  }
+
+  public VRpcTracerImpl(
+      RecorderRegistry metricRegistry,
+      SessionPoolInfo poolInfo,
+      MethodInfo methodInfo,
+      Deadline deadline,
+      boolean enableCustomMetric) {
     this.metricRegistry = metricRegistry;
     this.poolInfo = poolInfo;
     this.methodInfo = methodInfo;
     this.originalDeadline = deadline;
     this.lastClusterInfo = UNKNOWN_CLUSTER;
+    this.enableCustomMetric = enableCustomMetric;
   }
 
   @Override
@@ -148,14 +160,16 @@ public class VRpcTracerImpl implements VRpcTracer {
         result.getStatus().getCode(),
         attemptLatency);
 
-    metricRegistry.customAttemptLatency.record(
-        poolInfo.getClientInfo(),
-        poolInfo.getName(),
-        lastPeerInfo,
-        clusterInfo,
-        methodInfo,
-        result.getStatus().getCode(),
-        attemptLatency);
+    if (enableCustomMetric) {
+      metricRegistry.customAttemptLatency.record(
+          poolInfo.getClientInfo(),
+          poolInfo.getName(),
+          lastPeerInfo,
+          clusterInfo,
+          methodInfo,
+          result.getStatus().getCode(),
+          attemptLatency);
+    }
 
     // TODO: what should be server latency?
     //    metricRegistry.serverLatency.record(

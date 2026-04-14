@@ -17,7 +17,6 @@ package com.google.cloud.bigtable.data.v2.internal.csm.metrics;
 
 import com.google.bigtable.v2.ClusterInformation;
 import com.google.bigtable.v2.PeerInfo;
-import com.google.cloud.bigtable.data.v2.internal.csm.MetricsImpl;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.ClientInfo;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.MethodInfo;
 import com.google.cloud.bigtable.data.v2.internal.csm.attributes.Util;
@@ -27,7 +26,6 @@ import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.DoubleHistogram;
 import io.opentelemetry.api.metrics.Meter;
 import java.time.Duration;
-import java.util.Optional;
 import javax.annotation.Nullable;
 
 /**
@@ -42,32 +40,13 @@ public class CustomAttemptLatency extends MetricWrapper<CustomSchema> {
   }
 
   public Recorder newRecorder(Meter meter) {
-    Optional<Boolean> enableCustomMetric =
-        Optional.ofNullable(System.getProperty(MetricsImpl.CUSTOM_METRIC))
-            .map(Boolean::parseBoolean);
-    if (enableCustomMetric.isPresent() && enableCustomMetric.get()) {
-      return new RecorderImpl(meter);
-    } else {
-      // Skip recording high cardinality metric when it's disabled
-      return new NoopRecorder();
-    }
+    return new Recorder(meter);
   }
 
-  public abstract static class Recorder {
-    public abstract void record(
-        ClientInfo clientInfo,
-        String tableId,
-        @Nullable PeerInfo peerInfo,
-        @Nullable ClusterInformation clusterInfo,
-        MethodInfo methodInfo,
-        Status.Code code,
-        Duration latency);
-  }
-
-  public static class RecorderImpl extends Recorder {
+  public static class Recorder {
     private final DoubleHistogram instrument;
 
-    private RecorderImpl(Meter meter) {
+    private Recorder(Meter meter) {
       instrument =
           meter
               .histogramBuilder(NAME)
@@ -105,20 +84,6 @@ public class CustomAttemptLatency extends MetricWrapper<CustomSchema> {
               .build();
 
       instrument.record(toMillis(latency), attributes);
-    }
-  }
-
-  public static class NoopRecorder extends Recorder {
-    @Override
-    public void record(
-        ClientInfo clientInfo,
-        String tableId,
-        @Nullable PeerInfo peerInfo,
-        @Nullable ClusterInformation clusterInfo,
-        MethodInfo methodInfo,
-        Status.Code code,
-        Duration latency) {
-      // do nothing
     }
   }
 }
