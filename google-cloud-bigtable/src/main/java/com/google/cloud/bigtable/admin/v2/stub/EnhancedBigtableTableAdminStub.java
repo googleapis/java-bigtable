@@ -32,7 +32,6 @@ import com.google.api.gax.rpc.UnaryCallable;
 import com.google.bigtable.admin.v2.OptimizeRestoredTableMetadata;
 import com.google.bigtable.admin.v2.TableName;
 import com.google.cloud.bigtable.admin.v2.models.ConsistencyRequest;
-import com.google.cloud.bigtable.data.v2.internal.TableAdminRequestContext;
 import com.google.longrunning.Operation;
 import com.google.protobuf.Empty;
 import io.grpc.MethodDescriptor;
@@ -61,16 +60,12 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
       optimizeRestoredTableOperationBaseCallable;
 
   public static EnhancedBigtableTableAdminStub createEnhanced(
-      BigtableTableAdminStubSettings settings)
-      throws IOException {
-    return new EnhancedBigtableTableAdminStub(
-        settings, ClientContext.create(settings));
+      BigtableTableAdminStubSettings settings) throws IOException {
+    return new EnhancedBigtableTableAdminStub(settings, ClientContext.create(settings));
   }
 
   private EnhancedBigtableTableAdminStub(
-      BigtableTableAdminStubSettings settings,
-      ClientContext clientContext)
-      throws IOException {
+      BigtableTableAdminStubSettings settings, ClientContext clientContext) throws IOException {
     super(settings, clientContext);
 
     this.settings = settings;

@@ -58,8 +58,7 @@ public class ConsistencyRequestTest {
   public void testToGenerateTokenProto() {
     ConsistencyRequest consistencyRequest = ConsistencyRequest.forDataBoost(TABLE_NAME);
 
-    GenerateConsistencyTokenRequest generateRequest =
-        consistencyRequest.toGenerateTokenProto();
+    GenerateConsistencyTokenRequest generateRequest = consistencyRequest.toGenerateTokenProto();
 
     assertThat(generateRequest.getName()).isEqualTo(TABLE_NAME);
   }

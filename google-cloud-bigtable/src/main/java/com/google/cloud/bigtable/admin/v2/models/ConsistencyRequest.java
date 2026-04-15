@@ -21,8 +21,6 @@ import com.google.bigtable.admin.v2.CheckConsistencyRequest;
 import com.google.bigtable.admin.v2.DataBoostReadLocalWrites;
 import com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest;
 import com.google.bigtable.admin.v2.StandardReadRemoteWrites;
-import com.google.bigtable.admin.v2.TableName;
-import com.google.cloud.bigtable.data.v2.internal.TableAdminRequestContext;
 import com.google.common.base.Preconditions;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

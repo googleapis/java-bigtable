@@ -37,7 +37,6 @@ import com.google.bigtable.admin.v2.CheckConsistencyResponse;
 import com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest;
 import com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse;
 import com.google.cloud.bigtable.admin.v2.models.ConsistencyRequest;
-import com.google.cloud.bigtable.data.v2.internal.TableAdminRequestContext;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.concurrent.Callable;
@@ -71,8 +70,7 @@ class AwaitConsistencyCallable extends UnaryCallable<ConsistencyRequest, Void> {
     RetryingExecutor<CheckConsistencyResponse> retryingExecutor =
         new ScheduledRetryingExecutor<>(retryAlgorithm, clientContext.getExecutor());
 
-    return new AwaitConsistencyCallable(
-        generateCallable, checkCallable, retryingExecutor);
+    return new AwaitConsistencyCallable(generateCallable, checkCallable, retryingExecutor);
   }
 
   @VisibleForTesting
