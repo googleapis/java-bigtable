@@ -507,7 +507,7 @@ public class SessionPoolImpl<OpenReqT extends Message> implements SessionPool<Op
       // vRPCs failing with consecutive failures should fail
       VRpcResult result =
           VRpcResult.createRejectedError(
-              Status.UNAVAILABLE.withDescription(
+              Status.fromCode(status.getCode()).withDescription(
                   String.format(
                       "Session failed with consecutive failures. Most recent server status: %s,"
                           + " metadata: %s.",
