@@ -54,6 +54,7 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
   private final BigtableTableAdminStubSettings settings;
   private final ClientContext clientContext;
 
+  @javax.annotation.Nullable
   private final TableAdminRequestContext requestContext;
 
   @Deprecated private final AwaitReplicationCallable awaitReplicationCallable;
@@ -61,6 +62,13 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
   private final AwaitConsistencyCallable awaitConsistencyCallable;
   private final OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
       optimizeRestoredTableOperationBaseCallable;
+
+  public static EnhancedBigtableTableAdminStub createEnhanced(
+      BigtableTableAdminStubSettings settings)
+      throws IOException {
+    return new EnhancedBigtableTableAdminStub(
+        settings, ClientContext.create(settings), null);
+  }
 
   public static EnhancedBigtableTableAdminStub createEnhanced(
       BigtableTableAdminStubSettings settings, TableAdminRequestContext requestContext)
@@ -72,7 +80,7 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
   private EnhancedBigtableTableAdminStub(
       BigtableTableAdminStubSettings settings,
       ClientContext clientContext,
-      TableAdminRequestContext requestContext)
+      @javax.annotation.Nullable TableAdminRequestContext requestContext)
       throws IOException {
     super(settings, clientContext);
 
