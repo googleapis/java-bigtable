@@ -46,12 +46,13 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
   }
 
   /** Constructs an instance of BigtableTableAdminClientV2 with the given settings. */
-  public static final BigtableTableAdminClientV2 createClient(BaseBigtableTableAdminSettings settings)
-      throws IOException {
+  public static final BigtableTableAdminClientV2 createClient(
+      BaseBigtableTableAdminSettings settings) throws IOException {
     // Explicitly create the enhanced stub
     EnhancedBigtableTableAdminStub stub =
         EnhancedBigtableTableAdminStub.createEnhanced(
-            (com.google.cloud.bigtable.admin.v2.stub.BigtableTableAdminStubSettings) settings.getStubSettings());
+            (com.google.cloud.bigtable.admin.v2.stub.BigtableTableAdminStubSettings)
+                settings.getStubSettings());
     // Pass the enhanced stub to the existing stub-based constructor
     return new BigtableTableAdminClientV2(stub);
   }
@@ -89,7 +90,9 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
     }
 
     // 3. Return the future for the optimization operation
-    return ((EnhancedBigtableTableAdminStub) getStub()).awaitOptimizeRestoredTableCallable().resumeFutureCall(token.getOperationName());
+    return ((EnhancedBigtableTableAdminStub) getStub())
+        .awaitOptimizeRestoredTableCallable()
+        .resumeFutureCall(token.getOperationName());
   }
 
   /**
@@ -137,7 +140,9 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
   public ApiFuture<Void> awaitOptimizeRestoredTableAsync(
       OptimizeRestoredTableOperationToken token) {
     ApiFuture<Empty> emptyFuture =
-        ((EnhancedBigtableTableAdminStub) getStub()).awaitOptimizeRestoredTableCallable().resumeFutureCall(token.getOperationName());
+        ((EnhancedBigtableTableAdminStub) getStub())
+            .awaitOptimizeRestoredTableCallable()
+            .resumeFutureCall(token.getOperationName());
     return ApiFutures.transform(
         emptyFuture,
         new com.google.api.core.ApiFunction<Empty, Void>() {
@@ -158,7 +163,8 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
    * @param consistencyToken The token to poll.
    */
   public void waitForConsistency(String tableName, String consistencyToken) {
-    ApiExceptions.callAndTranslateApiException(waitForConsistencyAsync(tableName, consistencyToken));
+    ApiExceptions.callAndTranslateApiException(
+        waitForConsistencyAsync(tableName, consistencyToken));
   }
 
   /**
@@ -169,7 +175,8 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
    * @param consistencyToken The token to poll.
    */
   public ApiFuture<Void> waitForConsistencyAsync(String tableName, String consistencyToken) {
-    return ((EnhancedBigtableTableAdminStub) getStub()).awaitConsistencyCallable()
+    return ((EnhancedBigtableTableAdminStub) getStub())
+        .awaitConsistencyCallable()
         .futureCall(ConsistencyRequest.forReplicationFromTableName(tableName, consistencyToken));
   }
 }

@@ -44,12 +44,12 @@ import org.mockito.stubbing.Answer;
 public class BigtableTableAdminClientV2Test {
   @Rule public final MockitoRule mockitoRule = MockitoJUnit.rule();
 
-  private static final String TABLE_NAME = "projects/my-project/instances/my-instance/tables/my-table";
+  private static final String TABLE_NAME =
+      "projects/my-project/instances/my-instance/tables/my-table";
 
   @Mock private EnhancedBigtableTableAdminStub mockStub;
 
-  @Mock
-  private UnaryCallable<ConsistencyRequest, Void> mockAwaitConsistencyCallable;
+  @Mock private UnaryCallable<ConsistencyRequest, Void> mockAwaitConsistencyCallable;
 
   @Mock
   private OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
@@ -68,7 +68,8 @@ public class BigtableTableAdminClientV2Test {
     Mockito.when(mockStub.awaitConsistencyCallable()).thenReturn(mockAwaitConsistencyCallable);
 
     String token = "my-token";
-    ConsistencyRequest expectedRequest = ConsistencyRequest.forReplicationFromTableName(TABLE_NAME, token);
+    ConsistencyRequest expectedRequest =
+        ConsistencyRequest.forReplicationFromTableName(TABLE_NAME, token);
 
     final AtomicBoolean wasCalled = new AtomicBoolean(false);
 
