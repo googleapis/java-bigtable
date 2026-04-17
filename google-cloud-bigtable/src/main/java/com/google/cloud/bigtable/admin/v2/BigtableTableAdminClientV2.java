@@ -76,6 +76,17 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
     this.optimizeRestoredTableOperationBaseCallable = null;
   }
 
+  @com.google.common.annotations.VisibleForTesting
+  BigtableTableAdminClientV2(
+      BigtableTableAdminStub stub,
+      AwaitConsistencyCallable awaitConsistencyCallable,
+      OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
+          optimizeRestoredTableOperationBaseCallable) {
+    super(stub);
+    this.awaitConsistencyCallable = awaitConsistencyCallable;
+    this.optimizeRestoredTableOperationBaseCallable = optimizeRestoredTableOperationBaseCallable;
+  }
+
   private AwaitConsistencyCallable createAwaitConsistencyCallable(
       BigtableTableAdminStubSettings settings) throws IOException {
     ClientContext clientContext = ClientContext.create(settings);
@@ -324,12 +335,8 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
     if (optimizeRestoredTableOperationBaseCallable != null) {
       return optimizeRestoredTableOperationBaseCallable;
     }
-    // Fallback for tests or stub-based initialization
-    if (getStub()
-        instanceof com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub) {
-      return ((com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub) getStub())
-          .awaitOptimizeRestoredTableCallable();
-    }
-    throw new IllegalStateException("OptimizeRestoredTableCallable not initialized.");
+    throw new IllegalStateException(
+        "OptimizeRestoredTableCallable not initialized. BigtableTableAdminClientV2 must be "
+            + "initialized via settings to use this functionality.");
   }
 }

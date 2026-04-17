@@ -26,6 +26,8 @@ import com.google.bigtable.admin.v2.OptimizeRestoredTableMetadata;
 import com.google.cloud.bigtable.admin.v2.models.ConsistencyRequest;
 import com.google.cloud.bigtable.admin.v2.models.OptimizeRestoredTableOperationToken;
 import com.google.cloud.bigtable.admin.v2.models.RestoredTableResult;
+import com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable;
+import com.google.cloud.bigtable.admin.v2.stub.BigtableTableAdminStub;
 import com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub;
 import com.google.protobuf.Empty;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -47,9 +49,9 @@ public class BigtableTableAdminClientV2Test {
   private static final String TABLE_NAME =
       "projects/my-project/instances/my-instance/tables/my-table";
 
-  @Mock private EnhancedBigtableTableAdminStub mockStub;
+  @Mock private BigtableTableAdminStub mockStub;
 
-  @Mock private UnaryCallable<ConsistencyRequest, Void> mockAwaitConsistencyCallable;
+  @Mock private AwaitConsistencyCallable mockAwaitConsistencyCallable;
 
   @Mock
   private OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
@@ -59,13 +61,14 @@ public class BigtableTableAdminClientV2Test {
 
   @Before
   public void setUp() {
-    client = BigtableTableAdminClientV2.createClient(mockStub);
+    client =
+        new BigtableTableAdminClientV2(
+            mockStub, mockAwaitConsistencyCallable, mockOptimizeRestoredTableCallable);
   }
 
   @Test
   public void testWaitForConsistencyWithToken() {
     // Setup
-    Mockito.when(mockStub.awaitConsistencyCallable()).thenReturn(mockAwaitConsistencyCallable);
 
     String token = "my-token";
     ConsistencyRequest expectedRequest =
@@ -91,8 +94,6 @@ public class BigtableTableAdminClientV2Test {
   @Test
   public void testAwaitOptimizeRestoredTable() throws Exception {
     // Setup
-    Mockito.when(mockStub.awaitOptimizeRestoredTableCallable())
-        .thenReturn(mockOptimizeRestoredTableCallable);
 
     String optimizeToken = "my-optimization-token";
 
