@@ -51,7 +51,7 @@ import javax.annotation.Nullable;
  * <p>This callable wraps GenerateConsistencyToken and CheckConsistency RPCs. It will generate a
  * token then poll until isConsistent is true.
  */
-class AwaitConsistencyCallable extends UnaryCallable<ConsistencyRequest, Void> {
+public class AwaitConsistencyCallable extends UnaryCallable<ConsistencyRequest, Void> {
   private final UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
       generateCallable;
   private final UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable;
@@ -59,7 +59,7 @@ class AwaitConsistencyCallable extends UnaryCallable<ConsistencyRequest, Void> {
 
   @Nullable private final TableAdminRequestContext requestContext;
 
-  static AwaitConsistencyCallable create(
+  public static AwaitConsistencyCallable create(
       UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
           generateCallable,
       UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable,
@@ -79,7 +79,7 @@ class AwaitConsistencyCallable extends UnaryCallable<ConsistencyRequest, Void> {
         generateCallable, checkCallable, retryingExecutor, requestContext);
   }
 
-  static AwaitConsistencyCallable create(
+  public static AwaitConsistencyCallable create(
       UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
           generateCallable,
       UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable,

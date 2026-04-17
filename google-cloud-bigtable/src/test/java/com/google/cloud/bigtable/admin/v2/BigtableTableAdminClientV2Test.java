@@ -148,9 +148,9 @@ public class BigtableTableAdminClientV2Test {
             .build();
     try (BigtableTableAdminClientV2 settingsClient =
         BigtableTableAdminClientV2.createClient(settings)) {
-      // Verify that the underlying stub was correctly instantiated as the Enhanced stub
-      // so that downcasts in the CUJs do not throw a ClassCastException.
-      assertThat(settingsClient.getStub()).isInstanceOf(EnhancedBigtableTableAdminStub.class);
+      // Verify that the underlying stub is NOT an Enhanced stub by default
+      // but the client has successfully initialized its own callables.
+      assertThat(settingsClient.getStub()).isNotInstanceOf(EnhancedBigtableTableAdminStub.class);
     }
   }
 }
