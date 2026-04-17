@@ -321,13 +321,9 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
     if (awaitConsistencyCallable != null) {
       return awaitConsistencyCallable;
     }
-    // Fallback for tests or stub-based initialization
-    if (getStub()
-        instanceof com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub) {
-      return ((com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub) getStub())
-          .awaitConsistencyCallable();
-    }
-    throw new IllegalStateException("AwaitConsistencyCallable not initialized.");
+    throw new IllegalStateException(
+        "AwaitConsistencyCallable not initialized. BigtableTableAdminClientV2 must be "
+            + "initialized via settings to use this functionality.");
   }
 
   private OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
