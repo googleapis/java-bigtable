@@ -39,7 +39,6 @@ import com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable;
 import com.google.cloud.bigtable.admin.v2.stub.BigtableTableAdminStub;
 import com.google.cloud.bigtable.admin.v2.stub.BigtableTableAdminStubSettings;
 import com.google.common.base.Strings;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.longrunning.Operation;
 import com.google.protobuf.Empty;
 import io.grpc.MethodDescriptor;
@@ -312,7 +311,8 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
       return awaitConsistencyCallable;
     }
     // Fallback for tests or stub-based initialization
-    if (getStub() instanceof com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub) {
+    if (getStub()
+        instanceof com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub) {
       return ((com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub) getStub())
           .awaitConsistencyCallable();
     }
@@ -325,7 +325,8 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
       return optimizeRestoredTableOperationBaseCallable;
     }
     // Fallback for tests or stub-based initialization
-    if (getStub() instanceof com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub) {
+    if (getStub()
+        instanceof com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub) {
       return ((com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub) getStub())
           .awaitOptimizeRestoredTableCallable();
     }
