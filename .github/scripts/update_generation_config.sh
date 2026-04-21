@@ -144,16 +144,12 @@ rm -rf tmp-googleapis
 update_config "googleapis_commitish" "${latest_commit}" "${generation_config}"
 
 # Update gapic-generator-java version to the latest
-latest_gapic_generator_version=$(get_latest_released_version "com.google.api" "gapic-generator-java")
-update_config "gapic_generator_version" "${latest_gapic_generator_version}" "${generation_config}"
+latest_version=$(get_latest_released_version "com.google.api" "gapic-generator-java")
+update_config "gapic_generator_version" "${latest_version}" "${generation_config}"
 
-# Update the GitHub Actions reference to the latest.
-# After the google-cloud-java monorepo migration of sdk-platform-java,
-# we cannot rely on the gapic-generator-java version tag. Let's use
-# the gapic-libraries-bom version
-latest_gapic_libraries_bom_version=$(get_latest_released_version "com.google.cloud" "gapic-libraries-bom")
+# Update composite action version to latest gapic-generator-java version
 update_action "googleapis/google-cloud-java/sdk-platform-java/.github/scripts" \
-  "v${latest_gapic_libraries_bom_version}" \
+  "${latest_version}" \
   "${workflow}"
 
 # Update libraries-bom version to the latest
