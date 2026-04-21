@@ -63,9 +63,9 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
       optimizeRestoredTableOperationBaseCallable;
 
   /**
-   * Creates an instance of {@link EnhancedBigtableTableAdminStub} using the provided settings.
-   * This variant is used by the V2 client stack which relies on fully qualified table names
-   * and therefore does not require a {@link TableAdminRequestContext}.
+   * Creates an instance of {@link EnhancedBigtableTableAdminStub} using the provided settings. This
+   * variant is used by the V2 client stack which relies on fully qualified table names and
+   * therefore does not require a {@link TableAdminRequestContext}.
    *
    * @param settings The settings used to configure the stub.
    * @return A new instance of {@code EnhancedBigtableTableAdminStub}.

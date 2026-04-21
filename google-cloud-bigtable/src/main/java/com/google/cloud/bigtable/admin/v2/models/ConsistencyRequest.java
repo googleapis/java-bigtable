@@ -103,14 +103,16 @@ public abstract class ConsistencyRequest {
   }
 
   /**
-   * Creates a CheckConsistencyRequest proto. This variant is used when the ConsistencyRequest
-   * was initialized with a short table ID, relying on the TableAdminRequestContext to construct
-   * the fully qualified table name.
+   * Creates a CheckConsistencyRequest proto. This variant is used when the ConsistencyRequest was
+   * initialized with a short table ID, relying on the TableAdminRequestContext to construct the
+   * fully qualified table name.
    */
   @InternalApi
   public CheckConsistencyRequest toCheckConsistencyProto(
       TableAdminRequestContext requestContext, String token) {
-    Preconditions.checkState(!isFullyQualified(), "Use toCheckConsistencyProto(String token) for fully qualified table names.");
+    Preconditions.checkState(
+        !isFullyQualified(),
+        "Use toCheckConsistencyProto(String token) for fully qualified table names.");
     TableName tableName =
         TableName.of(requestContext.getProjectId(), requestContext.getInstanceId(), getTableId());
 
@@ -118,20 +120,23 @@ public abstract class ConsistencyRequest {
   }
 
   /**
-   * Creates a CheckConsistencyRequest proto. This variant is used when the ConsistencyRequest
-   * was initialized with a fully qualified table name, eliminating the need for a request context.
+   * Creates a CheckConsistencyRequest proto. This variant is used when the ConsistencyRequest was
+   * initialized with a fully qualified table name, eliminating the need for a request context.
    */
   @InternalApi
   public CheckConsistencyRequest toCheckConsistencyProto(String token) {
-    Preconditions.checkState(isFullyQualified(), "Use toCheckConsistencyProto(TableAdminRequestContext, String) for non-qualified table names.");
+    Preconditions.checkState(
+        isFullyQualified(),
+        "Use toCheckConsistencyProto(TableAdminRequestContext, String) for non-qualified table"
+            + " names.");
 
     return buildBaseRequest(getTableId(), token).build();
   }
 
   /**
-   * Creates a GenerateConsistencyTokenRequest proto. This variant is used when the ConsistencyRequest
-   * was initialized with a short table ID, relying on the TableAdminRequestContext to construct
-   * the fully qualified table name.
+   * Creates a GenerateConsistencyTokenRequest proto. This variant is used when the
+   * ConsistencyRequest was initialized with a short table ID, relying on the
+   * TableAdminRequestContext to construct the fully qualified table name.
    */
   @InternalApi
   public GenerateConsistencyTokenRequest toGenerateTokenProto(
@@ -146,8 +151,9 @@ public abstract class ConsistencyRequest {
   }
 
   /**
-   * Creates a GenerateConsistencyTokenRequest proto. This variant is used when the ConsistencyRequest
-   * was initialized with a fully qualified table name, eliminating the need for a request context.
+   * Creates a GenerateConsistencyTokenRequest proto. This variant is used when the
+   * ConsistencyRequest was initialized with a fully qualified table name, eliminating the need for
+   * a request context.
    */
   @InternalApi
   public GenerateConsistencyTokenRequest toGenerateTokenProto() {

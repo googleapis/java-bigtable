@@ -101,7 +101,8 @@ public class ConsistencyRequestTest {
   @Test
   public void testToCheckConsistencyProtoFromTableName() {
     String fullTableName = NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID);
-    ConsistencyRequest consistencyRequest = ConsistencyRequest.forReplicationFromTableName(fullTableName);
+    ConsistencyRequest consistencyRequest =
+        ConsistencyRequest.forReplicationFromTableName(fullTableName);
 
     CheckConsistencyRequest checkConsistencyRequest =
         consistencyRequest.toCheckConsistencyProto(CONSISTENCY_TOKEN);
@@ -130,7 +131,8 @@ public class ConsistencyRequestTest {
   @Test
   public void testToGenerateTokenProtoFromTableName() {
     String fullTableName = NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID);
-    ConsistencyRequest consistencyRequest = ConsistencyRequest.forReplicationFromTableName(fullTableName);
+    ConsistencyRequest consistencyRequest =
+        ConsistencyRequest.forReplicationFromTableName(fullTableName);
 
     GenerateConsistencyTokenRequest generateRequest = consistencyRequest.toGenerateTokenProto();
 
