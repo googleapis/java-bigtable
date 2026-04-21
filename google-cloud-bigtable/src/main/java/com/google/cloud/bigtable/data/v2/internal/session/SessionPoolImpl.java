@@ -534,7 +534,6 @@ public class SessionPoolImpl<OpenReqT extends Message> implements SessionPool<Op
       if (!handle.isPresent()) {
         break;
       }
-      handle.get().onVRpcStarted();
       PendingVRpc<?, ?> rpc = pendingRpcs.removeFirst();
       rpc.drainTo(handle.get());
     }
@@ -578,6 +577,7 @@ public class SessionPoolImpl<OpenReqT extends Message> implements SessionPool<Op
     return new ForwardingVRpc<ReqT, RespT>(handle.getSession().newCall(desc)) {
       @Override
       public void start(ReqT req, VRpcCallContext ctx, VRpcListener<RespT> listener) {
+        handle.onVRpcStarted();
         final Stopwatch stopwatch = Stopwatch.createStarted();
         super.start(
             req,

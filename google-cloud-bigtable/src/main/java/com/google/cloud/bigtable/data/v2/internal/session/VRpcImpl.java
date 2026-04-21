@@ -124,9 +124,7 @@ class VRpcImpl<OpenReqT extends Message, ReqT extends MessageLite, RespT extends
     }
 
     if (!status.isOk()) {
-      if (!state.compareAndSet(State.STARTED, State.CLOSED)) {
-        return;
-      }
+      state.set(State.CLOSED);
       // TODO: loop through the session executor
       if (retryable) {
         listener.onClose(VRpcResult.createUncommitedError(status));
