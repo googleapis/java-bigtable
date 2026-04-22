@@ -77,9 +77,9 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
   }
 
   /**
-   * Creates an instance of {@link EnhancedBigtableTableAdminStub} using the provided settings.
-   * This variant is used by the legacy client stack which relies on short table IDs and
-   * requires a {@link TableAdminRequestContext} to construct fully qualified table names.
+   * Creates an instance of {@link EnhancedBigtableTableAdminStub} using the provided settings. This
+   * variant is used by the legacy client stack which relies on short table IDs and requires a
+   * {@link TableAdminRequestContext} to construct fully qualified table names.
    *
    * @param settings The settings used to configure the stub.
    * @param requestContext The context used to format short table IDs.
