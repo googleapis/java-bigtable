@@ -24,20 +24,27 @@ import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.ClientConfiguration;
 import com.google.bigtable.v2.GetClientConfigurationRequest;
 import com.google.bigtable.v2.OpenSessionResponse;
+import com.google.bigtable.v2.PeerInfo;
 import com.google.bigtable.v2.SessionRequest;
 import com.google.bigtable.v2.SessionResponse;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.TableId;
+import io.grpc.Context;
+import io.grpc.ForwardingServerCall;
 import io.grpc.Metadata;
+import io.grpc.Server;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
@@ -45,7 +52,7 @@ import org.junit.Test;
 
 public class SessionDeadlineTest {
 
-  private io.grpc.Server server;
+  private Server server;
   private EnhancedBigtableStubSettings defaultSettings;
   private FakeDataService fakeDataService;
 
@@ -119,8 +126,8 @@ public class SessionDeadlineTest {
     try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings)) {
       Query request = Query.create(TableId.of("fake-table")).rowKey("row-key");
 
-      try (io.grpc.Context.CancellableContext ctx =
-          io.grpc.Context.current()
+      try (Context.CancellableContext ctx =
+          Context.current()
               .withDeadlineAfter(
                   1, TimeUnit.SECONDS, settings.getBackgroundExecutorProvider().getExecutor())) {
         ctx.run(
@@ -140,8 +147,7 @@ public class SessionDeadlineTest {
   }
 
   private static class FakeDataService extends BigtableGrpc.BigtableImplBase {
-    private final java.util.concurrent.ScheduledExecutorService serverExecutor =
-        java.util.concurrent.Executors.newScheduledThreadPool(4);
+    private final ScheduledExecutorService serverExecutor = Executors.newScheduledThreadPool(4);
 
     public void shutdown() {
       serverExecutor.shutdownNow();
@@ -195,15 +201,15 @@ public class SessionDeadlineTest {
         Metadata metadata,
         ServerCallHandler<ReqT, RespT> serverCallHandler) {
       return serverCallHandler.startCall(
-          new io.grpc.ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(serverCall) {
+          new ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(serverCall) {
             @Override
             public void sendHeaders(Metadata headers) {
               Metadata.Key<String> peerInfoKey =
                   Metadata.Key.of("bigtable-peer-info", Metadata.ASCII_STRING_MARSHALLER);
               String encoded =
-                  java.util.Base64.getUrlEncoder()
+                  Base64.getUrlEncoder()
                       .encodeToString(
-                          com.google.bigtable.v2.PeerInfo.newBuilder()
+                          PeerInfo.newBuilder()
                               .setApplicationFrontendRegion("us-east1")
                               .build()
                               .toByteArray());
