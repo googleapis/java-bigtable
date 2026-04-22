@@ -577,7 +577,6 @@ public class SessionPoolImpl<OpenReqT extends Message> implements SessionPool<Op
     return new ForwardingVRpc<ReqT, RespT>(handle.getSession().newCall(desc)) {
       @Override
       public void start(ReqT req, VRpcCallContext ctx, VRpcListener<RespT> listener) {
-        handle.onVRpcStarted();
         final Stopwatch stopwatch = Stopwatch.createStarted();
         super.start(
             req,

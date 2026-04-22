@@ -34,6 +34,7 @@ import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
+import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -52,7 +53,7 @@ public class SessionDeadlineTest {
   public void setUp() throws IOException {
     fakeDataService = new FakeDataService();
     server =
-        io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder.forPort(0)
+        NettyServerBuilder.forPort(0)
             .addService(fakeDataService)
             .intercept(new ResponseHeaderInterceptor())
             .build()
