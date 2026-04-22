@@ -76,6 +76,16 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
     return new EnhancedBigtableTableAdminStub(settings, ClientContext.create(settings), null);
   }
 
+  /**
+   * Creates an instance of {@link EnhancedBigtableTableAdminStub} using the provided settings.
+   * This variant is used by the legacy client stack which relies on short table IDs and
+   * requires a {@link TableAdminRequestContext} to construct fully qualified table names.
+   *
+   * @param settings The settings used to configure the stub.
+   * @param requestContext The context used to format short table IDs.
+   * @return A new instance of {@code EnhancedBigtableTableAdminStub}.
+   * @throws IOException If there are errors creating the underlying client context.
+   */
   public static EnhancedBigtableTableAdminStub createEnhanced(
       BigtableTableAdminStubSettings settings, TableAdminRequestContext requestContext)
       throws IOException {

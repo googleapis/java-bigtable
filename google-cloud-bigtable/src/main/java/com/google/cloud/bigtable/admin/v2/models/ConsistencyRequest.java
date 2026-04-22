@@ -74,6 +74,8 @@ public abstract class ConsistencyRequest {
 
   @InternalApi
   public static ConsistencyRequest forReplicationFromTableName(String tableName) {
+    Preconditions.checkArgument(
+        TableName.isParsableFrom(tableName), "tableName must be a fully qualified table name");
     return new AutoValue_ConsistencyRequest(
         tableName, CheckConsistencyRequest.ModeCase.STANDARD_READ_REMOTE_WRITES, null, true);
   }
@@ -81,6 +83,8 @@ public abstract class ConsistencyRequest {
   @InternalApi
   public static ConsistencyRequest forReplicationFromTableName(
       String tableName, String consistencyToken) {
+    Preconditions.checkArgument(
+        TableName.isParsableFrom(tableName), "tableName must be a fully qualified table name");
     Preconditions.checkNotNull(consistencyToken, "consistencyToken must not be null");
 
     return new AutoValue_ConsistencyRequest(

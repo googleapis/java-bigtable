@@ -138,4 +138,14 @@ public class ConsistencyRequestTest {
 
     assertThat(generateRequest.getName()).isEqualTo(fullTableName);
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testForReplicationFromTableNameInvalid() {
+    ConsistencyRequest.forReplicationFromTableName(TABLE_ID);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testForReplicationFromTableNameWithTokenInvalid() {
+    ConsistencyRequest.forReplicationFromTableName(TABLE_ID, CONSISTENCY_TOKEN);
+  }
 }
