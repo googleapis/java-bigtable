@@ -72,7 +72,7 @@ for library in s.get_staging_dirs():
   s.replace(
       f"{library}/**/BaseBigtable*AdminClient.java",
       r"public static final BaseBigtable(.*)AdminClient create\(",
-      r"public static BaseBigtable\1AdminClient create("
+      r"protected static BaseBigtable\1AdminClient create("
   )
 
   s.move(library)
