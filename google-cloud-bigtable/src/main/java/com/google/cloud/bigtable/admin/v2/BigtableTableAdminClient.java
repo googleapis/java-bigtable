@@ -209,7 +209,11 @@ public final class BigtableTableAdminClient implements AutoCloseable {
     this.projectId = projectId;
     this.instanceId = instanceId;
     this.stub = stub;
-    this.baseClient = BigtableTableAdminClientV2.create(stub);
+    this.baseClient =
+        new BigtableTableAdminClientV2(
+            stub,
+            (com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable) stub.awaitConsistencyCallable(),
+            stub.awaitOptimizeRestoredTableCallable());
   }
 
   /** Gets the project ID of the instance whose tables this client manages. */
