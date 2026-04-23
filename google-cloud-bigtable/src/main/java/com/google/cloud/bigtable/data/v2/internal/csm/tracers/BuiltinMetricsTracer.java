@@ -400,7 +400,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
           code,
           Comparators.max(remainingDeadlineAtAttemptStart, Duration.ZERO));
     }
-
+    // if we don't have t4t7 latency from gfe, we use dur between initial metadata sent and initial
+    // metadata recv
     if (sidebandData.getGfeTiming() != null) {
       recorder.serverLatency.record(
           clientInfo,
