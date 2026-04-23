@@ -194,8 +194,8 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
   }
 
   /** Constructs an instance of BigtableTableAdminClientV2 with the given settings. */
-  public static final BigtableTableAdminClientV2 create(
-      BaseBigtableTableAdminSettings settings) throws IOException {
+  public static final BigtableTableAdminClientV2 create(BaseBigtableTableAdminSettings settings)
+      throws IOException {
     return new BigtableTableAdminClientV2(settings);
   }
 
