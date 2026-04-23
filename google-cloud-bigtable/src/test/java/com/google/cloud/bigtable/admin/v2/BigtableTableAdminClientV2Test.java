@@ -147,7 +147,7 @@ public class BigtableTableAdminClientV2Test {
             .setCredentialsProvider(com.google.api.gax.core.NoCredentialsProvider.create())
             .build();
     try (BigtableTableAdminClientV2 settingsClient =
-        BigtableTableAdminClientV2.createClient(settings)) {
+        BigtableTableAdminClientV2.create(settings)) {
       // Verify that the underlying stub is NOT an Enhanced stub by default
       // but the client has successfully initialized its own callables.
       assertThat(settingsClient.getStub()).isNotInstanceOf(EnhancedBigtableTableAdminStub.class);

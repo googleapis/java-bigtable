@@ -194,13 +194,13 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
   }
 
   /** Constructs an instance of BigtableTableAdminClientV2 with the given settings. */
-  public static final BigtableTableAdminClientV2 createClient(
+  public static final BigtableTableAdminClientV2 create(
       BaseBigtableTableAdminSettings settings) throws IOException {
     return new BigtableTableAdminClientV2(settings);
   }
 
   /** Constructs an instance of BigtableTableAdminClientV2 with the given stub. */
-  public static final BigtableTableAdminClientV2 createClient(BigtableTableAdminStub stub) {
+  public static final BigtableTableAdminClientV2 create(BigtableTableAdminStub stub) {
     return new BigtableTableAdminClientV2(stub);
   }
 

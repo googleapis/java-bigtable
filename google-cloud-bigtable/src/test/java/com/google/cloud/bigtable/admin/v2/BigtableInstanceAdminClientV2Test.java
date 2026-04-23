@@ -29,7 +29,7 @@ public class BigtableInstanceAdminClientV2Test {
   @Test
   public void testCreateWithStub() {
     BigtableInstanceAdminStub mockStub = Mockito.mock(BigtableInstanceAdminStub.class);
-    BigtableInstanceAdminClientV2 client = BigtableInstanceAdminClientV2.createClient(mockStub);
+    BigtableInstanceAdminClientV2 client = BigtableInstanceAdminClientV2.create(mockStub);
 
     assertThat(client).isNotNull();
   }
@@ -41,7 +41,7 @@ public class BigtableInstanceAdminClientV2Test {
             .setCredentialsProvider(com.google.api.gax.core.NoCredentialsProvider.create())
             .build();
     try (BigtableInstanceAdminClientV2 settingsClient =
-        BigtableInstanceAdminClientV2.createClient(settings)) {
+        BigtableInstanceAdminClientV2.create(settings)) {
       assertThat(settingsClient).isNotNull();
     }
   }
