@@ -212,7 +212,8 @@ public final class BigtableTableAdminClient implements AutoCloseable {
     this.baseClient =
         new BigtableTableAdminClientV2(
             stub,
-            (com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable) stub.awaitConsistencyCallable(),
+            (com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable)
+                stub.awaitConsistencyCallable(),
             stub.awaitOptimizeRestoredTableCallable());
   }
 
