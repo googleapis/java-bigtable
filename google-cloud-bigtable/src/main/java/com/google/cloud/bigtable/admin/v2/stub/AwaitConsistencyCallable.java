@@ -79,7 +79,7 @@ public class AwaitConsistencyCallable extends UnaryCallable<ConsistencyRequest, 
         generateCallable, checkCallable, retryingExecutor, requestContext);
   }
 
-  public static AwaitConsistencyCallable create(
+  static AwaitConsistencyCallable create(
       UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
           generateCallable,
       UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable,
