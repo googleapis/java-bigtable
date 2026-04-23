@@ -38,6 +38,7 @@ import com.google.cloud.bigtable.admin.v2.models.RestoredTableResult;
 import com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable;
 import com.google.cloud.bigtable.admin.v2.stub.BigtableTableAdminStub;
 import com.google.cloud.bigtable.admin.v2.stub.BigtableTableAdminStubSettings;
+import com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub;
 import com.google.common.base.Strings;
 import com.google.longrunning.Operation;
 import com.google.protobuf.Empty;
@@ -201,6 +202,13 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
 
   /** Constructs an instance of BigtableTableAdminClientV2 with the given stub. */
   public static final BigtableTableAdminClientV2 create(BigtableTableAdminStub stub) {
+    if (stub instanceof EnhancedBigtableTableAdminStub) {
+      EnhancedBigtableTableAdminStub enhancedStub = (EnhancedBigtableTableAdminStub) stub;
+      return new BigtableTableAdminClientV2(
+          stub,
+          (AwaitConsistencyCallable) enhancedStub.awaitConsistencyCallable(),
+          enhancedStub.awaitOptimizeRestoredTableCallable());
+    }
     return new BigtableTableAdminClientV2(stub);
   }
 
