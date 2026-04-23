@@ -82,6 +82,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private final AtomicLong totalClientBlockingTime = new AtomicLong(0);
 
   private final AtomicLong grpcMessageSentDelay = new AtomicLong(0);
+  private final AtomicLong grpcHeadersSentNanos = new AtomicLong(0);
+  private final AtomicLong grpcHeadersOutHeaderInLatency = new AtomicLong(0);
 
   private Deadline operationDeadline = null;
   private volatile Duration remainingDeadlineAtAttemptStart = Duration.ZERO;
@@ -264,6 +266,18 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   @Override
+  public void grpcHeadersSent() {
+    grpcHeadersSentNanos.set(attemptTimer.elapsed(TimeUnit.NANOSECONDS));
+  }
+
+  @Override
+  public void grpcHeadersReceived() {
+    long receivedNanos = attemptTimer.elapsed(TimeUnit.NANOSECONDS);
+    long sentNanos = grpcHeadersSentNanos.get();
+    grpcHeadersOutHeaderInLatency.set(receivedNanos - sentNanos);
+  }
+
+  @Override
   public void setTotalTimeoutDuration(java.time.Duration totalTimeoutDuration) {
     // This method is called by BigtableTracerStreamingCallable and
     // BigtableTracerUnaryCallable which is called per attempt. We only set
@@ -395,6 +409,18 @@ class BuiltinMetricsTracer extends BigtableTracer {
           sidebandData.getClusterInfo(),
           code,
           sidebandData.getGfeTiming());
+    } else {
+      // Fallback to header latency if GFE timing is not available
+      long fallbackLatencyNanos = grpcHeadersOutHeaderInLatency.get();
+      if (fallbackLatencyNanos > 0) {
+        recorder.serverLatency.record(
+            clientInfo,
+            tableId,
+            methodInfo,
+            sidebandData.getClusterInfo(),
+            code,
+            Duration.ofNanos(fallbackLatencyNanos));
+      }
     }
 
     boolean seenServer =
