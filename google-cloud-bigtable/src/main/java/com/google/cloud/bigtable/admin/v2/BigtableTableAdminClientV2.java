@@ -46,15 +46,15 @@ import io.grpc.MethodDescriptor.Marshaller;
 import io.grpc.MethodDescriptor.MethodType;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.ExecutionException;
 import java.time.Duration;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Modern Cloud Bigtable Table Admin Client.
  *
  * <p>This client extends the {@link BaseBigtableTableAdminClient} to provide enhanced convenience
- * methods for table administration. It improves the user experience by handling chained
- * Long Running Operations (such as seamlessly restoring and then optimizing a table) and provides
+ * methods for table administration. It improves the user experience by handling chained Long
+ * Running Operations (such as seamlessly restoring and then optimizing a table) and provides
  * built-in, automated polling for consistency tokens, simplifying the workflow compared to the
  * legacy client.
  */
