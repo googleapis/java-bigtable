@@ -124,6 +124,7 @@ public class TableAdminExample {
               .build());
       exists = true;
     } catch (com.google.api.gax.rpc.NotFoundException e) {
+      // ignore
     }
     if (!exists) {
       System.out.println("Table does not exist, creating table: " + tableId);

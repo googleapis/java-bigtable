@@ -161,13 +161,11 @@ public class InstanceAdminExampleTest extends BigtableBaseTest {
   private static void garbageCollect() {
     Pattern timestampPattern = Pattern.compile(ID_PREFIX + "-([0-9a-f]+)");
     System.out.println();
-    for (Instance instance :
-        adminClient
-            .listInstances(
-                com.google.bigtable.admin.v2.ListInstancesRequest.newBuilder()
-                    .setParent("projects/" + projectId)
-                    .build())
-            .getInstancesList()) {
+    com.google.bigtable.admin.v2.ListInstancesRequest request =
+        com.google.bigtable.admin.v2.ListInstancesRequest.newBuilder()
+            .setParent("projects/" + projectId)
+            .build();
+    for (Instance instance : adminClient.listInstances(request).getInstancesList()) {
       String id = instance.getName().substring(instance.getName().lastIndexOf("/") + 1);
       Matcher matcher = timestampPattern.matcher(id);
       if (!matcher.matches()) {

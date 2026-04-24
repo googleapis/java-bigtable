@@ -128,6 +128,7 @@ public class HelloWorld {
               .build());
       exists = true;
     } catch (NotFoundException e) {
+      // ignore
     }
     if (!exists) {
       System.out.println("Creating table: " + tableId);

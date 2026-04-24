@@ -112,6 +112,7 @@ public class InstanceAdminExample {
               .build());
       exists = true;
     } catch (com.google.api.gax.rpc.NotFoundException e) {
+      // ignore
     }
     if (!exists) {
       System.out.println("Instance does not exist, creating a PRODUCTION instance");
