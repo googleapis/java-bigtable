@@ -204,10 +204,10 @@ public class TableAdminExampleTest extends BigtableBaseTest {
             .build();
     for (com.google.bigtable.admin.v2.ColumnFamily columnFamily :
         adminClient.getTable(request).getColumnFamiliesMap().values()) {
-      // In a real test, we would convert GCRule to com.google.bigtable.admin.v2.GcRule and compare,
-      // but for this snippet we'll just return true to pass the compilation.
-      found = true;
-      break;
+      if (columnFamily.getGcRule().equals(condition.toProto())) {
+        found = true;
+        break;
+      }
     }
     return found;
   }

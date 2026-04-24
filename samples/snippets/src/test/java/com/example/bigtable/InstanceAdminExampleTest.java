@@ -102,7 +102,7 @@ public class InstanceAdminExampleTest extends BigtableBaseTest {
   @After
   public void after() {
     if (exists(instanceId)) {
-      adminClient.deleteInstance(instanceId);
+      adminClient.deleteInstance("projects/" + projectId + "/instances/" + instanceId);
     }
     if (instanceAdmin != null) {
       instanceAdmin.close();
