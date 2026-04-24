@@ -155,7 +155,7 @@ public class BigtableTableAdminClientV2Test {
 
   @Test
   public void testAwaitConsistency_ThrowsWhenNotInitialized() {
-    BigtableTableAdminClientV2 uninitializedClient = new BigtableTableAdminClientV2(mockStub);
+    BigtableTableAdminClientV2 uninitializedClient = BigtableTableAdminClientV2.create(mockStub);
 
     try {
       uninitializedClient.waitForConsistency(TABLE_NAME, "token");
@@ -168,7 +168,7 @@ public class BigtableTableAdminClientV2Test {
 
   @Test
   public void testOptimizeRestoredTable_ThrowsWhenNotInitialized() {
-    BigtableTableAdminClientV2 uninitializedClient = new BigtableTableAdminClientV2(mockStub);
+    BigtableTableAdminClientV2 uninitializedClient = BigtableTableAdminClientV2.create(mockStub);
 
     OptimizeRestoredTableOperationToken mockToken =
         Mockito.mock(OptimizeRestoredTableOperationToken.class);

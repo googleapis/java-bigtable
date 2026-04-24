@@ -45,15 +45,16 @@ import io.grpc.MethodDescriptor.Marshaller;
 import io.grpc.MethodDescriptor.MethodType;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.concurrent.ExecutionException;
-import org.threeten.bp.Duration;
 
 /**
  * Modern Cloud Bigtable Table Admin Client.
  *
- * <p>This client extends the auto-generated {@link BaseBigtableTableAdminClient} to provide manual
- * overrides and additional convenience methods for Critical User Journeys (CUJs) that the GAPIC
- * generator cannot handle natively (e.g., chained Long Running Operations, Consistency Polling).
+ * <p>This client extends the {@link BaseBigtableTableAdminClient} to provide enhanced convenience
+ * methods for table administration. It improves the user experience by handling chained Long
+ * Running Operations (such as seamlessly restoring and then optimizing a table) and provides
+ * built-in, automated polling for consistency tokens.
  */
 public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
   private final com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable
@@ -95,11 +96,11 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
         RetrySettings.newBuilder()
             .setTotalTimeout(
                 settings.checkConsistencySettings().getRetrySettings().getTotalTimeout())
-            .setInitialRetryDelay(Duration.ofSeconds(10))
+            .setInitialRetryDelayDuration(Duration.ofSeconds(10))
             .setRetryDelayMultiplier(1.0)
-            .setMaxRetryDelay(Duration.ofSeconds(10))
-            .setInitialRpcTimeout(Duration.ZERO)
-            .setMaxRpcTimeout(Duration.ZERO)
+            .setMaxRetryDelayDuration(Duration.ofSeconds(10))
+            .setInitialRpcTimeoutDuration(Duration.ZERO)
+            .setMaxRpcTimeoutDuration(Duration.ZERO)
             .setRpcTimeoutMultiplier(1.0)
             .build();
 
@@ -157,7 +158,7 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
         OperationCallSettings.<Void, Empty, OptimizeRestoredTableMetadata>newBuilder()
             .setInitialCallSettings(
                 UnaryCallSettings.<Void, OperationSnapshot>newUnaryCallSettingsBuilder()
-                    .setSimpleTimeoutNoRetries(Duration.ZERO)
+                    .setSimpleTimeoutNoRetriesDuration(Duration.ZERO)
                     .build())
             .setMetadataTransformer(
                 new ApiFunction<OperationSnapshot, OptimizeRestoredTableMetadata>() {
@@ -176,13 +177,13 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
             .setPollingAlgorithm(
                 OperationTimedPollAlgorithm.create(
                     RetrySettings.newBuilder()
-                        .setInitialRetryDelay(Duration.ofMillis(500L))
+                        .setInitialRetryDelayDuration(Duration.ofMillis(500L))
                         .setRetryDelayMultiplier(1.5)
-                        .setMaxRetryDelay(Duration.ofMillis(5000L))
-                        .setInitialRpcTimeout(Duration.ZERO)
+                        .setMaxRetryDelayDuration(Duration.ofMillis(5000L))
+                        .setInitialRpcTimeoutDuration(Duration.ZERO)
                         .setRpcTimeoutMultiplier(1.0)
-                        .setMaxRpcTimeout(Duration.ZERO)
-                        .setTotalTimeout(Duration.ofMillis(600000L))
+                        .setMaxRpcTimeoutDuration(Duration.ZERO)
+                        .setTotalTimeoutDuration(Duration.ofMillis(600000L))
                         .build()))
             .build();
 
