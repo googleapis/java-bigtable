@@ -35,7 +35,6 @@ import com.google.bigtable.admin.v2.OptimizeRestoredTableMetadata;
 import com.google.cloud.bigtable.admin.v2.models.ConsistencyRequest;
 import com.google.cloud.bigtable.admin.v2.models.OptimizeRestoredTableOperationToken;
 import com.google.cloud.bigtable.admin.v2.models.RestoredTableResult;
-import com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable;
 import com.google.cloud.bigtable.admin.v2.stub.BigtableTableAdminStub;
 import com.google.cloud.bigtable.admin.v2.stub.BigtableTableAdminStubSettings;
 import com.google.common.base.Strings;
@@ -58,7 +57,8 @@ import java.util.concurrent.ExecutionException;
  * built-in, automated polling for consistency tokens.
  */
 public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
-  private final AwaitConsistencyCallable awaitConsistencyCallable;
+  private final com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable
+      awaitConsistencyCallable;
   private final OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
       optimizeRestoredTableOperationBaseCallable;
 
@@ -80,7 +80,7 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
   @com.google.common.annotations.VisibleForTesting
   BigtableTableAdminClientV2(
       BigtableTableAdminStub stub,
-      AwaitConsistencyCallable awaitConsistencyCallable,
+      com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable awaitConsistencyCallable,
       OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
           optimizeRestoredTableOperationBaseCallable) {
     super(stub);
@@ -88,8 +88,8 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
     this.optimizeRestoredTableOperationBaseCallable = optimizeRestoredTableOperationBaseCallable;
   }
 
-  private AwaitConsistencyCallable createAwaitConsistencyCallable(
-      BigtableTableAdminStubSettings settings) throws IOException {
+  private com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable
+      createAwaitConsistencyCallable(BigtableTableAdminStubSettings settings) throws IOException {
     ClientContext clientContext = ClientContext.create(settings);
     // TODO(igorbernstein2): expose polling settings
     RetrySettings pollingSettings =
@@ -104,7 +104,7 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
             .setRpcTimeoutMultiplier(1.0)
             .build();
 
-    return AwaitConsistencyCallable.create(
+    return com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable.create(
         getStub().generateConsistencyTokenCallable(),
         getStub().checkConsistencyCallable(),
         clientContext,
@@ -198,11 +198,6 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
   public static final BigtableTableAdminClientV2 create(BaseBigtableTableAdminSettings settings)
       throws IOException {
     return new BigtableTableAdminClientV2(settings);
-  }
-
-  /** Constructs an instance of BigtableTableAdminClientV2 with the given stub. */
-  public static final BigtableTableAdminClientV2 create(BigtableTableAdminStub stub) {
-    return new BigtableTableAdminClientV2(stub);
   }
 
   /**
