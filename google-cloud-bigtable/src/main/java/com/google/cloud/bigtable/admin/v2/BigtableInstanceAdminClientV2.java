@@ -21,9 +21,8 @@ import java.io.IOException;
 /**
  * Modern Cloud Bigtable Instance Admin Client.
  *
- * <p>This client extends the auto-generated {@link BaseBigtableInstanceAdminClient} to provide
- * manual overrides and additional convenience methods for Critical User Journeys (CUJs) that the
- * GAPIC generator cannot handle natively.
+ * <p>This client extends the {@link BaseBigtableInstanceAdminClient} to provide a simplified and
+ * enhanced API surface for managing Cloud Bigtable instances and clusters.
  */
 public class BigtableInstanceAdminClientV2 extends BaseBigtableInstanceAdminClient {
 
