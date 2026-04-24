@@ -152,4 +152,34 @@ public class BigtableTableAdminClientV2Test {
       assertThat(settingsClient.getStub()).isNotInstanceOf(EnhancedBigtableTableAdminStub.class);
     }
   }
+
+  @Test
+  public void testAwaitConsistency_ThrowsWhenNotInitialized() {
+    BigtableTableAdminClientV2 uninitializedClient = new BigtableTableAdminClientV2(mockStub);
+
+    try {
+      uninitializedClient.waitForConsistency(TABLE_NAME, "token");
+      org.junit.Assert.fail("Expected IllegalStateException");
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage())
+          .contains("BigtableTableAdminClientV2.create(BaseBigtableTableAdminSettings)");
+    }
+  }
+
+  @Test
+  public void testOptimizeRestoredTable_ThrowsWhenNotInitialized() {
+    BigtableTableAdminClientV2 uninitializedClient = new BigtableTableAdminClientV2(mockStub);
+
+    OptimizeRestoredTableOperationToken mockToken =
+        Mockito.mock(OptimizeRestoredTableOperationToken.class);
+    Mockito.when(mockToken.getOperationName()).thenReturn("op-name");
+
+    try {
+      uninitializedClient.awaitOptimizeRestoredTableAsync(mockToken);
+      org.junit.Assert.fail("Expected IllegalStateException");
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage())
+          .contains("BigtableTableAdminClientV2.create(BaseBigtableTableAdminSettings)");
+    }
+  }
 }

@@ -317,9 +317,9 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
       return awaitConsistencyCallable;
     }
     throw new IllegalStateException(
-        "com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable not initialized."
-            + " BigtableTableAdminClientV2 must be initialized via settings to use this"
-            + " functionality.");
+        "AwaitConsistencyCallable not initialized. BigtableTableAdminClientV2 must be "
+            + "initialized via BigtableTableAdminClientV2.create(BaseBigtableTableAdminSettings) "
+            + "to use this functionality.");
   }
 
   private OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
@@ -329,6 +329,7 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
     }
     throw new IllegalStateException(
         "OptimizeRestoredTableCallable not initialized. BigtableTableAdminClientV2 must be "
-            + "initialized via settings to use this functionality.");
+            + "initialized via BigtableTableAdminClientV2.create(BaseBigtableTableAdminSettings) "
+            + "to use this functionality.");
   }
 }
