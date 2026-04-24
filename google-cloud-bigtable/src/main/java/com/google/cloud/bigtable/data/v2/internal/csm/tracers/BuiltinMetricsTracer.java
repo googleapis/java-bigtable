@@ -271,7 +271,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   @Override
   public void grpcHeadersReceived() {
-    faket4t7.map(Stopwatch::stop);
+    faket4t7.ifPresent(Stopwatch::stop);
   }
 
   @Override
