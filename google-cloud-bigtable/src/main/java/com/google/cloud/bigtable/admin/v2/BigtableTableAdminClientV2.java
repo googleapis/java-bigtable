@@ -55,8 +55,7 @@ import java.util.concurrent.ExecutionException;
  * <p>This client extends the {@link BaseBigtableTableAdminClient} to provide enhanced convenience
  * methods for table administration. It improves the user experience by handling chained Long
  * Running Operations (such as seamlessly restoring and then optimizing a table) and provides
- * built-in, automated polling for consistency tokens, simplifying the workflow compared to the
- * legacy client.
+ * built-in, automated polling for consistency tokens.
  */
 public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
   private final AwaitConsistencyCallable awaitConsistencyCallable;
