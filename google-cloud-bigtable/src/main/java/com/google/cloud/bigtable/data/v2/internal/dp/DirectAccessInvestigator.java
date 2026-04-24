@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.data.v2.internal.dp;
 
 import com.google.api.core.InternalApi;
 import com.google.cloud.bigtable.data.v2.internal.csm.tracers.DirectPathCompatibleTracer;
+import java.net.InetAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
@@ -52,8 +53,55 @@ public class DirectAccessInvestigator {
   public static void investigateAndReport(
       DirectPathCompatibleTracer tracer, @Nullable Throwable originalError) {
     try {
-      // TODO: Implement checks in a future PR.
-      // For now, default to returning "unknown".
+      // 1. Perform GCE Check
+      if (!GCECheck.isRunningOnGCP()) {
+        recordAndLog(
+            tracer,
+            FailureReason.NOT_IN_GCP,
+            "Direct Access investigation: Not running on GCP.",
+            originalError);
+        return;
+      }
+
+      // 2. Perform MetadataServer Check
+      if (!MetadataServer.isReachable()) {
+        recordAndLog(
+            tracer,
+            FailureReason.METADATA_UNREACHABLE,
+            "Direct Access investigation: Metadata server unreachable.",
+            originalError);
+        return;
+      }
+
+      // 3. Check for Assigned IPs
+      InetAddress ipv4 = MetadataServer.getIPv4();
+      InetAddress ipv6 = MetadataServer.getIPv6();
+      if (ipv4 == null && ipv6 == null) {
+        recordAndLog(
+            tracer,
+            FailureReason.NO_IP_ASSIGNED,
+            "Direct Access investigation: No IP assigned.",
+            originalError);
+        return;
+      }
+
+      // 4. Perform Loopback Check
+      boolean loopbackUp = false;
+      try {
+        loopbackUp = LoopBackInterface.isUp();
+      } catch (Exception e) {
+        LOG.log(Level.FINE, "Exception while checking loopback interfaces", e);
+      }
+
+      if (!loopbackUp) {
+        recordAndLog(
+            tracer,
+            FailureReason.LOOPBACK_DOWN,
+            "Direct Access investigation: Loopback misconfigured.",
+            originalError);
+        return;
+      }
+      // Default fallback if investigation could not determine a specific issue      recordAndLog(
       recordAndLog(
           tracer,
           FailureReason.UNKNOWN,
