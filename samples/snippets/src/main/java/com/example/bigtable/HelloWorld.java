@@ -93,8 +93,7 @@ public class HelloWorld {
 
     // Creates the settings to configure a bigtable table admin client.
     BaseBigtableTableAdminSettings adminSettings =
-        BaseBigtableTableAdminSettings.newBuilder()
-            .build();
+        BaseBigtableTableAdminSettings.newBuilder().build();
 
     // Creates a bigtable table admin client.
     adminClient = BigtableTableAdminClientV2.create(adminSettings);

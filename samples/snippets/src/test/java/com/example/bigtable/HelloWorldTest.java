@@ -53,8 +53,7 @@ public class HelloWorldTest extends BigtableBaseTest {
         BigtableDataSettings.newBuilder().setProjectId(projectId).setInstanceId(instanceId).build();
     dataClient = BigtableDataClient.create(settings);
     BaseBigtableTableAdminSettings adminSettings =
-        BaseBigtableTableAdminSettings.newBuilder()
-            .build();
+        BaseBigtableTableAdminSettings.newBuilder().build();
     adminClient = BigtableTableAdminClientV2.create(adminSettings);
   }
 

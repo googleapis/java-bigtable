@@ -22,14 +22,12 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminSettings;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClientV2;
-import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.admin.v2.models.GCRules.DurationRule;
 import com.google.cloud.bigtable.admin.v2.models.GCRules.GCRule;
 import com.google.cloud.bigtable.admin.v2.models.GCRules.IntersectionRule;
 import com.google.cloud.bigtable.admin.v2.models.GCRules.UnionRule;
 import com.google.cloud.bigtable.admin.v2.models.GCRules.VersionRule;
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,8 +49,7 @@ public class TableAdminExampleTest extends BigtableBaseTest {
   public static void beforeClass() throws IOException {
     initializeVariables();
     BaseBigtableTableAdminSettings adminSettings =
-        BaseBigtableTableAdminSettings.newBuilder()
-            .build();
+        BaseBigtableTableAdminSettings.newBuilder().build();
     adminClient = BigtableTableAdminClientV2.create(adminSettings);
   }
 
@@ -141,7 +138,15 @@ public class TableAdminExampleTest extends BigtableBaseTest {
     // Deletes cf2.
     tableAdmin.deleteColumnFamily();
     boolean found = true;
-    for (String familyName : adminClient.getTable(com.google.bigtable.admin.v2.GetTableRequest.newBuilder().setName("projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId).build()).getColumnFamiliesMap().keySet()) {
+    for (String familyName :
+        adminClient
+            .getTable(
+                com.google.bigtable.admin.v2.GetTableRequest.newBuilder()
+                    .setName(
+                        "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId)
+                    .build())
+            .getColumnFamiliesMap()
+            .keySet()) {
       if (familyName.equals("cf2")) {
         found = false;
         break;
@@ -197,7 +202,15 @@ public class TableAdminExampleTest extends BigtableBaseTest {
 
   private boolean ruleCheck(GCRule condition) {
     boolean found = false;
-    for (com.google.bigtable.admin.v2.ColumnFamily columnFamily : adminClient.getTable(com.google.bigtable.admin.v2.GetTableRequest.newBuilder().setName("projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId).build()).getColumnFamiliesMap().values()) {
+    for (com.google.bigtable.admin.v2.ColumnFamily columnFamily :
+        adminClient
+            .getTable(
+                com.google.bigtable.admin.v2.GetTableRequest.newBuilder()
+                    .setName(
+                        "projects/" + projectId + "/instances/" + instanceId + "/tables/" + tableId)
+                    .build())
+            .getColumnFamiliesMap()
+            .values()) {
       // In a real test, we would convert GCRule to com.google.bigtable.admin.v2.GcRule and compare,
       // but for this snippet we'll just return true to pass the compilation.
       found = true;

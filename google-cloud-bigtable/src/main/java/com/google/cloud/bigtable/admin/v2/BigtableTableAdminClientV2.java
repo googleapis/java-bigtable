@@ -56,7 +56,8 @@ import org.threeten.bp.Duration;
  * generator cannot handle natively (e.g., chained Long Running Operations, Consistency Polling).
  */
 public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
-  private final com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable awaitConsistencyCallable;
+  private final com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable
+      awaitConsistencyCallable;
   private final OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
       optimizeRestoredTableOperationBaseCallable;
 
@@ -86,8 +87,8 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
     this.optimizeRestoredTableOperationBaseCallable = optimizeRestoredTableOperationBaseCallable;
   }
 
-  private com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable createAwaitConsistencyCallable(
-      BigtableTableAdminStubSettings settings) throws IOException {
+  private com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable
+      createAwaitConsistencyCallable(BigtableTableAdminStubSettings settings) throws IOException {
     ClientContext clientContext = ClientContext.create(settings);
     // TODO(igorbernstein2): expose polling settings
     RetrySettings pollingSettings =
@@ -316,8 +317,9 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
       return awaitConsistencyCallable;
     }
     throw new IllegalStateException(
-        "com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable not initialized. BigtableTableAdminClientV2 must be "
-            + "initialized via settings to use this functionality.");
+        "com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable not initialized."
+            + " BigtableTableAdminClientV2 must be initialized via settings to use this"
+            + " functionality.");
   }
 
   private OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>

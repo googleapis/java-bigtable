@@ -30,6 +30,7 @@ If you are using Maven with [BOM][libraries-bom], add this to your pom.xml file:
   <dependency>
     <groupId>com.google.cloud</groupId>
     <artifactId>google-cloud-bigtable</artifactId>
+    <version>2.77.2-SNAPSHOT</version>
   </dependency>
 
 ```
