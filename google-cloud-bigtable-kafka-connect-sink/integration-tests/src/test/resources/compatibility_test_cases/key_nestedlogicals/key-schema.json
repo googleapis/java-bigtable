@@ -1,0 +1,55 @@
+{
+  "type": "record",
+  "name": "outer_doll",
+  "fields": [
+    {
+      "name": "outer",
+      "type": {
+        "type": "record",
+        "name": "outer",
+        "fields": [
+          {
+            "name": "inner",
+            "type": {
+              "type": "record",
+              "name": "inner",
+              "fields": [
+                {
+                  "name": "logical_timestamp",
+                  "type": {
+                    "type": "long",
+                    "connect.name": "org.apache.kafka.connect.data.Timestamp"
+                  }
+                },
+                {
+                  "name": "logical_time",
+                  "type": {
+                    "type": "int",
+                    "connect.name": "org.apache.kafka.connect.data.Time"
+                  }
+                },
+                {
+                  "name": "logical_date",
+                  "type": {
+                    "type": "int",
+                    "connect.name": "org.apache.kafka.connect.data.Date"
+                  }
+                },
+                {
+                  "name": "logical_decimal",
+                  "type": {
+                    "type": "bytes",
+                    "connect.name": "org.apache.kafka.connect.data.Decimal",
+                    "connect.parameters": {
+                      "scale": "-50"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

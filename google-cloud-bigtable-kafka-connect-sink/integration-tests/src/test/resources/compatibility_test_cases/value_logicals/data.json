@@ -1,0 +1,3 @@
+"logical1"	{"logical_timestamp":0,"logical_time":0,"logical_date":0,"logical_decimal":"\u0000\u000f\u001e\u002d\u003c"}
+"logical2"	{"logical_timestamp":42000000,"logical_time":4200,"logical_date":4200,"logical_decimal":"\u0000\u000f\u001e\u002d\u003c\u004b\u005a"}
+"logical3"	{"logical_timestamp":1468275102000,"logical_time":16993,"logical_date":16993,"logical_decimal":"\u0000\u000f\u001e\u002d\u003c\u004b\u005a\u0069\u0078"}

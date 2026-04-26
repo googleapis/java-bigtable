@@ -1,0 +1,1095 @@
+{
+    "displayName": "Bigtable Sink Performance Tests",
+    "dashboardFilters": [],
+    "labels": {},
+    "mosaicLayout": {
+        "columns": 48,
+        "tiles": [
+            {
+                "height": 16,
+                "width": 24,
+                "widget": {
+                    "title": "Kafka Topic",
+                    "id": "",
+                    "xyChart": {
+                        "chartOptions": {
+                            "displayHorizontal": false,
+                            "mode": "COLOR",
+                            "showLegend": false
+                        },
+                        "dataSets": [
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y2",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_SUM",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_RATE"
+                                        },
+                                        "filter": "metric.type=\"managedkafka.googleapis.com/message_in_count\" resource.type=\"managedkafka.googleapis.com/Topic\" resource.label.\"topic_id\"=\"bigtablesink-kafka-topic\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            },
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_SUM",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_RATE"
+                                        },
+                                        "filter": "metric.type=\"managedkafka.googleapis.com/byte_in_count\" resource.type=\"managedkafka.googleapis.com/Topic\" resource.label.\"topic_id\"=\"bigtablesink-kafka-topic\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            },
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_SUM",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_RATE"
+                                        },
+                                        "filter": "metric.type=\"managedkafka.googleapis.com/byte_out_count\" resource.type=\"managedkafka.googleapis.com/Topic\" resource.label.\"topic_id\"=\"bigtablesink-kafka-topic\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            }
+                        ],
+                        "thresholds": [],
+                        "y2Axis": {
+                            "label": "",
+                            "scale": "LINEAR"
+                        },
+                        "yAxis": {
+                            "label": "",
+                            "scale": "LINEAR"
+                        }
+                    }
+                }
+            },
+            {
+                "xPos": 24,
+                "height": 16,
+                "width": 24,
+                "widget": {
+                    "title": "Kafka Connect & Load Generator Resources",
+                    "id": "",
+                    "xyChart": {
+                        "chartOptions": {
+                            "displayHorizontal": false,
+                            "mode": "COLOR",
+                            "showLegend": false
+                        },
+                        "dataSets": [
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesQueryLanguage": "fetch k8s_container\n| metric 'kubernetes.io/container/cpu/core_usage_time'\n| filter (resource.project_id == 'unoperate-test')\n| filter (resource.cluster_name == 'bigtablesink-k8s-cluster')\n| filter (resource.pod_name == 'load-generator' || resource.container_name == 'my-connect-cluster-connect')\n| align rate(1m)\n| every 1m\n| group_by [resource.location, resource.pod_name],\n    [value_core_usage_time_aggregate: aggregate(value.core_usage_time)] \n",
+                                    "unitOverride": ""
+                                }
+                            },
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "plotType": "LINE",
+                                "targetAxis": "Y2",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesQueryLanguage": "fetch k8s_container\n| metric 'kubernetes.io/container/memory/used_bytes'\n| filter (resource.project_id == 'unoperate-test')\n| filter (resource.cluster_name == 'bigtablesink-k8s-cluster')\n| filter (resource.pod_name == 'load-generator' || resource.container_name == 'my-connect-cluster-connect')\n| align next_older(1m)\n| every 1m\n| group_by [resource.location, resource.pod_name],\n    [value_used_bytes_aggregate: aggregate(value.used_bytes)]\n",
+                                    "unitOverride": ""
+                                }
+                            }
+                        ],
+                        "thresholds": [],
+                        "timeshiftDuration": "0s",
+                        "y2Axis": {
+                            "label": "",
+                            "scale": "LINEAR"
+                        },
+                        "yAxis": {
+                            "label": "",
+                            "scale": "LINEAR"
+                        }
+                    }
+                }
+            },
+            {
+                "yPos": 16,
+                "height": 16,
+                "width": 24,
+                "widget": {
+                    "title": "Kafka Connect Sink Read/Send Rates",
+                    "id": "",
+                    "xyChart": {
+                        "chartOptions": {
+                            "displayHorizontal": false,
+                            "mode": "COLOR",
+                            "showLegend": false
+                        },
+                        "dataSets": [
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_SUM",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_MEAN"
+                                        },
+                                        "filter": "metric.type=\"prometheus.googleapis.com/kafka_connect_sink_task_sink_record_read_rate/gauge\" resource.type=\"prometheus_target\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            },
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_SUM",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_MEAN"
+                                        },
+                                        "filter": "metric.type=\"prometheus.googleapis.com/kafka_connect_sink_task_sink_record_send_rate/gauge\" resource.type=\"prometheus_target\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            }
+                        ],
+                        "thresholds": [],
+                        "yAxis": {
+                            "label": "",
+                            "scale": "LINEAR"
+                        }
+                    }
+                }
+            },
+            {
+                "yPos": 16,
+                "xPos": 24,
+                "height": 16,
+                "width": 24,
+                "widget": {
+                    "title": "Kafka Resources",
+                    "id": "",
+                    "xyChart": {
+                        "chartOptions": {
+                            "displayHorizontal": false,
+                            "mode": "COLOR",
+                            "showLegend": false
+                        },
+                        "dataSets": [
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_MAX",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_RATE"
+                                        },
+                                        "filter": "metric.type=\"managedkafka.googleapis.com/cpu/core_usage_time\" resource.type=\"managedkafka.googleapis.com/Cluster\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            },
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y2",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_MAX",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_MAX"
+                                        },
+                                        "filter": "metric.type=\"managedkafka.googleapis.com/memory/usage\" resource.type=\"managedkafka.googleapis.com/Cluster\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            },
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_MEAN",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_RATE"
+                                        },
+                                        "filter": "metric.type=\"managedkafka.googleapis.com/cpu/core_usage_time\" resource.type=\"managedkafka.googleapis.com/Cluster\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            },
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_MEAN",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_MEAN"
+                                        },
+                                        "filter": "metric.type=\"managedkafka.googleapis.com/memory/usage\" resource.type=\"managedkafka.googleapis.com/Cluster\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            }
+                        ],
+                        "thresholds": [],
+                        "y2Axis": {
+                            "label": "",
+                            "scale": "LINEAR"
+                        },
+                        "yAxis": {
+                            "label": "",
+                            "scale": "LINEAR"
+                        }
+                    }
+                }
+            },
+            {
+                "yPos": 32,
+                "height": 16,
+                "width": 24,
+                "widget": {
+                    "title": "Kafka Connect Batch Latencies",
+                    "id": "",
+                    "xyChart": {
+                        "chartOptions": {
+                            "displayHorizontal": false,
+                            "mode": "COLOR",
+                            "showLegend": false
+                        },
+                        "dataSets": [
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_MAX",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_MAX"
+                                        },
+                                        "filter": "metric.type=\"prometheus.googleapis.com/kafka_connect_sink_task_put_batch_max_time_ms/gauge\" resource.type=\"prometheus_target\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            },
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_MEAN",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_MEAN"
+                                        },
+                                        "filter": "metric.type=\"prometheus.googleapis.com/kafka_connect_sink_task_put_batch_avg_time_ms/gauge\" resource.type=\"prometheus_target\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            }
+                        ],
+                        "thresholds": [],
+                        "yAxis": {
+                            "label": "",
+                            "scale": "LINEAR"
+                        }
+                    }
+                }
+            },
+            {
+                "yPos": 32,
+                "xPos": 24,
+                "height": 16,
+                "width": 24,
+                "widget": {
+                    "title": "Bigtable CPU",
+                    "id": "",
+                    "xyChart": {
+                        "chartOptions": {
+                            "displayHorizontal": false,
+                            "mode": "COLOR",
+                            "showLegend": false
+                        },
+                        "dataSets": [
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_MEAN"
+                                        },
+                                        "filter": "metric.type=\"bigtable.googleapis.com/cluster/cpu_load_hottest_node_high_granularity\" resource.type=\"bigtable_cluster\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            },
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_MEAN"
+                                        },
+                                        "filter": "metric.type=\"bigtable.googleapis.com/cluster/cpu_load_by_app_profile_by_method_by_table\" resource.type=\"bigtable_cluster\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            }
+                        ],
+                        "thresholds": [],
+                        "yAxis": {
+                            "label": "",
+                            "scale": "LINEAR"
+                        }
+                    }
+                }
+            },
+            {
+                "yPos": 48,
+                "height": 16,
+                "width": 24,
+                "widget": {
+                    "title": "Kafka Connect Batch Sizes",
+                    "id": "",
+                    "xyChart": {
+                        "chartOptions": {
+                            "displayHorizontal": false,
+                            "mode": "COLOR",
+                            "showLegend": false
+                        },
+                        "dataSets": [
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_MEAN",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_MEAN"
+                                        },
+                                        "filter": "metric.type=\"prometheus.googleapis.com/kafka_connect_connector_task_batch_size_avg/gauge\" resource.type=\"prometheus_target\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            },
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_MAX",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_MAX"
+                                        },
+                                        "filter": "metric.type=\"prometheus.googleapis.com/kafka_connect_connector_task_batch_size_max/gauge\" resource.type=\"prometheus_target\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            },
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_MEAN",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_MEAN"
+                                        },
+                                        "filter": "metric.type=\"prometheus.googleapis.com/kafka_connect_sink_task_sink_record_active_count/gauge\" resource.type=\"prometheus_target\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            }
+                        ],
+                        "thresholds": [],
+                        "yAxis": {
+                            "label": "",
+                            "scale": "LINEAR"
+                        }
+                    }
+                }
+            },
+            {
+                "yPos": 48,
+                "xPos": 24,
+                "height": 16,
+                "width": 24,
+                "widget": {
+                    "title": "Kubernetes Network",
+                    "id": "",
+                    "xyChart": {
+                        "chartOptions": {
+                            "displayHorizontal": false,
+                            "mode": "COLOR",
+                            "showLegend": false
+                        },
+                        "dataSets": [
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_SUM",
+                                            "groupByFields": [
+                                                "metadata.user_labels.\"app.kubernetes.io/name\""
+                                            ],
+                                            "perSeriesAligner": "ALIGN_RATE"
+                                        },
+                                        "filter": "metric.type=\"kubernetes.io/pod/network/received_bytes_count\" resource.type=\"k8s_pod\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            },
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_SUM",
+                                            "groupByFields": [
+                                                "metadata.user_labels.\"app.kubernetes.io/name\""
+                                            ],
+                                            "perSeriesAligner": "ALIGN_RATE"
+                                        },
+                                        "filter": "metric.type=\"kubernetes.io/pod/network/sent_bytes_count\" resource.type=\"k8s_pod\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            },
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_SUM",
+                                            "groupByFields": [
+                                                "resource.label.\"pod_name\""
+                                            ],
+                                            "perSeriesAligner": "ALIGN_RATE"
+                                        },
+                                        "filter": "metric.type=\"kubernetes.io/pod/network/received_bytes_count\" resource.type=\"k8s_pod\" resource.label.\"pod_name\"=\"load-generator\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            },
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_SUM",
+                                            "groupByFields": [
+                                                "resource.label.\"pod_name\""
+                                            ],
+                                            "perSeriesAligner": "ALIGN_RATE"
+                                        },
+                                        "filter": "metric.type=\"kubernetes.io/pod/network/sent_bytes_count\" resource.type=\"k8s_pod\" resource.label.\"pod_name\"=\"load-generator\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            }
+                        ],
+                        "thresholds": [],
+                        "yAxis": {
+                            "label": "",
+                            "scale": "LINEAR"
+                        }
+                    }
+                }
+            },
+            {
+                "yPos": 64,
+                "height": 16,
+                "width": 24,
+                "widget": {
+                    "title": "Bigtable Data API 50p Latencies",
+                    "id": "",
+                    "xyChart": {
+                        "chartOptions": {
+                            "displayHorizontal": false,
+                            "mode": "COLOR",
+                            "showLegend": false
+                        },
+                        "dataSets": [
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_PERCENTILE_50",
+                                            "groupByFields": [
+                                                "resource.label.\"method\""
+                                            ],
+                                            "perSeriesAligner": "ALIGN_SUM"
+                                        },
+                                        "filter": "metric.type=\"serviceruntime.googleapis.com/api/request_latencies\" resource.type=\"consumed_api\" resource.label.\"project_id\"=\"unoperate-test\" resource.label.\"service\"=\"bigtable.googleapis.com\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            }
+                        ],
+                        "thresholds": [],
+                        "yAxis": {
+                            "label": "",
+                            "scale": "LINEAR"
+                        }
+                    }
+                }
+            },
+            {
+                "yPos": 64,
+                "xPos": 24,
+                "height": 16,
+                "width": 24,
+                "widget": {
+                    "title": "Kubernetes CPU",
+                    "id": "",
+                    "xyChart": {
+                        "chartOptions": {
+                            "displayHorizontal": false,
+                            "mode": "COLOR",
+                            "showLegend": false
+                        },
+                        "dataSets": [
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_SUM",
+                                            "groupByFields": [
+                                                "metadata.user_labels.\"app.kubernetes.io/name\""
+                                            ],
+                                            "perSeriesAligner": "ALIGN_RATE"
+                                        },
+                                        "filter": "metric.type=\"kubernetes.io/container/cpu/core_usage_time\" resource.type=\"k8s_container\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            }
+                        ],
+                        "thresholds": [],
+                        "yAxis": {
+                            "label": "",
+                            "scale": "LINEAR"
+                        }
+                    }
+                }
+            },
+            {
+                "yPos": 80,
+                "height": 16,
+                "width": 24,
+                "widget": {
+                    "title": "Bigtable Data API Error%",
+                    "id": "",
+                    "xyChart": {
+                        "chartOptions": {
+                            "displayHorizontal": false,
+                            "mode": "COLOR",
+                            "showLegend": false
+                        },
+                        "dataSets": [
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilterRatio": {
+                                        "denominator": {
+                                            "aggregation": {
+                                                "crossSeriesReducer": "REDUCE_SUM",
+                                                "groupByFields": [
+                                                    "resource.label.\"method\""
+                                                ],
+                                                "perSeriesAligner": "ALIGN_RATE"
+                                            },
+                                            "filter": "metric.type=\"serviceruntime.googleapis.com/api/request_count\" resource.type=\"consumed_api\" resource.label.\"project_id\"=\"unoperate-test\" resource.label.\"service\"=\"bigtable.googleapis.com\""
+                                        },
+                                        "numerator": {
+                                            "aggregation": {
+                                                "alignmentPeriod": "60s",
+                                                "crossSeriesReducer": "REDUCE_SUM",
+                                                "groupByFields": [
+                                                    "resource.label.\"method\""
+                                                ],
+                                                "perSeriesAligner": "ALIGN_RATE"
+                                            },
+                                            "filter": "resource.type=\"consumed_api\" AND metric.type=\"serviceruntime.googleapis.com/api/request_count\" AND project=\"unoperate-test\" AND resource.labels.service=\"bigtable.googleapis.com\" AND (metric.labels.response_code_class=one_of(\"4xx\", \"5xx\"))"
+                                        }
+                                    },
+                                    "unitOverride": ""
+                                }
+                            }
+                        ],
+                        "thresholds": [],
+                        "yAxis": {
+                            "label": "",
+                            "scale": "LINEAR"
+                        }
+                    }
+                }
+            },
+            {
+                "yPos": 80,
+                "xPos": 24,
+                "height": 16,
+                "width": 24,
+                "widget": {
+                    "title": "Kafka Connect Kubernetes Limits",
+                    "id": "",
+                    "xyChart": {
+                        "chartOptions": {
+                            "displayHorizontal": false,
+                            "mode": "COLOR",
+                            "showLegend": false
+                        },
+                        "dataSets": [
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_MEAN"
+                                        },
+                                        "filter": "metric.type=\"kubernetes.io/container/cpu/limit_utilization\" resource.type=\"k8s_container\" resource.label.\"container_name\"=\"my-connect-cluster-connect\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            },
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_MEAN"
+                                        },
+                                        "filter": "metric.type=\"kubernetes.io/container/memory/limit_utilization\" resource.type=\"k8s_container\" resource.label.\"container_name\"=\"my-connect-cluster-connect\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            }
+                        ],
+                        "thresholds": [],
+                        "yAxis": {
+                            "label": "",
+                            "scale": "LINEAR"
+                        }
+                    }
+                }
+            },
+            {
+                "yPos": 96,
+                "height": 16,
+                "width": 24,
+                "widget": {
+                    "title": "Kafka Connect #Errors",
+                    "id": "",
+                    "xyChart": {
+                        "chartOptions": {
+                            "displayHorizontal": false,
+                            "mode": "COLOR",
+                            "showLegend": false
+                        },
+                        "dataSets": [
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_SUM",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_MEAN"
+                                        },
+                                        "filter": "metric.type=\"prometheus.googleapis.com/kafka_connect_task_error_total_record_errors/gauge\" resource.type=\"prometheus_target\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            },
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_SUM",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_MEAN"
+                                        },
+                                        "filter": "metric.type=\"prometheus.googleapis.com/kafka_connect_task_error_total_record_failures/gauge\" resource.type=\"prometheus_target\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            },
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_SUM",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_MEAN"
+                                        },
+                                        "filter": "metric.type=\"prometheus.googleapis.com/kafka_connect_task_error_total_errors_logged/gauge\" resource.type=\"prometheus_target\""
+                                    },
+                                    "unitOverride": ""
+                                }
+                            }
+                        ],
+                        "thresholds": [],
+                        "yAxis": {
+                            "label": "",
+                            "scale": "LINEAR"
+                        }
+                    }
+                }
+            },
+            {
+                "yPos": 96,
+                "xPos": 24,
+                "height": 16,
+                "width": 24,
+                "widget": {
+                    "title": "Kubernetes Limits",
+                    "xyChart": {
+                        "chartOptions": {
+                            "displayHorizontal": false,
+                            "mode": "COLOR"
+                        },
+                        "dataSets": [
+                            {
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "crossSeriesReducer": "REDUCE_MAX",
+                                            "groupByFields": [
+                                                "resource.label.\"pod_name\"",
+                                                "resource.label.\"container_name\""
+                                            ],
+                                            "perSeriesAligner": "ALIGN_MAX"
+                                        },
+                                        "filter": "metric.type=\"kubernetes.io/container/cpu/limit_utilization\" resource.type=\"k8s_container\"",
+                                        "pickTimeSeriesFilter": {
+                                            "direction": "TOP",
+                                            "numTimeSeries": 8,
+                                            "rankingMethod": "METHOD_MAX"
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "crossSeriesReducer": "REDUCE_MAX",
+                                            "groupByFields": [],
+                                            "perSeriesAligner": "ALIGN_MAX"
+                                        },
+                                        "filter": "metric.type=\"kubernetes.io/container/memory/limit_utilization\" resource.type=\"k8s_container\""
+                                    }
+                                }
+                            }
+                        ],
+                        "thresholds": [],
+                        "yAxis": {
+                            "scale": "LINEAR"
+                        }
+                    }
+                }
+            },
+            {
+                "yPos": 112,
+                "height": 16,
+                "width": 24,
+                "widget": {
+                    "title": "Kafka Connect Up",
+                    "id": "",
+                    "xyChart": {
+                        "chartOptions": {
+                            "displayHorizontal": false,
+                            "mode": "COLOR",
+                            "showLegend": false
+                        },
+                        "dataSets": [
+                            {
+                                "breakdowns": [],
+                                "dimensions": [],
+                                "legendTemplate": "",
+                                "measures": [],
+                                "minAlignmentPeriod": "60s",
+                                "plotType": "LINE",
+                                "targetAxis": "Y1",
+                                "timeSeriesQuery": {
+                                    "outputFullDuration": false,
+                                    "timeSeriesFilter": {
+                                        "aggregation": {
+                                            "alignmentPeriod": "60s",
+                                            "crossSeriesReducer": "REDUCE_MIN",
+                                            "groupByFields": [
+                                                "metric.label.\"pod\""
+                                            ],
+                                            "perSeriesAligner": "ALIGN_MIN"
+                                        },
+                                        "filter": "metric.type=\"prometheus.googleapis.com/up/gauge\" resource.type=\"prometheus_target\" metric.label.\"pod\"=monitoring.regex.full_match(\".*\")"
+                                    },
+                                    "unitOverride": ""
+                                }
+                            }
+                        ],
+                        "thresholds": [],
+                        "yAxis": {
+                            "label": "",
+                            "scale": "LINEAR"
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}
