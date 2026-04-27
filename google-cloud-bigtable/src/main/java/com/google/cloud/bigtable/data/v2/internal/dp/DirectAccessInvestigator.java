@@ -101,7 +101,46 @@ public class DirectAccessInvestigator {
             originalError);
         return;
       }
-      // Default fallback if investigation could not determine a specific issue      recordAndLog(
+
+      // 5. IPv4 Loopback Address Configuration Check
+      if (ipv4 != null) {
+        boolean hasIpv4Loopback = false;
+        try {
+          hasIpv4Loopback = LoopBackInterface.hasLocalIpv4Loopback();
+        } catch (Exception e) {
+          LOG.log(Level.FINE, "Failed to check local IPv4 loopback address", e);
+        }
+
+        if (!hasIpv4Loopback) {
+          recordAndLog(
+              tracer,
+              FailureReason.LOOPBACK_V4_MISSING,
+              "Direct Access investigation: IPv4 loopback missing.",
+              originalError);
+          return;
+        }
+      }
+
+      // 6. IPv6 Loopback Address Configuration Check
+      if (ipv6 != null) {
+        boolean hasIpv6Loopback = false;
+        try {
+          hasIpv6Loopback = LoopBackInterface.hasLocalIpv6Loopback();
+        } catch (Exception e) {
+          LOG.log(Level.FINE, "Failed to check local IPv6 loopback address", e);
+        }
+
+        if (!hasIpv6Loopback) {
+          recordAndLog(
+              tracer,
+              FailureReason.LOOPBACK_V6_MISSING,
+              "Direct Access investigation: IPv6 loopback missing.",
+              originalError);
+          return;
+        }
+      }
+
+      // Default fallback if investigation could not determine a specific issue
       recordAndLog(
           tracer,
           FailureReason.UNKNOWN,

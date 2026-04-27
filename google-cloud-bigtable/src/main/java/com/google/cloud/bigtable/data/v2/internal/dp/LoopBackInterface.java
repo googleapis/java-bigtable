@@ -50,25 +50,6 @@ class LoopBackInterface {
     return checkLocalLoopbackAddress("::1");
   }
 
-  static boolean isIpPlumbed(InetAddress expectedIp) throws Exception {
-    if (expectedIp == null) {
-      return false;
-    }
-    Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-    while (interfaces.hasMoreElements()) {
-      NetworkInterface iface = interfaces.nextElement();
-      if (!iface.isLoopback() && iface.isUp()) {
-        Enumeration<InetAddress> addrs = iface.getInetAddresses();
-        while (addrs.hasMoreElements()) {
-          if (addrs.nextElement().equals(expectedIp)) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
-
   private static boolean checkLocalLoopbackAddress(String expectedIp) throws Exception {
     InetAddress expected = InetAddress.getByName(expectedIp);
     Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
