@@ -408,15 +408,19 @@ class BuiltinMetricsTracer extends BigtableTracer {
           code,
           sidebandData.getGfeTiming());
     } else {
-      faket4t7.ifPresent(
-          stopwatch ->
-              recorder.serverLatency.record(
-                  clientInfo,
-                  tableId,
-                  methodInfo,
-                  sidebandData.getClusterInfo(),
-                  code,
-                  stopwatch.elapsed()));
+      Optional.ofNullable(sidebandData.getPeerInfo())
+          .filter(
+              pe -> pe.getTransportType() == PeerInfo.TransportType.TRANSPORT_TYPE_DIRECT_ACCESS)
+          .flatMap(pe -> faket4t7)
+          .ifPresent(
+              stopwatch ->
+                  recorder.serverLatency.record(
+                      clientInfo,
+                      tableId,
+                      methodInfo,
+                      sidebandData.getClusterInfo(),
+                      code,
+                      stopwatch.elapsed()));
     }
 
     boolean seenServer =
