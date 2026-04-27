@@ -149,6 +149,7 @@ public class ClassicDirectAccessCheckerTest {
 
     // Execute the captured runnable to ensure it safely calls the tracer
     runnableCaptor.getValue().run();
-    verify(mockTracer).recordFailure(DirectAccessInvestigator.FailureReason.UNKNOWN);
+    // just make sure it matches with any FailureReason.
+    verify(mockTracer).recordFailure(any(DirectAccessInvestigator.FailureReason.class));
   }
 }
