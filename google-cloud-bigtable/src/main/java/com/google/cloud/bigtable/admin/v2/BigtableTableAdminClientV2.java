@@ -26,7 +26,6 @@ import com.google.api.gax.longrunning.OperationSnapshot;
 import com.google.api.gax.longrunning.OperationTimedPollAlgorithm;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.ApiExceptions;
-import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.OperationCallSettings;
 import com.google.api.gax.rpc.OperationCallable;
 import com.google.api.gax.rpc.UnaryCallSettings;
@@ -141,8 +140,7 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
 
   private OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
       createOptimizeRestoredTableOperationBaseCallable(
-          com.google.api.gax.rpc.ClientContext clientContext)
-          throws IOException {
+          com.google.api.gax.rpc.ClientContext clientContext) throws IOException {
 
     GrpcCallSettings<Void, Operation> unusedInitialCallSettings =
         GrpcCallSettings.create(
@@ -389,7 +387,8 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
 
   @Override
   public boolean isTerminated() {
-    return (backgroundExecutor == null || backgroundExecutor.isTerminated()) && super.isTerminated();
+    return (backgroundExecutor == null || backgroundExecutor.isTerminated())
+        && super.isTerminated();
   }
 
   @Override
