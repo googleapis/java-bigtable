@@ -63,6 +63,27 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
       optimizeRestoredTableOperationBaseCallable;
   private final java.util.concurrent.ScheduledExecutorService backgroundExecutor;
 
+  private static final RetrySettings AWAIT_CONSISTENCY_POLLING_SETTINGS_BASE =
+      RetrySettings.newBuilder()
+          .setInitialRetryDelayDuration(Duration.ofSeconds(10))
+          .setRetryDelayMultiplier(1.0)
+          .setMaxRetryDelayDuration(Duration.ofSeconds(10))
+          .setInitialRpcTimeoutDuration(Duration.ZERO)
+          .setMaxRpcTimeoutDuration(Duration.ZERO)
+          .setRpcTimeoutMultiplier(1.0)
+          .build();
+
+  private static final RetrySettings OPTIMIZE_RESTORED_TABLE_POLLING_SETTINGS =
+      RetrySettings.newBuilder()
+          .setInitialRetryDelayDuration(Duration.ofMillis(500L))
+          .setRetryDelayMultiplier(1.5)
+          .setMaxRetryDelayDuration(Duration.ofMillis(5000L))
+          .setInitialRpcTimeoutDuration(Duration.ZERO)
+          .setRpcTimeoutMultiplier(1.0)
+          .setMaxRpcTimeoutDuration(Duration.ZERO)
+          .setTotalTimeoutDuration(Duration.ofMillis(600000L))
+          .build();
+
   protected BigtableTableAdminClientV2(BaseBigtableTableAdminSettings settings) throws IOException {
     super(settings);
     // Extract the executor directly without spinning up a full channel
@@ -106,15 +127,9 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
       throws IOException {
     // TODO(igorbernstein2): expose polling settings
     RetrySettings pollingSettings =
-        RetrySettings.newBuilder()
+        AWAIT_CONSISTENCY_POLLING_SETTINGS_BASE.toBuilder()
             .setTotalTimeout(
                 settings.checkConsistencySettings().getRetrySettings().getTotalTimeout())
-            .setInitialRetryDelayDuration(Duration.ofSeconds(10))
-            .setRetryDelayMultiplier(1.0)
-            .setMaxRetryDelayDuration(Duration.ofSeconds(10))
-            .setInitialRpcTimeoutDuration(Duration.ZERO)
-            .setMaxRpcTimeoutDuration(Duration.ZERO)
-            .setRpcTimeoutMultiplier(1.0)
             .build();
 
     return AwaitConsistencyCallable.create(
@@ -188,16 +203,7 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
                   }
                 })
             .setPollingAlgorithm(
-                OperationTimedPollAlgorithm.create(
-                    RetrySettings.newBuilder()
-                        .setInitialRetryDelayDuration(Duration.ofMillis(500L))
-                        .setRetryDelayMultiplier(1.5)
-                        .setMaxRetryDelayDuration(Duration.ofMillis(5000L))
-                        .setInitialRpcTimeoutDuration(Duration.ZERO)
-                        .setRpcTimeoutMultiplier(1.0)
-                        .setMaxRpcTimeoutDuration(Duration.ZERO)
-                        .setTotalTimeoutDuration(Duration.ofMillis(600000L))
-                        .build()))
+                OperationTimedPollAlgorithm.create(OPTIMIZE_RESTORED_TABLE_POLLING_SETTINGS))
             .build();
 
     return GrpcCallableFactory.createOperationCallable(
