@@ -242,6 +242,20 @@ class CompositeTracer extends BigtableTracer {
   }
 
   @Override
+  public void grpcHeadersSent() {
+    for (BigtableTracer tracer : bigtableTracers) {
+      tracer.grpcHeadersSent();
+    }
+  }
+
+  @Override
+  public void grpcHeadersReceived() {
+    for (BigtableTracer tracer : bigtableTracers) {
+      tracer.grpcHeadersReceived();
+    }
+  }
+
+  @Override
   public void setTotalTimeoutDuration(java.time.Duration totalTimeoutDuration) {
     for (BigtableTracer tracer : bigtableTracers) {
       tracer.setTotalTimeoutDuration(totalTimeoutDuration);

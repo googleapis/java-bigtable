@@ -87,6 +87,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private volatile Duration remainingDeadlineAtAttemptStart = Duration.ZERO;
 
   private volatile MetadataExtractorInterceptor.SidebandData sidebandData = new SidebandData();
+  private volatile Optional<Stopwatch> faket4t7 = Optional.empty();
 
   BuiltinMetricsTracer(
       MetricRegistry.RecorderRegistry recorder, ClientInfo clientInfo, MethodInfo methodInfo) {
@@ -264,6 +265,16 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   @Override
+  public void grpcHeadersSent() {
+    faket4t7 = Optional.of(Stopwatch.createStarted());
+  }
+
+  @Override
+  public void grpcHeadersReceived() {
+    faket4t7.ifPresent(Stopwatch::stop);
+  }
+
+  @Override
   public void setTotalTimeoutDuration(java.time.Duration totalTimeoutDuration) {
     // This method is called by BigtableTracerStreamingCallable and
     // BigtableTracerUnaryCallable which is called per attempt. We only set
@@ -386,7 +397,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
           code,
           Comparators.max(remainingDeadlineAtAttemptStart, Duration.ZERO));
     }
-
+    // if we don't have t4t7 latency from gfe, we use dur between initial metadata sent and initial
+    // metadata recv
     if (sidebandData.getGfeTiming() != null) {
       recorder.serverLatency.record(
           clientInfo,
@@ -395,6 +407,20 @@ class BuiltinMetricsTracer extends BigtableTracer {
           sidebandData.getClusterInfo(),
           code,
           sidebandData.getGfeTiming());
+    } else {
+      Optional.ofNullable(sidebandData.getPeerInfo())
+          .filter(
+              pe -> pe.getTransportType() == PeerInfo.TransportType.TRANSPORT_TYPE_DIRECT_ACCESS)
+          .flatMap(pe -> faket4t7)
+          .ifPresent(
+              stopwatch ->
+                  recorder.serverLatency.record(
+                      clientInfo,
+                      tableId,
+                      methodInfo,
+                      sidebandData.getClusterInfo(),
+                      code,
+                      stopwatch.elapsed()));
     }
 
     boolean seenServer =

@@ -89,6 +89,16 @@ public class BigtableTracer extends BaseApiTracer {
     // noop
   }
 
+  /** Called when the header is sent on a grpc channel. */
+  public void grpcHeadersSent() {
+    // noop
+  }
+
+  /** Called when the header is received on a grpc channel. */
+  public void grpcHeadersReceived() {
+    // noop
+  }
+
   /**
    * Record the operation timeout from user settings for calculating remaining deadline. Currently,
    * it's called in BuiltinMetricsTracer on attempt start from {@link BigtableTracerUnaryCallable}

@@ -36,6 +36,16 @@ class BigtableGrpcStreamTracer extends ClientStreamTracer {
     tracer.grpcMessageSent();
   }
 
+  @Override
+  public void outboundHeaders() {
+    tracer.grpcHeadersSent();
+  }
+
+  @Override
+  public void inboundHeaders() {
+    tracer.grpcHeadersReceived();
+  }
+
   static class Factory extends ClientStreamTracer.Factory {
 
     private final BigtableTracer tracer;

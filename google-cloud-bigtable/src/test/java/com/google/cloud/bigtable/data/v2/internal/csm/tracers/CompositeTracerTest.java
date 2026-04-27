@@ -271,4 +271,18 @@ public class CompositeTracerTest {
     verify(child3, times(1)).grpcMessageSent();
     verify(child4, times(1)).grpcMessageSent();
   }
+
+  @Test
+  public void testGrpcHeadersSent() {
+    compositeTracer.grpcHeadersSent();
+    verify(child3, times(1)).grpcHeadersSent();
+    verify(child4, times(1)).grpcHeadersSent();
+  }
+
+  @Test
+  public void testGrpcHeadersReceived() {
+    compositeTracer.grpcHeadersReceived();
+    verify(child3, times(1)).grpcHeadersReceived();
+    verify(child4, times(1)).grpcHeadersReceived();
+  }
 }
