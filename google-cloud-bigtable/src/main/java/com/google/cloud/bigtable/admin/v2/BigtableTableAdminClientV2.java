@@ -61,18 +61,30 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
   private final AwaitConsistencyCallable awaitConsistencyCallable;
   private final OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
       optimizeRestoredTableOperationBaseCallable;
+  private final java.util.concurrent.ScheduledExecutorService backgroundExecutor;
 
   protected BigtableTableAdminClientV2(BaseBigtableTableAdminSettings settings) throws IOException {
     super(settings);
+    // Extract the executor directly without spinning up a full channel
+    this.backgroundExecutor =
+        settings.getStubSettings().getBackgroundExecutorProvider().getExecutor();
+    com.google.api.gax.rpc.ClientContext lightweightContext =
+        com.google.api.gax.rpc.ClientContext.newBuilder()
+            .setClock(settings.getStubSettings().getClock())
+            .setExecutor(this.backgroundExecutor)
+            .setDefaultCallContext(com.google.api.gax.grpc.GrpcCallContext.createDefault())
+            .build();
+
     this.awaitConsistencyCallable =
-        createAwaitConsistencyCallable((BigtableTableAdminStubSettings) settings.getStubSettings());
+        createAwaitConsistencyCallable(
+            (BigtableTableAdminStubSettings) settings.getStubSettings(), lightweightContext);
     this.optimizeRestoredTableOperationBaseCallable =
-        createOptimizeRestoredTableOperationBaseCallable(
-            (BigtableTableAdminStubSettings) settings.getStubSettings());
+        createOptimizeRestoredTableOperationBaseCallable(lightweightContext);
   }
 
   protected BigtableTableAdminClientV2(BigtableTableAdminStub stub) {
     super(stub);
+    this.backgroundExecutor = null;
     this.awaitConsistencyCallable = null;
     this.optimizeRestoredTableOperationBaseCallable = null;
   }
@@ -84,13 +96,14 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
       OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
           optimizeRestoredTableOperationBaseCallable) {
     super(stub);
+    this.backgroundExecutor = null; // No custom executor for tests
     this.awaitConsistencyCallable = awaitConsistencyCallable;
     this.optimizeRestoredTableOperationBaseCallable = optimizeRestoredTableOperationBaseCallable;
   }
 
   private AwaitConsistencyCallable createAwaitConsistencyCallable(
-      BigtableTableAdminStubSettings settings) throws IOException {
-    ClientContext clientContext = ClientContext.create(settings);
+      BigtableTableAdminStubSettings settings, com.google.api.gax.rpc.ClientContext clientContext)
+      throws IOException {
     // TODO(igorbernstein2): expose polling settings
     RetrySettings pollingSettings =
         RetrySettings.newBuilder()
@@ -112,9 +125,9 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
   }
 
   private OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
-      createOptimizeRestoredTableOperationBaseCallable(BigtableTableAdminStubSettings settings)
+      createOptimizeRestoredTableOperationBaseCallable(
+          com.google.api.gax.rpc.ClientContext clientContext)
           throws IOException {
-    ClientContext clientContext = ClientContext.create(settings);
 
     GrpcCallSettings<Void, Operation> unusedInitialCallSettings =
         GrpcCallSettings.create(
@@ -337,5 +350,49 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
         "OptimizeRestoredTableCallable not initialized. BigtableTableAdminClientV2 must be "
             + "initialized via BigtableTableAdminClientV2.create(BaseBigtableTableAdminSettings) "
             + "to use this functionality.");
+  }
+
+  @Override
+  public void close() {
+    if (backgroundExecutor != null) {
+      backgroundExecutor.shutdown();
+    }
+    super.close();
+  }
+
+  @Override
+  public void shutdown() {
+    if (backgroundExecutor != null) {
+      backgroundExecutor.shutdown();
+    }
+    super.shutdown();
+  }
+
+  @Override
+  public void shutdownNow() {
+    if (backgroundExecutor != null) {
+      backgroundExecutor.shutdownNow();
+    }
+    super.shutdownNow();
+  }
+
+  @Override
+  public boolean isShutdown() {
+    return (backgroundExecutor == null || backgroundExecutor.isShutdown()) && super.isShutdown();
+  }
+
+  @Override
+  public boolean isTerminated() {
+    return (backgroundExecutor == null || backgroundExecutor.isTerminated()) && super.isTerminated();
+  }
+
+  @Override
+  public boolean awaitTermination(long duration, java.util.concurrent.TimeUnit unit)
+      throws InterruptedException {
+    boolean terminated = true;
+    if (backgroundExecutor != null) {
+      terminated = backgroundExecutor.awaitTermination(duration, unit);
+    }
+    return terminated && super.awaitTermination(duration, unit);
   }
 }
