@@ -136,7 +136,8 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
     return AwaitConsistencyCallable.create(
         generateConsistencyTokenCallable(),
         checkConsistencyCallable(),
-        clientContext,
+        clientContext.getClock(),
+        clientContext.getExecutor(),
         pollingSettings,
         requestContext);
   }

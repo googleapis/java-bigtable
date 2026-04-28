@@ -16,9 +16,11 @@
 package com.google.cloud.bigtable.admin.v2.stub;
 
 import com.google.api.core.ApiAsyncFunction;
+import com.google.api.core.ApiClock;
 import com.google.api.core.ApiFunction;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
+import com.google.api.core.InternalApi;
 import com.google.api.gax.retrying.ExponentialPollAlgorithm;
 import com.google.api.gax.retrying.NonCancellableFuture;
 import com.google.api.gax.retrying.ResultRetryAlgorithmWithContext;
@@ -30,7 +32,6 @@ import com.google.api.gax.retrying.RetryingFuture;
 import com.google.api.gax.retrying.ScheduledRetryingExecutor;
 import com.google.api.gax.retrying.TimedAttemptSettings;
 import com.google.api.gax.rpc.ApiCallContext;
-import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.bigtable.admin.v2.CheckConsistencyRequest;
 import com.google.bigtable.admin.v2.CheckConsistencyResponse;
@@ -42,6 +43,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ScheduledExecutorService;
 import javax.annotation.Nullable;
 
 /**
@@ -51,7 +53,8 @@ import javax.annotation.Nullable;
  * <p>This callable wraps GenerateConsistencyToken and CheckConsistency RPCs. It will generate a
  * token then poll until isConsistent is true.
  */
-class AwaitConsistencyCallable extends UnaryCallable<ConsistencyRequest, Void> {
+@InternalApi
+public class AwaitConsistencyCallable extends UnaryCallable<ConsistencyRequest, Void> {
   private final UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
       generateCallable;
   private final UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable;
@@ -59,33 +62,36 @@ class AwaitConsistencyCallable extends UnaryCallable<ConsistencyRequest, Void> {
 
   @Nullable private final TableAdminRequestContext requestContext;
 
-  static AwaitConsistencyCallable create(
+  @InternalApi
+  public static AwaitConsistencyCallable create(
       UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
           generateCallable,
       UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable,
-      ClientContext clientContext,
+      ApiClock clock,
+      ScheduledExecutorService executor,
       RetrySettings pollingSettings,
       @Nullable TableAdminRequestContext requestContext) {
 
     RetryAlgorithm<CheckConsistencyResponse> retryAlgorithm =
         new RetryAlgorithm<>(
-            new PollResultAlgorithm(),
-            new ExponentialPollAlgorithm(pollingSettings, clientContext.getClock()));
+            new PollResultAlgorithm(), new ExponentialPollAlgorithm(pollingSettings, clock));
 
     RetryingExecutor<CheckConsistencyResponse> retryingExecutor =
-        new ScheduledRetryingExecutor<>(retryAlgorithm, clientContext.getExecutor());
+        new ScheduledRetryingExecutor<>(retryAlgorithm, executor);
 
     return new AwaitConsistencyCallable(
         generateCallable, checkCallable, retryingExecutor, requestContext);
   }
 
-  static AwaitConsistencyCallable create(
+  @InternalApi
+  public static AwaitConsistencyCallable create(
       UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
           generateCallable,
       UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable,
-      ClientContext clientContext,
+      ApiClock clock,
+      ScheduledExecutorService executor,
       RetrySettings pollingSettings) {
-    return create(generateCallable, checkCallable, clientContext, pollingSettings, null);
+    return create(generateCallable, checkCallable, clock, executor, pollingSettings, null);
   }
 
   @VisibleForTesting
