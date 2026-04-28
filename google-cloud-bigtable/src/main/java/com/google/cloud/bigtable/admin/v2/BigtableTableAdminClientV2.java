@@ -94,7 +94,9 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
 
     this.awaitConsistencyCallable =
         createAwaitConsistencyCallable(
-            (BigtableTableAdminStubSettings) settings.getStubSettings(), lightweightContext);
+            (BigtableTableAdminStubSettings) settings.getStubSettings(),
+            settings.getStubSettings().getClock(),
+            this.backgroundExecutor);
     this.optimizeRestoredTableOperationBaseCallable =
         createOptimizeRestoredTableOperationBaseCallable(lightweightContext);
   }
@@ -119,8 +121,9 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
   }
 
   private AwaitConsistencyCallable createAwaitConsistencyCallable(
-      BigtableTableAdminStubSettings settings, com.google.api.gax.rpc.ClientContext clientContext)
-      throws IOException {
+      BigtableTableAdminStubSettings settings,
+      com.google.api.core.ApiClock clock,
+      java.util.concurrent.ScheduledExecutorService executor) {
     // TODO(igorbernstein2): expose polling settings
     RetrySettings pollingSettings =
         AWAIT_CONSISTENCY_POLLING_SETTINGS_BASE.toBuilder()
@@ -131,7 +134,8 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
     return AwaitConsistencyCallable.create(
         getStub().generateConsistencyTokenCallable(),
         getStub().checkConsistencyCallable(),
-        clientContext,
+        clock,
+        executor,
         pollingSettings);
   }
 
