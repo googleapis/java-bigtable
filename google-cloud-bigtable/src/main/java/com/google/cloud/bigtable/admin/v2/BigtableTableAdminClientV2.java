@@ -42,7 +42,6 @@ import com.google.longrunning.Operation;
 import com.google.protobuf.Empty;
 import io.grpc.MethodDescriptor;
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.Duration;
 import java.util.concurrent.ExecutionException;
 
@@ -143,7 +142,8 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
     @SuppressWarnings("unchecked")
     MethodDescriptor<Void, Operation> fakeDescriptor =
         (MethodDescriptor<Void, Operation>)
-            (MethodDescriptor<?, ?>) com.google.bigtable.admin.v2.BigtableTableAdminGrpc.getUpdateTableMethod();
+            (MethodDescriptor<?, ?>)
+                com.google.bigtable.admin.v2.BigtableTableAdminGrpc.getUpdateTableMethod();
 
     GrpcCallSettings<Void, Operation> unusedInitialCallSettings =
         GrpcCallSettings.create(fakeDescriptor);
