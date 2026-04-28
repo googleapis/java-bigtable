@@ -41,8 +41,6 @@ import com.google.common.base.Strings;
 import com.google.longrunning.Operation;
 import com.google.protobuf.Empty;
 import io.grpc.MethodDescriptor;
-import io.grpc.MethodDescriptor.Marshaller;
-import io.grpc.MethodDescriptor.MethodType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
@@ -142,37 +140,13 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
       createOptimizeRestoredTableOperationBaseCallable(
           com.google.api.gax.rpc.ClientContext clientContext) throws IOException {
 
+    @SuppressWarnings("unchecked")
+    MethodDescriptor<Void, Operation> fakeDescriptor =
+        (MethodDescriptor<Void, Operation>)
+            (MethodDescriptor<?, ?>) com.google.bigtable.admin.v2.BigtableTableAdminGrpc.getUpdateTableMethod();
+
     GrpcCallSettings<Void, Operation> unusedInitialCallSettings =
-        GrpcCallSettings.create(
-            MethodDescriptor.<Void, Operation>newBuilder()
-                .setType(MethodType.UNARY)
-                .setFullMethodName(
-                    "google.bigtable.admin.v2.BigtableTableAdmin/OptimizeRestoredTable")
-                .setRequestMarshaller(
-                    new Marshaller<Void>() {
-                      @Override
-                      public InputStream stream(Void value) {
-                        throw new UnsupportedOperationException("not used");
-                      }
-
-                      @Override
-                      public Void parse(InputStream stream) {
-                        throw new UnsupportedOperationException("not used");
-                      }
-                    })
-                .setResponseMarshaller(
-                    new Marshaller<Operation>() {
-                      @Override
-                      public InputStream stream(Operation value) {
-                        throw new UnsupportedOperationException("not used");
-                      }
-
-                      @Override
-                      public Operation parse(InputStream stream) {
-                        throw new UnsupportedOperationException("not used");
-                      }
-                    })
-                .build());
+        GrpcCallSettings.create(fakeDescriptor);
 
     final MetadataTransformer<OptimizeRestoredTableMetadata> protoMetadataTransformer =
         MetadataTransformer.create(OptimizeRestoredTableMetadata.class);
