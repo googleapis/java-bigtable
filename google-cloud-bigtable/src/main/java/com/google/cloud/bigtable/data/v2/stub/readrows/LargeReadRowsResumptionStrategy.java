@@ -25,7 +25,9 @@ import com.google.cloud.bigtable.data.v2.models.RowAdapter;
 import com.google.cloud.bigtable.data.v2.stub.BigtableStreamResumptionStrategy;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -58,8 +60,24 @@ public class LargeReadRowsResumptionStrategy<RowT>
   // row-keys
   private RowSet previousFailedRequestRowset = null;
 
-  public LargeReadRowsResumptionStrategy(RowAdapter<RowT> rowAdapter) {
+  private final List<ByteString> encounteredLargeRowKeys;
+  private final boolean failOnLargeRows;
+
+  public LargeReadRowsResumptionStrategy(RowAdapter<RowT> rowAdapter, boolean failOnLargeRows) {
+    this(rowAdapter, failOnLargeRows, new ArrayList<ByteString>());
+  }
+
+  private LargeReadRowsResumptionStrategy(
+      RowAdapter<RowT> rowAdapter,
+      boolean failOnLargeRows,
+      List<ByteString> encounteredLargeRowKeys) {
     this.rowAdapter = rowAdapter;
+    this.failOnLargeRows = failOnLargeRows;
+    this.encounteredLargeRowKeys = encounteredLargeRowKeys;
+  }
+
+  public List<ByteString> getEncounteredLargeRowKeys() {
+    return encounteredLargeRowKeys;
   }
 
   @Override
@@ -69,7 +87,8 @@ public class LargeReadRowsResumptionStrategy<RowT>
 
   @Override
   public StreamResumptionStrategy<ReadRowsRequest, RowT> createNew() {
-    return new LargeReadRowsResumptionStrategy<>(rowAdapter);
+    return new LargeReadRowsResumptionStrategy<>(
+        rowAdapter, failOnLargeRows, encounteredLargeRowKeys);
   }
 
   @Override
@@ -91,21 +110,27 @@ public class LargeReadRowsResumptionStrategy<RowT>
   public Throwable processError(Throwable throwable) {
     ByteString rowKeyExtracted = extractLargeRowKey(throwable);
     if (rowKeyExtracted != null) {
-      LOGGER.warning("skipping large row " + rowKeyExtracted);
       this.largeRowKey = rowKeyExtracted;
       numProcessed = numProcessed + 1;
+      if (failOnLargeRows) {
+        encounteredLargeRowKeys.add(rowKeyExtracted);
+      } else {
+        LOGGER.warning("skipping large row " + rowKeyExtracted);
+      }
     }
     return throwable;
   }
 
   private ByteString extractLargeRowKey(Throwable t) {
-    if (t instanceof ApiException
-        && ((ApiException) t).getReason() != null
-        && ((ApiException) t).getReason().equals("LargeRowReadError")) {
-      String rowKey = ((ApiException) t).getMetadata().get("rowKeyBase64Encoded");
-
-      byte[] decodedBytes = Base64.getDecoder().decode(rowKey);
-      return ByteString.copyFrom(decodedBytes);
+    if (t instanceof ApiException) {
+      ApiException ae = (ApiException) t;
+      if (ae.getReason() != null && ae.getReason().equals("LargeRowReadError")) {
+        String rowKey = ae.getMetadata().get("rowKeyBase64Encoded");
+        if (rowKey != null) {
+          byte[] decodedBytes = Base64.getDecoder().decode(rowKey);
+          return ByteString.copyFrom(decodedBytes);
+        }
+      }
     }
     return null;
   }

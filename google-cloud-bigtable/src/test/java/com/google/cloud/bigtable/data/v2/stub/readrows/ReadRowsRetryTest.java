@@ -34,6 +34,7 @@ import com.google.bigtable.v2.RowRange;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
+import com.google.cloud.bigtable.data.v2.models.LargeRowException;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.cloud.bigtable.data.v2.models.Row;
@@ -831,6 +832,115 @@ public class ReadRowsRetryTest {
 
     ReadRowsRequest getExpectedRequest() {
       return requestBuilder.build();
+    }
+  }
+
+  @Test
+  public void readRowsFailsAtEndIfLargeRowsEncountered() throws Exception {
+    ApiException largeRowExceptionR2 = createLargeRowException("r2");
+
+    BigtableDataSettings.Builder settingsBuilder =
+        BigtableDataSettings.newBuilder()
+            .setProjectId(PROJECT_ID)
+            .setInstanceId(INSTANCE_ID)
+            .setCredentialsProvider(NoCredentialsProvider.create())
+            .setMetricsProvider(NoopMetricsProvider.INSTANCE)
+            .disableInternalMetrics();
+
+    settingsBuilder
+        .stubSettings()
+        .setTransportChannelProvider(
+            FixedTransportChannelProvider.create(
+                GrpcTransportChannel.create(serverRule.getChannel())))
+        .setFailOnLargeRows(true);
+
+    BigtableDataClient failureClient = BigtableDataClient.create(settingsBuilder.build());
+
+    service.expectations.add(
+        RpcExpectation.create()
+            .expectRequest(com.google.common.collect.Range.closedOpen("r1", "r5"))
+            .respondWith("r1")
+            .respondWithException(io.grpc.Status.Code.INTERNAL, largeRowExceptionR2));
+
+    List<com.google.common.collect.Range<String>> rangeList = new ArrayList<>();
+    rangeList.add(com.google.common.collect.Range.open("r1", "r2"));
+    rangeList.add(com.google.common.collect.Range.open("r2", "r5"));
+    service.expectations.add(
+        RpcExpectation.create()
+            .expectRequestForMultipleRowRanges(rangeList)
+            .respondWith("r3", "r4")
+            .respondWithStatus(io.grpc.Status.Code.OK));
+
+    try {
+      ServerStream<Row> actualRows =
+          failureClient.skipLargeRowsCallable().call(Query.create(TABLE_ID).range("r1", "r5"));
+      for (Row row : actualRows) {
+        // consume
+      }
+      Truth.assert_().withMessage("Expected LargeRowException").fail();
+    } catch (ApiException e) {
+      assertThat(e).isInstanceOf(LargeRowException.class);
+      LargeRowException lre = (LargeRowException) e;
+      assertThat(lre.getMessage()).contains("Large rows encountered");
+      assertThat(lre.getStatusCode().getCode().name())
+          .isEqualTo(com.google.api.gax.rpc.StatusCode.Code.FAILED_PRECONDITION.name());
+      assertThat(lre.getLargeRowKeys()).containsExactly(ByteString.copyFromUtf8("r2"));
+    } finally {
+      failureClient.close();
+    }
+  }
+
+  @Test
+  public void readRowsAppendsLargeRowsToMidStreamError() throws Exception {
+    ApiException largeRowExceptionR2 = createLargeRowException("r2");
+
+    BigtableDataSettings.Builder settingsBuilder =
+        BigtableDataSettings.newBuilder()
+            .setProjectId(PROJECT_ID)
+            .setInstanceId(INSTANCE_ID)
+            .setCredentialsProvider(NoCredentialsProvider.create())
+            .setMetricsProvider(NoopMetricsProvider.INSTANCE)
+            .disableInternalMetrics();
+
+    settingsBuilder
+        .stubSettings()
+        .setTransportChannelProvider(
+            FixedTransportChannelProvider.create(
+                GrpcTransportChannel.create(serverRule.getChannel())))
+        .setFailOnLargeRows(true);
+
+    BigtableDataClient failureClient = BigtableDataClient.create(settingsBuilder.build());
+
+    service.expectations.add(
+        RpcExpectation.create()
+            .expectRequest(com.google.common.collect.Range.closedOpen("r1", "r5"))
+            .respondWith("r1")
+            .respondWithException(io.grpc.Status.Code.INTERNAL, largeRowExceptionR2));
+
+    List<com.google.common.collect.Range<String>> rangeList = new ArrayList<>();
+    rangeList.add(com.google.common.collect.Range.open("r1", "r2"));
+    rangeList.add(com.google.common.collect.Range.open("r2", "r5"));
+    service.expectations.add(
+        RpcExpectation.create()
+            .expectRequestForMultipleRowRanges(rangeList)
+            .respondWith("r3")
+            .respondWithStatus(io.grpc.Status.Code.INVALID_ARGUMENT));
+
+    try {
+      List<Row> ignored =
+          failureClient
+              .skipLargeRowsCallable()
+              .all()
+              .call(Query.create(TABLE_ID).range("r1", "r5"));
+      Truth.assert_().withMessage("Expected LargeRowException").fail();
+    } catch (ApiException e) {
+      assertThat(e).isInstanceOf(LargeRowException.class);
+      LargeRowException lre = (LargeRowException) e;
+      assertThat(lre.getStatusCode().getCode().name())
+          .isEqualTo(com.google.api.gax.rpc.StatusCode.Code.INVALID_ARGUMENT.name());
+      assertThat(lre.getLargeRowKeys()).containsExactly(ByteString.copyFromUtf8("r2"));
+    } finally {
+      failureClient.close();
     }
   }
 }
