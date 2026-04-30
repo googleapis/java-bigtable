@@ -16,34 +16,25 @@
 package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.api.core.InternalApi;
+import com.google.api.gax.grpc.GrpcStatusCode;
 import com.google.api.gax.rpc.ApiException;
-import com.google.api.gax.rpc.StatusCode;
 import com.google.protobuf.ByteString;
+import io.grpc.Status;
 import java.util.List;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
-/** Thrown by the ReadRows when at least one row was too large to be read. */
+/** Exception that wraps all the large row keys encountered in a ReadRows request. */
 public final class LargeRowException extends ApiException {
   private final List<ByteString> largeRowKeys;
 
-  /**
-   * This constructor is considered an internal implementation detail and not meant to be used by
-   * applications.
-   */
   @InternalApi
-  public LargeRowException(
-      @Nullable Throwable cause,
-      @Nonnull StatusCode statusCode,
-      boolean retryable,
-      @Nonnull List<ByteString> largeRowKeys) {
-    super(cause, statusCode, retryable);
+  public LargeRowException(@Nonnull List<ByteString> largeRowKeys) {
+    super(
+        "Encountered large row keys",
+        null,
+        GrpcStatusCode.of(Status.Code.FAILED_PRECONDITION),
+        false);
     this.largeRowKeys = largeRowKeys;
-  }
-
-  @Override
-  public String getMessage() {
-    return "Large rows encountered: " + largeRowKeys;
   }
 
   /** Retrieve the keys of the rows that were too large to be read. */

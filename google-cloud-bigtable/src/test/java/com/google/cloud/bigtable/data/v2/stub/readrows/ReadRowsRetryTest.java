@@ -881,7 +881,7 @@ public class ReadRowsRetryTest {
     } catch (ApiException e) {
       assertThat(e).isInstanceOf(LargeRowException.class);
       LargeRowException lre = (LargeRowException) e;
-      assertThat(lre.getMessage()).contains("Large rows encountered");
+      assertThat(lre.getMessage()).contains("Encountered large row keys");
       assertThat(lre.getStatusCode().getCode().name())
           .isEqualTo(com.google.api.gax.rpc.StatusCode.Code.FAILED_PRECONDITION.name());
       assertThat(lre.getLargeRowKeys()).containsExactly(ByteString.copyFromUtf8("r2"));
@@ -932,15 +932,23 @@ public class ReadRowsRetryTest {
               .skipLargeRowsCallable()
               .all()
               .call(Query.create(TABLE_ID).range("r1", "r5"));
-      Truth.assert_().withMessage("Expected LargeRowException").fail();
+      Truth.assert_().withMessage("Expected InvalidArgumentException").fail();
     } catch (ApiException e) {
-      assertThat(e).isInstanceOf(LargeRowException.class);
-      LargeRowException lre = (LargeRowException) e;
-      assertThat(lre.getStatusCode().getCode().name())
-          .isEqualTo(com.google.api.gax.rpc.StatusCode.Code.INVALID_ARGUMENT.name());
+      LargeRowException lre = findLargeRowException(e);
+      assertThat(lre).isNotNull();
       assertThat(lre.getLargeRowKeys()).containsExactly(ByteString.copyFromUtf8("r2"));
     } finally {
       failureClient.close();
     }
+  }
+
+  private LargeRowException findLargeRowException(Throwable t) {
+    if (t == null) return null;
+    if (t instanceof LargeRowException) return (LargeRowException) t;
+    for (Throwable supp : t.getSuppressed()) {
+      LargeRowException lre = findLargeRowException(supp);
+      if (lre != null) return lre;
+    }
+    return findLargeRowException(t.getCause());
   }
 }

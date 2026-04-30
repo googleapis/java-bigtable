@@ -20,44 +20,34 @@ import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import com.google.api.core.ApiFutureCallback;
 import com.google.api.core.ApiFutures;
 import com.google.api.core.InternalApi;
-import com.google.api.gax.grpc.GrpcStatusCode;
 import com.google.api.gax.retrying.RetryingFuture;
 import com.google.api.gax.retrying.ScheduledRetryingExecutor;
 import com.google.api.gax.retrying.ServerStreamingAttemptException;
 import com.google.api.gax.rpc.ApiCallContext;
-import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
-import com.google.api.gax.rpc.StatusCode;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.cloud.bigtable.data.v2.models.LargeRowException;
 import com.google.cloud.bigtable.data.v2.stub.readrows.LargeReadRowsResumptionStrategy;
 import com.google.protobuf.ByteString;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
 import java.util.List;
 
-/**
- * A ServerStreamingCallable that implements resumable retries for large rows.
- *
- * <p>This class is a specialized version of {@link RetryingServerStreamingCallable} that uses
- * {@link LargeRowServerStreamingAttemptCallable} and {@link LargeReadRowsResumptionStrategy}.
- */
+/** A ServerStreamingCallable that throws large row keys at the end of the stream. */
 @InternalApi
 public final class RetryingLargeRowServerStreamingCallable<ResponseT>
     extends ServerStreamingCallable<ReadRowsRequest, ResponseT> {
 
   private final ServerStreamingCallable<ReadRowsRequest, ResponseT> innerCallable;
   private final ScheduledRetryingExecutor<Void> executor;
-  private final LargeReadRowsResumptionStrategy<ResponseT> resumptionStrategyPrototype;
+  private final LargeReadRowsResumptionStrategy<ResponseT> resumptionStrategy;
 
   public RetryingLargeRowServerStreamingCallable(
       ServerStreamingCallable<ReadRowsRequest, ResponseT> innerCallable,
       ScheduledRetryingExecutor<Void> executor,
-      LargeReadRowsResumptionStrategy<ResponseT> resumptionStrategyPrototype) {
+      LargeReadRowsResumptionStrategy<ResponseT> resumptionStrategy) {
     this.innerCallable = innerCallable;
     this.executor = executor;
-    this.resumptionStrategyPrototype = resumptionStrategyPrototype;
+    this.resumptionStrategy = resumptionStrategy;
   }
 
   @Override
@@ -66,13 +56,12 @@ public final class RetryingLargeRowServerStreamingCallable<ResponseT>
       final ResponseObserver<ResponseT> responseObserver,
       ApiCallContext context) {
 
-    LargeRowServerStreamingAttemptCallable<ResponseT> attemptCallable =
-        new LargeRowServerStreamingAttemptCallable<>(
-            innerCallable,
-            (LargeReadRowsResumptionStrategy<ResponseT>) resumptionStrategyPrototype.createNew(),
-            request,
-            context,
-            responseObserver);
+    final LargeReadRowsResumptionStrategy<ResponseT> strategy =
+        (LargeReadRowsResumptionStrategy<ResponseT>) resumptionStrategy.createNew();
+
+    ServerStreamingAttemptCallable<ReadRowsRequest, ResponseT> attemptCallable =
+        new ServerStreamingAttemptCallable<>(
+            innerCallable, strategy, request, context, responseObserver);
 
     RetryingFuture<Void> retryingFuture = executor.createFuture(attemptCallable, context);
     attemptCallable.setExternalFuture(retryingFuture);
@@ -88,35 +77,18 @@ public final class RetryingLargeRowServerStreamingCallable<ResponseT>
             if (throwable instanceof ServerStreamingAttemptException) {
               throwable = throwable.getCause();
             }
-            List<ByteString> encounteredKeys =
-                resumptionStrategyPrototype.getEncounteredLargeRowKeys();
+            List<ByteString> encounteredKeys = strategy.getLargeRowKeys();
             if (!encounteredKeys.isEmpty()) {
-              StatusCode statusCode = GrpcStatusCode.of(Status.Code.FAILED_PRECONDITION);
-              boolean isRetryable = false;
-              if (throwable instanceof ApiException) {
-                statusCode = ((ApiException) throwable).getStatusCode();
-                isRetryable = ((ApiException) throwable).isRetryable();
-              } else if (throwable instanceof StatusRuntimeException) {
-                statusCode =
-                    GrpcStatusCode.of(((StatusRuntimeException) throwable).getStatus().getCode());
-              }
-              throwable =
-                  new LargeRowException(throwable, statusCode, isRetryable, encounteredKeys);
+              throwable.addSuppressed(new LargeRowException(encounteredKeys));
             }
             responseObserver.onError(throwable);
           }
 
           @Override
           public void onSuccess(Void ignored) {
-            List<ByteString> encounteredKeys =
-                resumptionStrategyPrototype.getEncounteredLargeRowKeys();
+            List<ByteString> encounteredKeys = strategy.getLargeRowKeys();
             if (!encounteredKeys.isEmpty()) {
-              responseObserver.onError(
-                  new LargeRowException(
-                      null,
-                      GrpcStatusCode.of(Status.Code.FAILED_PRECONDITION),
-                      false,
-                      encounteredKeys));
+              responseObserver.onError(new LargeRowException(encounteredKeys));
             } else {
               responseObserver.onComplete();
             }

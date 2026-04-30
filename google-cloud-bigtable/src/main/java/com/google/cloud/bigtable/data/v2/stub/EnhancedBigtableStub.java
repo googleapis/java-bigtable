@@ -451,11 +451,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // ReadRowsRequest -> ReadRowsResponse callable).
     // We override the resumption strategy to use LargeReadRowsResumptionStrategy here (which skips
     // the large rows) instead of ReadRowResumptionStrategy
-    LargeReadRowsResumptionStrategy<RowT> strategy =
-        new LargeReadRowsResumptionStrategy<>(rowAdapter, failOnLargeRows);
     ServerStreamingCallSettings<ReadRowsRequest, RowT> innerSettings =
         ServerStreamingCallSettings.<ReadRowsRequest, RowT>newBuilder()
-            .setResumptionStrategy(strategy)
+            .setResumptionStrategy(
+                new LargeReadRowsResumptionStrategy<>(rowAdapter, failOnLargeRows))
             .setRetryableCodes(readRowsSettings.getRetryableCodes())
             .setRetrySettings(readRowsSettings.getRetrySettings())
             .setIdleTimeout(readRowsSettings.getIdleTimeout())

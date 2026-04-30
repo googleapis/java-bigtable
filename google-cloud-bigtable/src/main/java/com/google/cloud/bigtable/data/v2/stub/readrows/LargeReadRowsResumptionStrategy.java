@@ -60,24 +60,12 @@ public class LargeReadRowsResumptionStrategy<RowT>
   // row-keys
   private RowSet previousFailedRequestRowset = null;
 
-  private final List<ByteString> encounteredLargeRowKeys;
+  private final List<ByteString> largeRowKeys = new ArrayList<>();
   private final boolean failOnLargeRows;
 
   public LargeReadRowsResumptionStrategy(RowAdapter<RowT> rowAdapter, boolean failOnLargeRows) {
-    this(rowAdapter, failOnLargeRows, new ArrayList<ByteString>());
-  }
-
-  private LargeReadRowsResumptionStrategy(
-      RowAdapter<RowT> rowAdapter,
-      boolean failOnLargeRows,
-      List<ByteString> encounteredLargeRowKeys) {
     this.rowAdapter = rowAdapter;
     this.failOnLargeRows = failOnLargeRows;
-    this.encounteredLargeRowKeys = encounteredLargeRowKeys;
-  }
-
-  public List<ByteString> getEncounteredLargeRowKeys() {
-    return encounteredLargeRowKeys;
   }
 
   @Override
@@ -87,8 +75,7 @@ public class LargeReadRowsResumptionStrategy<RowT>
 
   @Override
   public StreamResumptionStrategy<ReadRowsRequest, RowT> createNew() {
-    return new LargeReadRowsResumptionStrategy<>(
-        rowAdapter, failOnLargeRows, encounteredLargeRowKeys);
+    return new LargeReadRowsResumptionStrategy<>(rowAdapter, failOnLargeRows);
   }
 
   @Override
@@ -113,7 +100,7 @@ public class LargeReadRowsResumptionStrategy<RowT>
       this.largeRowKey = rowKeyExtracted;
       numProcessed = numProcessed + 1;
       if (failOnLargeRows) {
-        encounteredLargeRowKeys.add(rowKeyExtracted);
+        largeRowKeys.add(rowKeyExtracted);
       } else {
         LOGGER.warning("skipping large row " + rowKeyExtracted);
       }
@@ -121,16 +108,18 @@ public class LargeReadRowsResumptionStrategy<RowT>
     return throwable;
   }
 
+  public List<ByteString> getLargeRowKeys() {
+    return largeRowKeys;
+  }
+
   private ByteString extractLargeRowKey(Throwable t) {
-    if (t instanceof ApiException) {
-      ApiException ae = (ApiException) t;
-      if (ae.getReason() != null && ae.getReason().equals("LargeRowReadError")) {
-        String rowKey = ae.getMetadata().get("rowKeyBase64Encoded");
-        if (rowKey != null) {
-          byte[] decodedBytes = Base64.getDecoder().decode(rowKey);
-          return ByteString.copyFrom(decodedBytes);
-        }
-      }
+    if (t instanceof ApiException
+        && ((ApiException) t).getReason() != null
+        && ((ApiException) t).getReason().equals("LargeRowReadError")) {
+      String rowKey = ((ApiException) t).getMetadata().get("rowKeyBase64Encoded");
+
+      byte[] decodedBytes = Base64.getDecoder().decode(rowKey);
+      return ByteString.copyFrom(decodedBytes);
     }
     return null;
   }

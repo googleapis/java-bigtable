@@ -683,6 +683,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       jwtAudience = settings.jwtAudience;
       this.directPathConfig = settings.getDirectPathConfig();
       sessionsEnabled = settings.sessionsEnabled;
+      failOnLargeRows = settings.failOnLargeRows;
 
       this.perOpSettings = new ClientOperationSettings.Builder(settings.perOpSettings);
 
@@ -1072,6 +1073,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("jwtAudience", jwtAudience)
         .add("directPathConfig", getDirectPathConfig().toString())
         .add("sessionsEnabled", sessionsEnabled)
+        .add("failOnLargeRows", failOnLargeRows)
         .add("parent", super.toString())
         .toString();
   }
