@@ -172,20 +172,31 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private final ExecuteQueryCallable executeQueryCallable;
   private final UnaryCallable<PrepareQueryRequest, PrepareResponse> prepareQueryCallable;
 
+  private final boolean failOnLargeRows;
+
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
     BigtableClientContext bigtableClientContext = BigtableClientContext.create(settings);
-    return new EnhancedBigtableStub(settings.getPerOpSettings(), bigtableClientContext);
+    return new EnhancedBigtableStub(
+        settings.getPerOpSettings(), bigtableClientContext, settings.isFailOnLargeRows());
   }
 
   public EnhancedBigtableStub(
       ClientOperationSettings perOpSettings, BigtableClientContext clientContext) {
+    this(perOpSettings, clientContext, false);
+  }
+
+  public EnhancedBigtableStub(
+      ClientOperationSettings perOpSettings,
+      BigtableClientContext clientContext,
+      boolean failOnLargeRows) {
     this.perOpSettings = perOpSettings;
     this.bigtableClientContext = clientContext;
     this.requestContext = RequestContext.create(clientContext.getClientInfo());
     this.bulkMutationFlowController =
         new FlowController(perOpSettings.bulkMutateRowsSettings.getDynamicFlowControlSettings());
     this.bulkMutationDynamicFlowControlStats = new DynamicFlowControlStats();
+    this.failOnLargeRows = failOnLargeRows;
 
     readRowsCallable = createReadRowsCallable(new DefaultRowAdapter());
     skipLargeRowsCallable = createSkipLargeRowsCallable(new DefaultRowAdapter());
@@ -442,7 +453,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // the large rows) instead of ReadRowResumptionStrategy
     ServerStreamingCallSettings<ReadRowsRequest, RowT> innerSettings =
         ServerStreamingCallSettings.<ReadRowsRequest, RowT>newBuilder()
-            .setResumptionStrategy(new LargeReadRowsResumptionStrategy<>(rowAdapter))
+            .setResumptionStrategy(
+                new LargeReadRowsResumptionStrategy<>(rowAdapter, failOnLargeRows))
             .setRetryableCodes(readRowsSettings.getRetryableCodes())
             .setRetrySettings(readRowsSettings.getRetrySettings())
             .setIdleTimeout(readRowsSettings.getIdleTimeout())
@@ -1216,11 +1228,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return new CookiesServerStreamingCallable<>(retrying);
   }
 
-  private <RequestT, ResponseT> ServerStreamingCallable<RequestT, ResponseT> largeRowWithRetries(
-      ServerStreamingCallable<RequestT, ResponseT> innerCallable,
-      ServerStreamingCallSettings<RequestT, ResponseT> serverStreamingCallSettings) {
+  private <ReadRowRequest, RowT> ServerStreamingCallable<ReadRowsRequest, RowT> largeRowWithRetries(
+      ServerStreamingCallable<ReadRowsRequest, RowT> innerCallable,
+      ServerStreamingCallSettings<ReadRowsRequest, RowT> serverStreamingCallSettings) {
 
-    ServerStreamingCallable<RequestT, ResponseT> retrying =
+    ServerStreamingCallable<ReadRowsRequest, RowT> retrying =
         com.google.cloud.bigtable.gaxx.retrying.Callables.retryingForLargeRows(
             innerCallable, serverStreamingCallSettings, bigtableClientContext.getClientContext());
     return new CookiesServerStreamingCallable<>(retrying);

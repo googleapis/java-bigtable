@@ -82,6 +82,7 @@ public class EnhancedBigtableStubSettingsTest {
     WatchdogProvider watchdogProvider = Mockito.mock(WatchdogProvider.class);
     Duration watchdogInterval = Duration.ofSeconds(12);
     String metricsEndpoint = "test-endpoint:443";
+    boolean failOnLargeRows = true;
 
     EnhancedBigtableStubSettings.Builder builder =
         EnhancedBigtableStubSettings.newBuilder()
@@ -93,7 +94,8 @@ public class EnhancedBigtableStubSettingsTest {
             .setCredentialsProvider(credentialsProvider)
             .setStreamWatchdogProvider(watchdogProvider)
             .setStreamWatchdogCheckInterval(watchdogInterval)
-            .setMetricsEndpoint(metricsEndpoint);
+            .setMetricsEndpoint(metricsEndpoint)
+            .setFailOnLargeRows(failOnLargeRows);
 
     verifyBuilder(
         builder,
@@ -105,7 +107,8 @@ public class EnhancedBigtableStubSettingsTest {
         credentialsProvider,
         watchdogProvider,
         watchdogInterval,
-        metricsEndpoint);
+        metricsEndpoint,
+        failOnLargeRows);
     verifySettings(
         builder.build(),
         projectId,
@@ -116,7 +119,8 @@ public class EnhancedBigtableStubSettingsTest {
         credentialsProvider,
         watchdogProvider,
         watchdogInterval,
-        metricsEndpoint);
+        metricsEndpoint,
+        failOnLargeRows);
     verifyBuilder(
         builder.build().toBuilder(),
         projectId,
@@ -127,7 +131,8 @@ public class EnhancedBigtableStubSettingsTest {
         credentialsProvider,
         watchdogProvider,
         watchdogInterval,
-        metricsEndpoint);
+        metricsEndpoint,
+        failOnLargeRows);
   }
 
   private void verifyBuilder(
@@ -140,7 +145,8 @@ public class EnhancedBigtableStubSettingsTest {
       CredentialsProvider credentialsProvider,
       WatchdogProvider watchdogProvider,
       Duration watchdogInterval,
-      String metricsEndpoint) {
+      String metricsEndpoint,
+      boolean failOnLargeRows) {
     assertThat(builder.getProjectId()).isEqualTo(projectId);
     assertThat(builder.getInstanceId()).isEqualTo(instanceId);
     assertThat(builder.getAppProfileId()).isEqualTo(appProfileId);
@@ -150,6 +156,7 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(builder.getStreamWatchdogProvider()).isSameInstanceAs(watchdogProvider);
     assertThat(builder.getStreamWatchdogCheckInterval()).isEqualTo(watchdogInterval);
     assertThat(builder.getMetricsEndpoint()).isEqualTo(metricsEndpoint);
+    assertThat(builder.isFailOnLargeRows()).isEqualTo(failOnLargeRows);
   }
 
   private void verifySettings(
@@ -162,7 +169,8 @@ public class EnhancedBigtableStubSettingsTest {
       CredentialsProvider credentialsProvider,
       WatchdogProvider watchdogProvider,
       Duration watchdogInterval,
-      String metricsEndpoint) {
+      String metricsEndpoint,
+      boolean failOnLargeRows) {
     assertThat(settings.getProjectId()).isEqualTo(projectId);
     assertThat(settings.getInstanceId()).isEqualTo(instanceId);
     assertThat(settings.getAppProfileId()).isEqualTo(appProfileId);
@@ -172,6 +180,7 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(settings.getStreamWatchdogProvider()).isSameInstanceAs(watchdogProvider);
     assertThat(settings.getStreamWatchdogCheckInterval()).isEqualTo(watchdogInterval);
     assertThat(settings.getMetricsEndpoint()).isEqualTo(metricsEndpoint);
+    assertThat(settings.isFailOnLargeRows()).isEqualTo(failOnLargeRows);
   }
 
   @Test
@@ -907,6 +916,7 @@ public class EnhancedBigtableStubSettingsTest {
     "jwtAudience",
     "directPathConfig",
     "sessionsEnabled",
+    "failOnLargeRows",
   };
 
   @Test

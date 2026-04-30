@@ -25,7 +25,9 @@ import com.google.cloud.bigtable.data.v2.models.RowAdapter;
 import com.google.cloud.bigtable.data.v2.stub.BigtableStreamResumptionStrategy;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -58,8 +60,12 @@ public class LargeReadRowsResumptionStrategy<RowT>
   // row-keys
   private RowSet previousFailedRequestRowset = null;
 
-  public LargeReadRowsResumptionStrategy(RowAdapter<RowT> rowAdapter) {
+  private final List<ByteString> largeRowKeys = new ArrayList<>();
+  private final boolean failOnLargeRows;
+
+  public LargeReadRowsResumptionStrategy(RowAdapter<RowT> rowAdapter, boolean failOnLargeRows) {
     this.rowAdapter = rowAdapter;
+    this.failOnLargeRows = failOnLargeRows;
   }
 
   @Override
@@ -69,7 +75,7 @@ public class LargeReadRowsResumptionStrategy<RowT>
 
   @Override
   public StreamResumptionStrategy<ReadRowsRequest, RowT> createNew() {
-    return new LargeReadRowsResumptionStrategy<>(rowAdapter);
+    return new LargeReadRowsResumptionStrategy<>(rowAdapter, failOnLargeRows);
   }
 
   @Override
@@ -91,11 +97,19 @@ public class LargeReadRowsResumptionStrategy<RowT>
   public Throwable processError(Throwable throwable) {
     ByteString rowKeyExtracted = extractLargeRowKey(throwable);
     if (rowKeyExtracted != null) {
-      LOGGER.warning("skipping large row " + rowKeyExtracted);
       this.largeRowKey = rowKeyExtracted;
       numProcessed = numProcessed + 1;
+      if (failOnLargeRows) {
+        largeRowKeys.add(rowKeyExtracted);
+      } else {
+        LOGGER.warning("skipping large row " + rowKeyExtracted);
+      }
     }
     return throwable;
+  }
+
+  public List<ByteString> getLargeRowKeys() {
+    return largeRowKeys;
   }
 
   private ByteString extractLargeRowKey(Throwable t) {
