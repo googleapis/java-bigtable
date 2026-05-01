@@ -91,6 +91,7 @@ public class LargeReadRowsResumptionStrategy<RowT>
   public Throwable processError(Throwable throwable) {
     ByteString rowKeyExtracted = extractLargeRowKey(throwable);
     if (rowKeyExtracted != null) {
+      rowAdapter.onLargeRow(rowKeyExtracted);
       LOGGER.warning("skipping large row " + rowKeyExtracted);
       this.largeRowKey = rowKeyExtracted;
       numProcessed = numProcessed + 1;

@@ -35,6 +35,8 @@ public interface RowAdapter<RowT> {
 
   ByteString getKey(RowT row);
 
+  default void onLargeRow(ByteString rowKey) {}
+
   /**
    * A SAX style row factory. It is responsible for creating two types of rows: standard data rows
    * and special marker rows. Marker rows are emitted when skipping lots of rows due to filters. The
