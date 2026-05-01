@@ -65,7 +65,8 @@ public class ChannelPoolDpImpl implements ChannelPool {
   private static final String DEFAULT_LOG_NAME = "pool";
   private static final AtomicInteger INDEX = new AtomicInteger();
 
-  private static final int CONSECUTIVE_OPEN_FAILURE_THRESHOLD = 5;
+  // TODO: Move to client configuration.
+  private static final int CONSECUTIVE_OPEN_SESSION_FAILURE_THRESHOLD = 5;
 
   private final String poolLogId;
 
@@ -96,6 +97,12 @@ public class ChannelPoolDpImpl implements ChannelPool {
 
   @GuardedBy("this")
   private boolean closed = false;
+
+  @GuardedBy("this")
+  private long lastRecycleNano = 0;
+
+  @GuardedBy("this")
+  private Duration recycleBackoff = Duration.ofMillis(1);
 
   public ChannelPoolDpImpl(
       Supplier<ManagedChannel> channelSupplier,
@@ -224,6 +231,7 @@ public class ChannelPoolDpImpl implements ChannelPool {
                 afeId = AfeId.extract(peerInfo);
                 synchronized (ChannelPoolDpImpl.this) {
                   channelWrapper.consecutiveFailures = 0;
+                  recycleBackoff = Duration.ofMillis(1);
                   rehomeChannel(channelWrapper, afeId);
                   sessionsPerAfeId.add(afeId);
                 }
@@ -327,7 +335,7 @@ public class ChannelPoolDpImpl implements ChannelPool {
       return true;
     }
 
-    if (channelWrapper.consecutiveFailures >= CONSECUTIVE_OPEN_FAILURE_THRESHOLD) {
+    if (channelWrapper.consecutiveFailures >= CONSECUTIVE_OPEN_SESSION_FAILURE_THRESHOLD) {
       return true;
     }
 
@@ -340,6 +348,13 @@ public class ChannelPoolDpImpl implements ChannelPool {
       // Channel is already recycled.
       return;
     }
+
+    if (lastRecycleNano > System.nanoTime() - recycleBackoff.toNanos()) {
+      return;
+    }
+
+    lastRecycleNano = System.nanoTime();
+    recycleBackoff = recycleBackoff.multipliedBy(2);
 
     channelWrapper.group.channels.remove(channelWrapper);
     channelWrapper.channel.shutdown();
