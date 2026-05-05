@@ -97,8 +97,7 @@ public class AwaitConsistencyCallableTest {
         AwaitConsistencyCallable.create(
             mockGenerateConsistencyTokenCallable,
             mockCheckConsistencyCallable,
-            clientContext.getClock(),
-            clientContext.getExecutor(),
+            clientContext,
             retrySettings,
             REQUEST_CONTEXT);
     awaitReplicationCallable = AwaitReplicationCallable.create(awaitConsistencyCallable);
