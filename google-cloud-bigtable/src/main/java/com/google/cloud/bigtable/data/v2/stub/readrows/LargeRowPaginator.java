@@ -17,62 +17,68 @@ package com.google.cloud.bigtable.data.v2.stub.readrows;
 
 import com.google.api.core.InternalApi;
 import com.google.cloud.bigtable.data.v2.models.Filters;
+import javax.annotation.Nullable;
 
 /**
- * A paginator for fetching extremely large rows from Bigtable chunk by chunk to avoid the 256MB gRPC size limit.
- * It yields Filters that chunk the row by cell limits and handles limit halving if FAILED_PRECONDITION occurs.
+ * A paginator for fetching large rows from Bigtable chunk by chunk to avoid the 256MB size limit.
+ * It yields Filters that chunk the row by cell limits and handles limit halving if
+ * FAILED_PRECONDITION occurs.
  */
 @InternalApi("For internal usage only")
 public class LargeRowPaginator {
-    private int currentLimit;
-    private int currentOffset;
-    private boolean hasMore;
+  private int currentLimit;
+  private int currentOffset;
+  private boolean hasMore;
+  @Nullable private final Filters.Filter baseFilter;
 
-    public LargeRowPaginator(int initialLimit) {
-        this.currentLimit = initialLimit;
-        this.currentOffset = 0;
-        this.hasMore = true;
-    }
+  public LargeRowPaginator(int initialLimit, @Nullable Filters.Filter filter) {
+    this.currentLimit = initialLimit;
+    this.currentOffset = 0;
+    this.hasMore = true;
+    this.baseFilter = filter;
+  }
 
-    /**
-     * Yields the filter required to fetch the next chunk of cells for the large row.
-     */
-    public Filters.Filter getNextFilter() {
-        Filters.ChainFilter chain = Filters.FILTERS.chain();
-        if (currentOffset > 0) {
-            chain.filter(Filters.FILTERS.offset().cellsPerRow(currentOffset));
-        }
-        chain.filter(Filters.FILTERS.limit().cellsPerRow(currentLimit));
-        return chain;
+  /** Yields the filter required to fetch the next chunk of cells for the large row. */
+  public Filters.Filter getNextFilter() {
+    Filters.ChainFilter chain = Filters.FILTERS.chain();
+    if (baseFilter != null) {
+      chain.filter(baseFilter);
     }
+    if (currentOffset > 0) {
+      chain.filter(Filters.FILTERS.offset().cellsPerRow(currentOffset));
+    }
+    chain.filter(Filters.FILTERS.limit().cellsPerRow(currentLimit));
+    return chain;
+  }
 
-    /**
-     * Advances the internal offset. Call this after a successful Bigtable API call.
-     * @param cellsReadInLastChunk The number of cells returned in the last chunk.
-     * @return true if there are potentially more cells to fetch.
-     */
-    public boolean advance(int cellsReadInLastChunk) {
-        this.currentOffset += cellsReadInLastChunk;
-        
-        // If we read fewer cells than requested, we've hit the end of the row.
-        if (cellsReadInLastChunk < currentLimit) {
-            this.hasMore = false;
-        }
-        return this.hasMore;
-    }
+  /**
+   * Advances the internal offset. Call this after a successful Bigtable API call.
+   *
+   * @param cellsReadInLastChunk The number of cells returned in the last chunk.
+   * @return true if there are potentially more cells to fetch.
+   */
+  public boolean advance(int cellsReadInLastChunk) {
+    this.currentOffset += cellsReadInLastChunk;
 
-    /**
-     * Call this if the Bigtable API call fails with a FAILED_PRECONDITION due to size limits.
-     * It reduces the batch size to fetch a smaller chunk on the next attempt.
-     */
-    public void halveLimit() {
-        this.currentLimit /= 2;
-        if (this.currentLimit == 0) {
-            throw new RuntimeException("Cannot divide limit further. A single cell might be too large.");
-        }
+    // If we read fewer cells than requested, we've hit the end of the row.
+    if (cellsReadInLastChunk < currentLimit) {
+      this.hasMore = false;
     }
+    return this.hasMore;
+  }
 
-    public boolean hasNext() {
-        return this.hasMore;
+  /**
+   * Call this if the Bigtable API call fails with a FAILED_PRECONDITION due to size limits. It
+   * reduces the batch size to fetch a smaller chunk on the next attempt.
+   */
+  public void halveLimit() {
+    this.currentLimit /= 2;
+    if (this.currentLimit == 0) {
+      throw new RuntimeException("Cannot divide limit further. A single cell might be too large.");
     }
+  }
+
+  public boolean hasNext() {
+    return this.hasMore;
+  }
 }

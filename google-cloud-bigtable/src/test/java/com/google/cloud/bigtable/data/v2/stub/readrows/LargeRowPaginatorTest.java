@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.data.v2.stub.readrows;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
+import com.google.cloud.bigtable.data.v2.models.Filters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -27,15 +28,15 @@ public class LargeRowPaginatorTest {
 
   @Test
   public void testPaginatorAdvancesProperly() {
-    LargeRowPaginator paginator = new LargeRowPaginator(10);
-    
+    LargeRowPaginator paginator = new LargeRowPaginator(10, null);
+
     assertThat(paginator.hasNext()).isTrue();
-    
+
     // Simulate reading exactly the limit (10 cells). Paginator assumes more data exists.
     boolean hasMore = paginator.advance(10);
     assertThat(hasMore).isTrue();
     assertThat(paginator.hasNext()).isTrue();
-    
+
     // Simulate reading 5 cells (less than limit, indicating end of row)
     hasMore = paginator.advance(5);
     assertThat(hasMore).isFalse();
@@ -44,26 +45,42 @@ public class LargeRowPaginatorTest {
 
   @Test
   public void testPaginatorHalvesLimit() {
-    LargeRowPaginator paginator = new LargeRowPaginator(10);
-    
+    LargeRowPaginator paginator = new LargeRowPaginator(10, null);
+
     paginator.halveLimit(); // Internal limit becomes 5
-    
+
     // Simulate reading exactly the new limit (5 cells)
     boolean hasMore = paginator.advance(5);
-    assertThat(hasMore).isTrue(); 
-    
+    assertThat(hasMore).isTrue();
+
     paginator.halveLimit(); // Internal limit becomes 2
-    
+
     // Simulate reading 1 cell (less than the new limit of 2)
-    hasMore = paginator.advance(1); 
+    hasMore = paginator.advance(1);
     assertThat(hasMore).isFalse();
   }
 
   @Test
   public void testPaginatorThrowsOnZeroLimit() {
-    LargeRowPaginator paginator = new LargeRowPaginator(1);
-    
+    LargeRowPaginator paginator = new LargeRowPaginator(1, null);
+
     RuntimeException exception = assertThrows(RuntimeException.class, () -> paginator.halveLimit());
     assertThat(exception).hasMessageThat().contains("Cannot divide limit further");
+  }
+
+  @Test
+  public void testPaginatorWithBaseFilter() {
+    LargeRowPaginator paginator =
+        new LargeRowPaginator(10, Filters.FILTERS.family().exactMatch("cf"));
+
+    Filters.Filter nextFilter = paginator.getNextFilter();
+
+    Filters.Filter expectedFilter =
+        Filters.FILTERS
+            .chain()
+            .filter(Filters.FILTERS.family().exactMatch("cf"))
+            .filter(Filters.FILTERS.limit().cellsPerRow(10));
+
+    assertThat(nextFilter.toProto()).isEqualTo(expectedFilter.toProto());
   }
 }
