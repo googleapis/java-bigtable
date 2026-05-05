@@ -63,7 +63,8 @@ public class InstanceAdminExample {
     if (args.length < 1 || args.length > 2) {
       System.out.println("Usage: java InstanceAdminExample <project-id> [createWithTags]");
       System.out.println("  <project-id>: The Google Cloud project ID");
-      System.out.println("  [createWithTags]: Optional boolean (true/false) to enable resource tags on creation");
+      System.out.println(
+          "  [createWithTags]: Optional boolean (true/false) to enable resource tags on creation");
       return;
     }
     String projectId = args[0];
@@ -111,17 +112,13 @@ public class InstanceAdminExample {
    * Demonstrates how to create an instance within a provided project.
    *
    * @param createWithTags If true, adds placeholder tags to the instance.
-   *
-   * <p>Tags are a way to organize and govern resources across Google Cloud, see
-   * [Creating and managing tags](https://docs.cloud.google.com/resource-manager/docs/tags/tags-overview)
-   *
-   *
-   * NOTE: Unlike labels, a tag (key and value) must be created before it can be
-   * attached to a resource.
-   * See [Creating and managing tags](https://docs.cloud.google.com/resource-manager/docs/tags/tags-overview)
-   * and [Tags overview](https://docs.cloud.google.com/bigtable/docs/tags) for more information.
-   *
-   **/
+   *     <p>Tags are a way to organize and govern resources across Google Cloud, see [Creating and
+   *     managing tags](https://docs.cloud.google.com/resource-manager/docs/tags/tags-overview)
+   *     <p>NOTE: Unlike labels, a tag (key and value) must be created before it can be attached to
+   *     a resource. See [Creating and managing
+   *     tags](https://docs.cloud.google.com/resource-manager/docs/tags/tags-overview) and [Tags
+   *     overview](https://docs.cloud.google.com/bigtable/docs/tags) for more information.
+   */
   public void createProdInstance(boolean createWithTags) {
     // Checks if instance exists, creates instance if does not exists.
     if (!adminClient.exists(instanceId)) {
