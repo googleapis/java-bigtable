@@ -34,10 +34,9 @@ import com.google.bigtable.admin.v2.OptimizeRestoredTableMetadata;
 import com.google.cloud.bigtable.admin.v2.models.ConsistencyRequest;
 import com.google.cloud.bigtable.admin.v2.models.OptimizeRestoredTableOperationToken;
 import com.google.cloud.bigtable.admin.v2.models.RestoredTableResult;
-
 import com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallableV2;
-import com.google.cloud.bigtable.admin.v2.stub.GrpcBigtableTableAdminStub;
 import com.google.cloud.bigtable.admin.v2.stub.BigtableTableAdminStubSettings;
+import com.google.cloud.bigtable.admin.v2.stub.GrpcBigtableTableAdminStub;
 import com.google.common.base.Strings;
 import com.google.longrunning.Operation;
 import com.google.protobuf.Empty;
@@ -82,9 +81,7 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
           .setTotalTimeoutDuration(Duration.ofMillis(600000L))
           .build();
 
-  /**
-   * Constructs an instance of BigtableTableAdminClientV2 with the given settings.
-   */
+  /** Constructs an instance of BigtableTableAdminClientV2 with the given settings. */
   public static final BigtableTableAdminClientV2 create(BaseBigtableTableAdminSettings settings)
       throws IOException {
     GrpcBigtableTableAdminStub stub =
@@ -105,7 +102,10 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
             createOptimizeRestoredTableOperationBaseCallable(stub, settings, backgroundExecutor);
 
     return new BigtableTableAdminClientV2(
-        stub, backgroundExecutor, awaitConsistencyCallable, optimizeRestoredTableOperationBaseCallable);
+        stub,
+        backgroundExecutor,
+        awaitConsistencyCallable,
+        optimizeRestoredTableOperationBaseCallable);
   }
 
   /** Constructs an instance of BigtableTableAdminClientV2 with the given stub. */
@@ -150,7 +150,8 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
       createOptimizeRestoredTableOperationBaseCallable(
           GrpcBigtableTableAdminStub stub,
           BaseBigtableTableAdminSettings settings,
-          java.util.concurrent.ScheduledExecutorService backgroundExecutor) throws IOException {
+          java.util.concurrent.ScheduledExecutorService backgroundExecutor)
+          throws IOException {
 
     @SuppressWarnings("unchecked")
     MethodDescriptor<Void, Operation> fakeDescriptor =
@@ -199,10 +200,7 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
             .build();
 
     return GrpcCallableFactory.createOperationCallable(
-        unusedInitialCallSettings,
-        operationCallSettings,
-        clientContext,
-        stub.getOperationsStub());
+        unusedInitialCallSettings, operationCallSettings, clientContext, stub.getOperationsStub());
   }
 
   /**
