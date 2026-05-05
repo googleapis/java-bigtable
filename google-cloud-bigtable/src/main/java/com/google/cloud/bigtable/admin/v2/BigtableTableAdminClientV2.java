@@ -34,8 +34,9 @@ import com.google.bigtable.admin.v2.OptimizeRestoredTableMetadata;
 import com.google.cloud.bigtable.admin.v2.models.ConsistencyRequest;
 import com.google.cloud.bigtable.admin.v2.models.OptimizeRestoredTableOperationToken;
 import com.google.cloud.bigtable.admin.v2.models.RestoredTableResult;
-import com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallable;
-import com.google.cloud.bigtable.admin.v2.stub.BigtableTableAdminStub;
+
+import com.google.cloud.bigtable.admin.v2.stub.AwaitConsistencyCallableV2;
+import com.google.cloud.bigtable.admin.v2.stub.GrpcBigtableTableAdminStub;
 import com.google.cloud.bigtable.admin.v2.stub.BigtableTableAdminStubSettings;
 import com.google.common.base.Strings;
 import com.google.longrunning.Operation;
@@ -44,6 +45,7 @@ import io.grpc.MethodDescriptor;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.Nullable;
 
 /**
  * Modern Cloud Bigtable Table Admin Client.
@@ -54,7 +56,7 @@ import java.util.concurrent.ExecutionException;
  * built-in, automated polling for consistency tokens.
  */
 public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
-  private final AwaitConsistencyCallable awaitConsistencyCallable;
+  private final AwaitConsistencyCallableV2 awaitConsistencyCallable;
   private final OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
       optimizeRestoredTableOperationBaseCallable;
   private final java.util.concurrent.ScheduledExecutorService backgroundExecutor;
@@ -80,47 +82,52 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
           .setTotalTimeoutDuration(Duration.ofMillis(600000L))
           .build();
 
-  protected BigtableTableAdminClientV2(BaseBigtableTableAdminSettings settings) throws IOException {
-    super(settings);
-    // Extract the executor directly without spinning up a full channel
-    this.backgroundExecutor =
+  /**
+   * Constructs an instance of BigtableTableAdminClientV2 with the given settings.
+   */
+  public static final BigtableTableAdminClientV2 create(BaseBigtableTableAdminSettings settings)
+      throws IOException {
+    GrpcBigtableTableAdminStub stub =
+        (GrpcBigtableTableAdminStub)
+            ((BigtableTableAdminStubSettings) settings.getStubSettings()).createStub();
+    java.util.concurrent.ScheduledExecutorService backgroundExecutor =
         settings.getStubSettings().getBackgroundExecutorProvider().getExecutor();
-    com.google.api.gax.rpc.ClientContext lightweightContext =
-        com.google.api.gax.rpc.ClientContext.newBuilder()
-            .setClock(settings.getStubSettings().getClock())
-            .setExecutor(this.backgroundExecutor)
-            .setDefaultCallContext(com.google.api.gax.grpc.GrpcCallContext.createDefault())
-            .build();
 
-    this.awaitConsistencyCallable =
+    AwaitConsistencyCallableV2 awaitConsistencyCallable =
         createAwaitConsistencyCallable(
+            stub,
             (BigtableTableAdminStubSettings) settings.getStubSettings(),
             settings.getStubSettings().getClock(),
-            this.backgroundExecutor);
-    this.optimizeRestoredTableOperationBaseCallable =
-        createOptimizeRestoredTableOperationBaseCallable(lightweightContext);
+            backgroundExecutor);
+
+    OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
+        optimizeRestoredTableOperationBaseCallable =
+            createOptimizeRestoredTableOperationBaseCallable(stub, settings, backgroundExecutor);
+
+    return new BigtableTableAdminClientV2(
+        stub, backgroundExecutor, awaitConsistencyCallable, optimizeRestoredTableOperationBaseCallable);
   }
 
-  protected BigtableTableAdminClientV2(BigtableTableAdminStub stub) {
-    super(stub);
-    this.backgroundExecutor = null;
-    this.awaitConsistencyCallable = null;
-    this.optimizeRestoredTableOperationBaseCallable = null;
+  /** Constructs an instance of BigtableTableAdminClientV2 with the given stub. */
+  public static final BigtableTableAdminClientV2 create(GrpcBigtableTableAdminStub stub) {
+    return new BigtableTableAdminClientV2(stub, null, null, null);
   }
 
-  @com.google.common.annotations.VisibleForTesting
-  BigtableTableAdminClientV2(
-      BigtableTableAdminStub stub,
-      AwaitConsistencyCallable awaitConsistencyCallable,
-      OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
-          optimizeRestoredTableOperationBaseCallable) {
+  protected BigtableTableAdminClientV2(
+      GrpcBigtableTableAdminStub stub,
+      @Nullable java.util.concurrent.ScheduledExecutorService backgroundExecutor,
+      @Nullable AwaitConsistencyCallableV2 awaitConsistencyCallable,
+      @Nullable
+          OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
+              optimizeRestoredTableOperationBaseCallable) {
     super(stub);
-    this.backgroundExecutor = null; // No custom executor for tests
+    this.backgroundExecutor = backgroundExecutor;
     this.awaitConsistencyCallable = awaitConsistencyCallable;
     this.optimizeRestoredTableOperationBaseCallable = optimizeRestoredTableOperationBaseCallable;
   }
 
-  private AwaitConsistencyCallable createAwaitConsistencyCallable(
+  private static AwaitConsistencyCallableV2 createAwaitConsistencyCallable(
+      GrpcBigtableTableAdminStub stub,
       BigtableTableAdminStubSettings settings,
       com.google.api.core.ApiClock clock,
       java.util.concurrent.ScheduledExecutorService executor) {
@@ -131,17 +138,19 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
                 settings.checkConsistencySettings().getRetrySettings().getTotalTimeout())
             .build();
 
-    return AwaitConsistencyCallable.create(
-        getStub().generateConsistencyTokenCallable(),
-        getStub().checkConsistencyCallable(),
+    return AwaitConsistencyCallableV2.create(
+        stub.generateConsistencyTokenCallable(),
+        stub.checkConsistencyCallable(),
         clock,
         executor,
         pollingSettings);
   }
 
-  private OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
+  private static OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
       createOptimizeRestoredTableOperationBaseCallable(
-          com.google.api.gax.rpc.ClientContext clientContext) throws IOException {
+          GrpcBigtableTableAdminStub stub,
+          BaseBigtableTableAdminSettings settings,
+          java.util.concurrent.ScheduledExecutorService backgroundExecutor) throws IOException {
 
     @SuppressWarnings("unchecked")
     MethodDescriptor<Void, Operation> fakeDescriptor =
@@ -182,22 +191,18 @@ public class BigtableTableAdminClientV2 extends BaseBigtableTableAdminClient {
                 OperationTimedPollAlgorithm.create(OPTIMIZE_RESTORED_TABLE_POLLING_SETTINGS))
             .build();
 
+    com.google.api.gax.rpc.ClientContext clientContext =
+        com.google.api.gax.rpc.ClientContext.newBuilder()
+            .setClock(settings.getStubSettings().getClock())
+            .setExecutor(backgroundExecutor)
+            .setDefaultCallContext(com.google.api.gax.grpc.GrpcCallContext.createDefault())
+            .build();
+
     return GrpcCallableFactory.createOperationCallable(
         unusedInitialCallSettings,
         operationCallSettings,
         clientContext,
-        getStub().getOperationsStub());
-  }
-
-  /** Constructs an instance of BigtableTableAdminClientV2 with the given settings. */
-  public static final BigtableTableAdminClientV2 create(BaseBigtableTableAdminSettings settings)
-      throws IOException {
-    return new BigtableTableAdminClientV2(settings);
-  }
-
-  /** Constructs an instance of BigtableTableAdminClientV2 with the given stub. */
-  public static final BigtableTableAdminClientV2 create(BigtableTableAdminStub stub) {
-    return new BigtableTableAdminClientV2(stub);
+        stub.getOperationsStub());
   }
 
   /**
