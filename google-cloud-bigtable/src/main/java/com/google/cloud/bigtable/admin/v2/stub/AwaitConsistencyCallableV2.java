@@ -47,9 +47,10 @@ import java.util.concurrent.ScheduledExecutorService;
 /**
  * Decoupled modern consistency polling callable for V2 client.
  *
- * <p>This callable waits until either replication or Data Boost has caught up to the point it was
- * called. It wraps GenerateConsistencyToken and CheckConsistency RPCs and contains absolutely no
- * reference or dependency on the data module.
+ * <p>
+ * This callable waits until either replication or Data Boost has caught up to
+ * the point it was called. It wraps GenerateConsistencyToken and
+ * CheckConsistency RPCs.
  */
 @InternalApi
 public class AwaitConsistencyCallableV2 extends UnaryCallable<ConsistencyRequest, Void> {
